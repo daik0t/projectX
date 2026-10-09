@@ -1,0 +1,35 @@
+.auth-widget-divider {
+text-align: center;
+margin-top: 20px;
+position: relative;
+}
+
+.auth-widget-socials {
+display: flex;         
+justify-content: center; 
+gap: 20px;             
+margin-top: 5px;      
+}
+
+.auth-widget-btn {
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 10px;
+border-radius: 50px;
+border: 1px;
+background-color: #ffffff;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.auth-widget-btn:hover {
+background-color: #f8fafc; 
+}
+
+
+.btn-social:hover {
+background: #c8cccc;
+border-color: #0f172a;
+color: #ffffff;
+}
