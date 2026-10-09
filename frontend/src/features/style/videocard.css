@@ -1,0 +1,110 @@
+.video-card {
+background: #fff;
+border: 1px solid #dcdcdc;
+border-radius: 4px;                
+padding: 12px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+font-family: 'Consolas', 'Menlo', 'Monaco', 'Courier New', monospace;
+color: #000;
+box-sizing: border-box;
+width: 240px;                       
+}
+
+.video-thumb {
+width: 100%;
+aspect-ratio: 16 / 9;
+background: #fff;
+border: 1px solid #000;
+position: relative;
+overflow: hidden;
+box-sizing: border-box;
+}
+
+.video-thumb::before,
+.video-thumb::after {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: linear-gradient(to top right,
+transparent calc(50% - 0.5px),
+#000 calc(50% - 0.5px),
+#000 calc(50% + 0.5px),
+transparent calc(50% + 0.5px));
+}
+
+.video-thumb::after {
+background: linear-gradient(to top left,
+transparent calc(50% - 0.5px),
+#000 calc(50% - 0.5px),
+#000 calc(50% + 0.5px),
+transparent calc(50% + 0.5px));
+}
+
+.video-thumb img {
+position: relative;
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+z-index: 1;
+}
+
+.video-title {
+font-size: 16px;
+font-weight: 500;
+margin: 0;
+line-height: 1.3;
+overflow: hidden;
+display: -webkit-box;
+-webkit-box-orient: vertical;
+}
+
+
+.video-tags {
+font-size: 12px;
+color: #333;
+line-height: 1.3;
+}
+
+.video-actions {
+display: flex;
+gap: 8px;
+flex-wrap: wrap;
+margin-top: auto;
+}
+
+.video-btn {
+flex: 1 1 auto;
+min-width: 0;
+padding: 6px 10px;
+font-size: 12px;
+font-family: inherit;
+color: #000;
+background: #fff;
+border: 1px solid #000;
+border-radius: 4px;
+cursor: pointer;
+transition: background 0.15s ease, color 0.15s ease;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.video-btn:hover {
+background: #000;
+color: #fff;
+}
+
+.video-btn:active {
+transform: scale(0.97);
+}
+
+.video-btn[data-action="delete"]:hover {
+background: #c62828;
+border-color: #c62828;
+}

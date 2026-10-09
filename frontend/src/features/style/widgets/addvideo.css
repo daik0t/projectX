@@ -1,0 +1,119 @@
+.add-video-overlay {
+position: fixed;
+inset: 0;                        
+background: rgba(0, 0, 0, 0.45);   
+backdrop-filter: blur(2px);
+z-index: 999;                      
+display: none;
+}
+
+.add-video-overlay.show {
+display: block;
+}
+
+.add-video-window {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%) scale(0.95);
+
+background: #ffffff;
+border: 1px solid #e2e8f0;
+border-radius: 16px;
+padding: 30px;
+width: 100%;
+max-width: 360px;
+
+box-shadow:
+0 10px 25px -5px rgba(0, 0, 0, 0.15),
+0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+box-sizing: border-box;
+
+z-index: 1000;
+
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.add-video-window.show {
+opacity: 1;
+visibility: visible;
+transform: translate(-50%, -50%) scale(1);
+}
+
+.add-video-form {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+.add-video-form input {
+width: 100%;
+padding: 10px 14px;
+border: 1px solid #cbd5e1;
+border-radius: 8px;
+font-size: 15px;
+box-sizing: border-box;
+outline: none;
+transition: border-color 0.15s, box-shadow 0.15s;
+background: #fff;
+}
+
+.add-video-form input:focus{
+border-color: #000;
+box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.download-video {
+align-self: flex-start;
+background: #fff;
+border: 1px solid #cbd5e1;
+border-radius: 8px;
+padding: 8px 14px;
+font-size: 14px;
+
+cursor: pointer;
+transition: background 0.15s, border-color 0.15s;
+}
+
+.download-video:hover {
+background: #f8fafc;
+border-color: #94a3b8;
+}
+
+.place-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+align-content: flex-start;
+}
+
+.place-tags:empty::before {
+content: 'Здесь будут находиться выбранные тэги';
+color: #94a3b8;
+line-height: 1.4;
+}
+
+
+
+.add-video-submit {
+align-self: center;
+background: #000;
+color: #fff;
+border: none;
+border-radius: 8px;
+padding: 10px 24px;
+font-size: 15px;
+cursor: pointer;
+transition: background 0.15s, transform 0.1s;
+}
+
+.add-video-submit:hover {
+background: #333;
+}
+
+.add-video-submit:active {
+transform: scale(0.98);
+}
