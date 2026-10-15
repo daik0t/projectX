@@ -16,6 +16,6 @@ public class VideoService {
     }
 
     public Optional<Videos> getAllVideos(User user) {
-        return videosRepository.findByUserId(user);
+        return videosRepository.findByUserId(user.getId());
     }
 }

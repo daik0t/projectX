@@ -13,10 +13,18 @@ import database.projectx.repository.UserEmailsRepository;
 import database.projectx.security.CustomUserDetails;
 
 @Service 
-public class CustomUserDeatailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserEmailsRepository userEmailsRepository;
-    private PasswordCredentialsRepository passwordCredentialsRepository;
+    private final UserEmailsRepository userEmailsRepository;
+    private final PasswordCredentialsRepository passwordCredentialsRepository;
+
+    public CustomUserDetailsService (
+        UserEmailsRepository userEmailsRepository,
+        PasswordCredentialsRepository passwordCredentialsRepository
+    ) {
+        this.userEmailsRepository = userEmailsRepository;
+        this.passwordCredentialsRepository = passwordCredentialsRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -26,7 +34,7 @@ public class CustomUserDeatailsService implements UserDetailsService {
 
         User user = userEmails.getUser();
 
-        final PasswordCredentials passwordCredentials = passwordCredentialsRepository.findByUserId(user).orElseThrow(
+        final PasswordCredentials passwordCredentials = passwordCredentialsRepository.findByUserId(user.getId()).orElseThrow(
             () -> new UsernameNotFoundException("Password wrong" + username)
         ); 
 

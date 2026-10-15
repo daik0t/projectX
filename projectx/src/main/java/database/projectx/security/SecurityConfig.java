@@ -1,4 +1,4 @@
-package database.projectx.service;
+package database.projectx.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
