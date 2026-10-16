@@ -11,9 +11,6 @@ gap: 20px;
 margin-top: 8px;
 }
 
-
-
-
 .sidebar {
 position: fixed;
 top: 0;
@@ -119,10 +116,6 @@ display: block;
 
 
 
-
-
-
-
 .tag-chip {
 display: inline-flex;
 align-items: center;
@@ -157,7 +150,6 @@ background: #cbd5e1;
 color: #000;
 }
 
-/* Нижний ряд: удалить слева, сохранить справа */
 .edit-actions {
 display: flex;
 justify-content: space-between;
@@ -175,7 +167,6 @@ cursor: pointer;
 transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
 
-/* Удалить — контурная */
 .edit-delete {
 background: #fff;
 color: #000;
@@ -188,7 +179,6 @@ border-color: #ef4444;
 color: #b91c1c;
 }
 
-/* Сохранить — чёрная (как add-video-submit) */
 .edit-save {
 background: #000;
 color: #fff;

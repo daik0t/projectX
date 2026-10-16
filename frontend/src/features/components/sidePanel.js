@@ -16,7 +16,6 @@ export function sidePanelRender() {
             </div>
         </div>
 
-
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
     `
 }

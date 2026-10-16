@@ -1,7 +1,8 @@
-export function videoCardRender() {
-    const title = 'Название видео'
-    const tags = ['Тег 1', 'Тег 2', 'Тег 3']
-    const thumbnail = '' 
+export function videoCardRender(/*link,tags*/) {
+    
+    const tags = []
+    const title = ''
+    const thumbnail = ''
 
     return `
         <div class="video-card">

@@ -1,17 +1,16 @@
-import { initSearchDropdown, dropdownRender} from "../component/dropdown"
-import { sidePanelRender, initSidePanel } from "../component/sidePanel"
-import { insertAddVideoWindow, addVideoRender } from "../component/addVideWindow"
-import { videoCardRender } from "../component/videoCard"
-import { editVideoRender, initEditVideoWindow } from "../component/editVideoRender"
-import "../style/mainpage/header.css"
-import "../style/mainpage/tagsline.css"
+import { initDropdown, dropdownRender} from "../components/dropdown"
+import { sidePanelRender, initSidePanel } from "../components/sidePanel"
+import { addVideoRender } from "../components/addVideoWindow"
+import { videoCardRender } from "../components/videoCard"
+import { editVideoRender} from "../components/editVideoWindow"
+import { initModal } from "../utils/modal"
+import { initList } from "../components/dropdown"
 
 export async function renderMain(){
 
     const container = document.getElementById('app')
     
     container.innerHTML = `
-            ${dropdownRender()}
             ${sidePanelRender()}
             ${addVideoRender()}
             ${editVideoRender()}
@@ -26,6 +25,7 @@ export async function renderMain(){
                     id="search-line"
                     placeholder="поиск"
                     >
+                    ${dropdownRender()}
                 </form>
                 <button class = "btn-side-panel custom-button" id="btn-side-panel">
                     <img src="https://img.icons8.ru/?size=100&id=98957&format=png&color=000000" alt="Настройки">
@@ -33,20 +33,50 @@ export async function renderMain(){
             </header>
             <hr class = "header-line">
             
-            <div class = "tags-line">
-                <button class="category-btn active" data-category="all">Все</button> <!-- Функция по определению всех тэгов -->
-                <button class="category-btn" data-category="tag2">Тег 2</button>
-            </div>
+            <nav class="tabs-bar">
+                <div class="tab active">Все</div>
+                <div class="tab">Тэг 1</div>
+            </nav>
             <hr class = "category-line">
 
             <div class = "video-list">
                 ${videoCardRender()}
             </div>
     `
-    insertAddVideoWindow ('add-video-overlay','btn-add-video','add-video-window')
+
+    initEvents();
+}
+
+function initEvents(){
+
+    const addVideoTagsDropdown = initDropdown('tags-select');
+    const editVideoTagsDropdown = initDropdown('edit-tags-select');
+
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    initModal({ 
+        openBtnId: 'btn-add-video', 
+        overlayId: 'add-video-overlay', 
+        windowId: 'add-video-window', 
+        onClose: () => addVideoTagsDropdown?.reset(),
+    });
+
+    initModal({ 
+        openBtnId: 'edit', 
+        overlayId: 'edit-video-overlay', 
+        windowId: 'edit-video-window',
+        onClose: () => editVideoTagsDropdown?.reset(),
+    });
+
     initSidePanel('btn-side-panel', 'sidebar', 'sidebar-overlay')
-    initSearchDropdown('search-line', 'dropdown')
-    initEditVideoWindow('edit', 'edit-video-overlay','edit-video-window', 'edit-video-form')
-    initSearchDropdown('tags-select', 'dropdown-select')
+    initDropdown('search-line')
+    initList('place-tags')
+    initList('edit-place-tags')
 }
 
