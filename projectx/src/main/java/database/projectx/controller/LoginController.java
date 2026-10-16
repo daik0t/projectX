@@ -3,8 +3,8 @@ package database.projectx.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import database.projectx.dto.AuthResponse;
 import database.projectx.dto.LoginRequest;
-import database.projectx.dto.UserResponse;
 import database.projectx.service.LoginService;
 import jakarta.validation.Valid;
 
@@ -24,8 +24,8 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
-        UserResponse response = loginService.login(request);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = loginService.login(request);
         
         return ResponseEntity.ok(response);
     }
