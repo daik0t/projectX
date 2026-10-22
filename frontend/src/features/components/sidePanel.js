@@ -7,7 +7,7 @@ export function sidePanelRender() {
             </div>
             
             <div class="sidebar-content">
-                <a href="#" class="sidebar-link">Управление аккаунтом</a>
+                <a href="/settings" class="sidebar-link">Управление аккаунтом</a>
                 <!-- остальные пункты -->
             </div>
 

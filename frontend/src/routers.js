@@ -3,11 +3,13 @@ import { renderRegister } from "./features/pages/registerPage";
 import { renderLogin }    from "./features/pages/loginPage";
 import { renderMain }     from "./features/pages/mainPage";
 import { me } from "./features/api/auth";
+import { renderSettings } from "./features/pages/settingsPage";
 
 const routes = {
     '/login':    () => renderLogin(),
     '/register': () => renderRegister(),
     '/':         () => renderMain(),
+    '/settings': () => renderSettings()
 };
 
 let authCache;
@@ -25,13 +27,13 @@ export async function getAuth({ force = false } = {}) {
 export function clearAuthCache() { authCache = undefined; }
 export function setAuth(user)    { authCache = user; }
 
-// --- Роутер ---
+
 export async function router() {
     const path = window.location.pathname;
     const app  = document.getElementById('app');
 
     document.querySelectorAll('body > .dropdown').forEach(el => el.remove());
-
+    /*
     if (path === '/') {
         const user = await getAuth();
         if (!user) {
@@ -42,7 +44,7 @@ export async function router() {
         }
 
     }
-
+    */
     let matchedRoute = null;
     let params = {};
 
