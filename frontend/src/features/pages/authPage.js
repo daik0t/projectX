@@ -21,11 +21,23 @@ export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, l
     `;
 
     initAuthForm(mode, (data) => {
-        console.log('Успешный ответ сервера:', data);
-        // Позже: сохранить токен, если он будет в ответе
-        // localStorage.setItem('token', data.token);
-        // history.pushState({}, '', '/');
-        // router();
-        navigate('/');
+        if (mode != 'register'){
+            const { accessToken, tokenType, expiresIn, user } = data;
+
+            if (accessToken) {
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('tokenType', tokenType || 'Bearer');
+                localStorage.setItem('tokenExpiresAt', String(Date.now() + expiresIn));
+            }
+
+            if (user) {
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+
+            navigate('/');
+        }
+        else{
+            navigate('/login')
+        }
     });
 }
