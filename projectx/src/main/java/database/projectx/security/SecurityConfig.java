@@ -1,5 +1,7 @@
 package database.projectx.security;
 
+import database.projectx.handlers.OAuth2SuccesHandler;
+import database.projectx.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,12 +18,16 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration 
 public class SecurityConfig {
     
+    private final OAuth2SuccesHandler oAuth2SuccesHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
     private final CorsConfigurationSource corsConfigurationSource;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource) {
+    public SecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource, CustomOAuth2UserService customOAuth2UserService, OAuth2SuccesHandler oAuth2SuccesHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.oAuth2SuccesHandler = oAuth2SuccesHandler;
     }
 
     @Bean 
@@ -44,6 +50,13 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**", "/error").permitAll()
             .anyRequest().authenticated()
+        )
+        .oauth2Login( 
+            oauth2 -> oauth2
+            .userInfoEndpoint(userInfo -> userInfo
+                .userService(customOAuth2UserService)
+            )
+            .successHandler(oAuth2SuccesHandler)
         )
         .addFilterBefore(
             jwtAuthenticationFilter,
