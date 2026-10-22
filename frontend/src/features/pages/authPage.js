@@ -2,6 +2,8 @@ import { authFormRender } from "../components/authForm";
 import { socialAuthRender } from "../components/socialAuth";
 import { initAuthForm } from "../components/authForm";
 import { navigate } from "../../routers";
+import { saveAuth } from "../service/auth-storage";
+import { mountSocialAuth } from "../components/socialAuth";
 
 export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, linkPrompt }) {
     const container = document.getElementById('app');
@@ -22,22 +24,20 @@ export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, l
 
     initAuthForm(mode, (data) => {
         if (mode != 'register'){
-            const { accessToken, tokenType, expiresIn, user } = data;
-
-            if (accessToken) {
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('tokenType', tokenType || 'Bearer');
-                localStorage.setItem('tokenExpiresAt', String(Date.now() + expiresIn));
-            }
-
-            if (user) {
-                localStorage.setItem('user', JSON.stringify(user));
-            }
-
-            navigate('/');
+            saveAuth(data)
+            navigate('/login');
         }
         else{
             navigate('/login')
         }
+    });
+
+    const socialContainer = app.querySelector('.auth-widget-socials');
+
+    mountSocialAuth(socialContainer, {
+    onError: (err) => showToast(err.message),
+    }, {
+        google: (container, handlers) => startSocialAuth('google', container, handlers),
+        github: (container, handlers) => startSocialAuth('github', container, handlers),
     });
 }

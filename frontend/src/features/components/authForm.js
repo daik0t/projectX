@@ -89,7 +89,6 @@ export function initAuthForm(mode, onSuccess) {
         try {
             const fn = mode === 'register' ? registerUser : loginUser;
             const result = await fn(payload);
-
             showMessage(messageEl, 'Успешно!', 'success');
             onSuccess?.(result);
         } catch (error) {

@@ -23,3 +23,10 @@ export async function request(path, options = {}) {
 
     return data;
 }
+
+export function startProviderAuth(provider) {
+    if (provider !== 'google' && provider !== 'github') {
+        throw new Error(`Unknown provider: ${provider}`);
+    }
+    window.location.href = `${API_BASE}/oauth2/authorization/${provider}`;
+}
