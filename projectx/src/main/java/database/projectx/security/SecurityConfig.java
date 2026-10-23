@@ -1,6 +1,6 @@
 package database.projectx.security;
 
-import database.projectx.handlers.OAuth2SuccesHandler;
+import database.projectx.handler.OAuth2SuccessHandler;
 import database.projectx.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,16 +18,16 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration 
 public class SecurityConfig {
     
-    private final OAuth2SuccesHandler oAuth2SuccesHandler;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CorsConfigurationSource corsConfigurationSource;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource, CustomOAuth2UserService customOAuth2UserService, OAuth2SuccesHandler oAuth2SuccesHandler) {
+    public SecurityConfig( OAuth2SuccessHandler oAuth2SuccessHandler, JWTAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource, CustomOAuth2UserService customOAuth2UserService) {
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
         this.customOAuth2UserService = customOAuth2UserService;
-        this.oAuth2SuccesHandler = oAuth2SuccesHandler;
     }
 
     @Bean 
@@ -56,7 +56,7 @@ public class SecurityConfig {
             .userInfoEndpoint(userInfo -> userInfo
                 .userService(customOAuth2UserService)
             )
-            .successHandler(oAuth2SuccesHandler)
+            .successHandler(oAuth2SuccessHandler)
         )
         .addFilterBefore(
             jwtAuthenticationFilter,
