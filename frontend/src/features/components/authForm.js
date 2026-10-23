@@ -42,7 +42,7 @@ export function authFormRender(mode) {
             <div class="auth-widget-message" id="auth-message" hidden></div>
 
             <div>
-                <button class="auth-widget-submit" type="submit">Подтвердить</button>
+                <button class="auth-widget-submit" type="submit" href="/">Подтвердить</button>
             </div>
         </form>
     `;
@@ -91,6 +91,7 @@ export function initAuthForm(mode, onSuccess) {
             const result = await fn(payload);
             showMessage(messageEl, 'Успешно!', 'success');
             onSuccess?.(result);
+
         } catch (error) {
             showMessage(messageEl, error.message, 'error');
         } finally {
