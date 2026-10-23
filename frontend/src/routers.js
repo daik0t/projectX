@@ -12,11 +12,7 @@ const routes = {
     '/settings': () => renderSettings()
 };
 
-let authCache;
-
-export function clearAuthCache() { authCache = undefined; }
-export function setAuth(user)    { authCache = user; }
-
+const PUBLIC_ROUTES = ['/login', '/register'];
 
 export async function router() {
     const path = window.location.pathname;
@@ -24,14 +20,20 @@ export async function router() {
 
     document.querySelectorAll('body > .dropdown').forEach(el => el.remove());
 
-    if (path === '/') {
-        const user = await getAuth();
-        if (!user) {
+    const auth = getAuth();
 
-            history.replaceState({}, '', '/login');
-            await renderLogin();
-            return;
-        }
+    const tokenValid =
+        !!auth.accessToken &&
+        (!auth.expiresAt || auth.expiresAt > Date.now());
+
+    const isPublic = PUBLIC_ROUTES.includes(path);
+
+    if (!tokenValid && !isPublic) {
+        history.replaceState({}, '', '/login');
+        path = '/login';
+    } else if (tokenValid && path === '/login') {
+        history.replaceState({}, '', '/');
+        path = '/';
     }
 
     let matchedRoute = null;
