@@ -27,6 +27,8 @@ public class CorsConfig {
 
         config.setExposedHeaders(List.of("Authorization"));
 
+        config.setAllowCredentials(true);
+
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
