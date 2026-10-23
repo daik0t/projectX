@@ -33,7 +33,7 @@ export async function router() {
     const app  = document.getElementById('app');
 
     document.querySelectorAll('body > .dropdown').forEach(el => el.remove());
-    /*
+
     if (path === '/') {
         const user = await getAuth();
         if (!user) {
@@ -44,7 +44,7 @@ export async function router() {
         }
 
     }
-    */
+
     let matchedRoute = null;
     let params = {};
 

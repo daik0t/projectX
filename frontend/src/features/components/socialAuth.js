@@ -1,5 +1,3 @@
-
-
 export function socialAuthRender() {
     return (`
             <div class = "auth-widget-socials">

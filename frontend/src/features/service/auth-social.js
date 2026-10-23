@@ -1,5 +1,5 @@
-import { startProviderAuth } from './auth.js';
-import { setButtonLoading, getProviderButton } from './social-auth-render.js';
+import { startProviderAuth } from '../api/api.js';
+import { setButtonLoading, getProviderButton } from '../components/socialAuth.js';
 
 export function startSocialAuth(provider, container, handlers) {
     try {
