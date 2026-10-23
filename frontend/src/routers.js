@@ -15,7 +15,7 @@ const routes = {
 const PUBLIC_ROUTES = ['/login', '/register'];
 
 export async function router() {
-    const path = window.location.pathname;
+    let path = window.location.pathname;
     const app  = document.getElementById('app');
 
     document.querySelectorAll('body > .dropdown').forEach(el => el.remove());

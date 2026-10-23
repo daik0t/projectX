@@ -26,7 +26,7 @@ export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, l
     initAuthForm(mode, (data) => {
         if (mode != 'register'){
             saveAuth(data)
-            navigate('/login');
+            navigate('/');
         }
         else{
             navigate('/login')

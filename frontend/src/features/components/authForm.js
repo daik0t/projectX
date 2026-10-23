@@ -1,5 +1,5 @@
 import { registerUser, loginUser } from '../api/auth.js';
-
+import { navigate } from '../../routers.js';
 export function authFormRender(mode) {
     const displayNameField = mode === 'register'
         ? `
@@ -42,7 +42,7 @@ export function authFormRender(mode) {
             <div class="auth-widget-message" id="auth-message" hidden></div>
 
             <div>
-                <button class="auth-widget-submit" type="submit" href="/">Подтвердить</button>
+                <button class="auth-widget-submit" type="submit">Подтвердить</button>
             </div>
         </form>
     `;
@@ -91,7 +91,6 @@ export function initAuthForm(mode, onSuccess) {
             const result = await fn(payload);
             showMessage(messageEl, 'Успешно!', 'success');
             onSuccess?.(result);
-
         } catch (error) {
             showMessage(messageEl, error.message, 'error');
         } finally {
