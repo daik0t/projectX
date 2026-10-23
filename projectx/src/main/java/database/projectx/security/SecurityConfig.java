@@ -1,5 +1,7 @@
 package database.projectx.security;
 
+import database.projectx.handler.OAuth2SuccessHandler;
+import database.projectx.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,14 +13,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration 
 public class SecurityConfig {
     
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CorsConfigurationSource corsConfigurationSource;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JWTAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig( OAuth2SuccessHandler oAuth2SuccessHandler, JWTAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource, CustomOAuth2UserService customOAuth2UserService) {
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.corsConfigurationSource = corsConfigurationSource;
+        this.customOAuth2UserService = customOAuth2UserService;
     }
 
     @Bean 
@@ -33,13 +42,21 @@ public class SecurityConfig {
 
     @Bean 
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource))
+        .csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**", "/error").permitAll()
             .anyRequest().authenticated()
+        )
+        .oauth2Login( 
+            oauth2 -> oauth2
+            .userInfoEndpoint(userInfo -> userInfo
+                .userService(customOAuth2UserService)
+            )
+            .successHandler(oAuth2SuccessHandler)
         )
         .addFilterBefore(
             jwtAuthenticationFilter,
