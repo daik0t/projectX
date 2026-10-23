@@ -16,7 +16,7 @@ public class UserEmails {
     @OneToOne 
     private User user;
 
-    @Column (name = "email", unique = true, nullable = false, length = 255)
+    @Column (name = "email", unique = true, nullable = true, length = 255)
     private String email;
 
     @Column (name = "is_verified", nullable = false)
