@@ -2,8 +2,8 @@
 import { renderRegister } from "./features/pages/registerPage";
 import { renderLogin }    from "./features/pages/loginPage";
 import { renderMain }     from "./features/pages/mainPage";
-import { me } from "./features/api/auth";
 import { renderSettings } from "./features/pages/settingsPage";
+import { getAuth } from "./features/service/auth-storage";
 
 const routes = {
     '/login':    () => renderLogin(),
@@ -13,16 +13,6 @@ const routes = {
 };
 
 let authCache;
-
-export async function getAuth({ force = false } = {}) {
-    if (!force && authCache !== undefined) return authCache;
-    try {
-        authCache = await me();      // 401 → null, 200 → объект
-    } catch {
-        authCache = null;                 // сеть упала — считаем гостем
-    }
-    return authCache;
-}
 
 export function clearAuthCache() { authCache = undefined; }
 export function setAuth(user)    { authCache = user; }
@@ -42,7 +32,6 @@ export async function router() {
             await renderLogin();
             return;
         }
-
     }
 
     let matchedRoute = null;

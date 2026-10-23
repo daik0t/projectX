@@ -24,8 +24,12 @@ export async function logout() {
     });
 }
 
-export async function me(){
+export async function me(token) {
     return request('/api/auth/me', {
-        credentials: 'include'
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
     });
 }
