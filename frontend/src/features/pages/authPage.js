@@ -2,8 +2,8 @@ import { authFormRender } from "../components/authForm";
 import { socialAuthRender } from "../components/socialAuth";
 import { initAuthForm } from "../components/authForm";
 import { navigate } from "../../routers";
-import { saveAuth } from "../service/auth-storage";
-import { mountSocialAuth, startSocialAuth } from "../components/socialAuth";
+import { saveAuth, startSocialAuth } from "../service/auth-storage";
+import { mountSocialAuth} from "../components/socialAuth";
 
 export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, linkPrompt }) {
     const container = document.getElementById('app');
