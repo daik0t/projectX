@@ -6,7 +6,7 @@ import java.util.Map;
 public record ApiError(
     LocalDateTime timestamp,
     int status,
-    String erorr,
+    String error,
     String message,
     Map<String, String> details
 ){

@@ -13,7 +13,7 @@ public class Videos {
     private Long id;
 
     @JoinColumn (name = "user_id", nullable = false)
-    @OneToOne 
+    @ManyToOne (fetch = FetchType.LAZY) 
     private User user;
 
     @Column(name = "url", nullable = false)

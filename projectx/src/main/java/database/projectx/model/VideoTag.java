@@ -13,11 +13,11 @@ public class VideoTag {
     @ManyToOne (fetch = FetchType.LAZY)
     @MapsId ("videoId")
     @JoinColumn (name = "video_id", nullable = false)
-    private Videos videos;
+    private Videos video;
 
     @ManyToOne (fetch = FetchType.LAZY)
     @MapsId ("tagId")
     @JoinColumn (name = "tag_id", nullable = false)
-    private Tags tags;
+    private Tags tag;
     
 }
