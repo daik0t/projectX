@@ -13,7 +13,7 @@ public class Tags {
     private Long id;
 
     @JoinColumn (name = "user_id", nullable = true)
-    @OneToOne 
+    @ManyToOne(fetch = FetchType.LAZY) 
     private User user;
 
     @Column (name = "name", nullable = false, length = 30)
