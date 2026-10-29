@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import database.projectx.dto.TagDto;
+import database.projectx.exception.ResourceNotFoundException;
 import database.projectx.model.Tags;
 import database.projectx.repository.TagsRepository;
 
@@ -39,6 +40,12 @@ public class TagService {
         tag = tagsRepository.save(tag);
 
         return new TagResult(TagDto.from(tag), true);
+    }
+
+    public void deleteTag(Long userId, Long tagId) {
+        Tags tag = tagsRepository.findByIdAndUserId(tagId, userId).orElseThrow(() -> new ResourceNotFoundException("Тег не найден " + tagId));
+
+        tagsRepository.delete(tag);
     }
 
     public record TagResult(TagDto tag, boolean created) {}

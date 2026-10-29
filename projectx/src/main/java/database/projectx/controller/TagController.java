@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,4 +43,12 @@ public class TagController {
         return ResponseEntity.status(status).body(result.tag());
     }
     
+    @DeleteMapping("/{id}") 
+    public ResponseEntity<Void> deleteTag(
+        @AuthenticationPrincipal CustomUserDetails principal,
+        @PathVariable Long id
+    ) {
+        tagService.deleteTag(principal.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
 }
