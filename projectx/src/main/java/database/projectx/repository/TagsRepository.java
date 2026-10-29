@@ -35,4 +35,6 @@ public interface TagsRepository extends JpaRepository<Tags, Long>{
     """)
     List<Tags> findByNameForUserOrGlobal(@Param("name") String name,
                                         @Param("userId") Long userId);
+
+    Optional<Tags> findByIdAndUserId (Long id, Long userId);
 }

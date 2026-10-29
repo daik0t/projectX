@@ -3,6 +3,7 @@ package database.projectx.service;
 
 import database.projectx.dto.CreateVideoRequest;
 import database.projectx.dto.TagDto;
+import database.projectx.dto.UpdateVideoRequest;
 import database.projectx.dto.VideoResponse;
 import database.projectx.exception.ResourceNotFoundException;
 import database.projectx.model.Tags;
@@ -36,6 +37,30 @@ public class VideoService {
         this.tagsRepository = tagsRepository;
         this.userRepository = userRepository;
     }
+
+    public VideoResponse getVideo(Long userId, Long videoId) {
+        Videos video = videosRepository.findByIdAndUserId(videoId, userId).orElseThrow(() -> new ResourceNotFoundException("Видео не найдено " + videoId));
+
+        Set<TagDto> tags = loadTagsForVideo(videoId);
+        return VideoResponse.from(video, tags);
+    }
+
+    public VideoResponse updateVideo(Long userId, Long videoId, UpdateVideoRequest request){
+        Videos video = videosRepository.findByIdAndUserId(videoId, userId).orElseThrow(() -> new ResourceNotFoundException("Видео не найдено " + videoId));
+        video.setUrl(request.url());
+
+        Set<TagDto> tags = loadTagsForVideo(videoId);
+        return VideoResponse.from(video, tags);
+    }
+
+    public Set<TagDto> loadTagsForVideo(Long videoId) {
+        return videoTagRepository.findAllByVideoIdsWithTags(List.of(videoId))
+            .stream()
+            .map(vt -> TagDto.from(vt.getTag()))
+            .collect(Collectors.toSet());
+    }
+
+    
 
     public List<VideoResponse> getMyVideos(Long userId) {
         List<Videos> videos = videosRepository.findAllByUserIdOrderByIdDesc(userId);
@@ -102,45 +127,45 @@ public class VideoService {
     }
 
     @Transactional
-public VideoResponse replaceVideoTags(Long userId, Long videoId, Set<Long> tagIds) {
+    public VideoResponse replaceVideoTags(Long userId, Long videoId, Set<Long> tagIds) {
 
-    Videos video = videosRepository.findByIdAndUserId(videoId, userId)
-    .orElseThrow(() -> new ResourceNotFoundException("Видео не найдено: " + videoId));
+        Videos video = videosRepository.findByIdAndUserId(videoId, userId)
+        .orElseThrow(() -> new ResourceNotFoundException("Видео не найдено: " + videoId));
 
-    Set<Long> requestedIds = tagIds == null ? Set.of() : tagIds;
+        Set<Long> requestedIds = tagIds == null ? Set.of() : tagIds;
 
-    List<Tags> availableTags = List.of();
-    if (!requestedIds.isEmpty()) {
-        availableTags = tagsRepository.findAllByIdsForUserOrGlobal(requestedIds, userId);
+        List<Tags> availableTags = List.of();
+        if (!requestedIds.isEmpty()) {
+            availableTags = tagsRepository.findAllByIdsForUserOrGlobal(requestedIds, userId);
 
-        if (availableTags.size() != requestedIds.size()) {
-            Set<Long> availableIds = availableTags.stream()
-                    .map(Tags::getId)
-                    .collect(Collectors.toSet());
-            Set<Long> invalid = new HashSet<>(requestedIds);
-            invalid.removeAll(availableIds);
-            throw new BadRequestException("Недоступные теги: " + invalid);
+            if (availableTags.size() != requestedIds.size()) {
+                Set<Long> availableIds = availableTags.stream()
+                        .map(Tags::getId)
+                        .collect(Collectors.toSet());
+                Set<Long> invalid = new HashSet<>(requestedIds);
+                invalid.removeAll(availableIds);
+                throw new BadRequestException("Недоступные теги: " + invalid);
+            }
         }
+
+        videoTagRepository.deleteByVideoId(videoId);
+
+        if (!availableTags.isEmpty()) {
+            List<VideoTag> links = availableTags.stream()
+                    .map(tag -> {
+                        VideoTag vt = new VideoTag();
+                        vt.setVideo(video);
+                        vt.setTag(tag);
+                        return vt;
+                    })
+                    .toList();
+            videoTagRepository.saveAll(links);
+        }
+
+        Set<TagDto> dtos = availableTags.stream()
+                .map(TagDto::from)
+                .collect(Collectors.toSet());
+
+        return VideoResponse.from(video, dtos);
     }
-
-    videoTagRepository.deleteByVideoId(videoId);
-
-    if (!availableTags.isEmpty()) {
-        List<VideoTag> links = availableTags.stream()
-                .map(tag -> {
-                    VideoTag vt = new VideoTag();
-                    vt.setVideo(video);
-                    vt.setTag(tag);
-                    return vt;
-                })
-                .toList();
-        videoTagRepository.saveAll(links);
-    }
-
-    Set<TagDto> dtos = availableTags.stream()
-            .map(TagDto::from)
-            .collect(Collectors.toSet());
-
-    return VideoResponse.from(video, dtos);
-}
 }

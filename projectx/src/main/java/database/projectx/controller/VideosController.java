@@ -1,6 +1,7 @@
 package database.projectx.controller;
 
 import database.projectx.dto.CreateVideoRequest;
+import database.projectx.dto.UpdateVideoRequest;
 import database.projectx.dto.UpdateVideoTagsRequest;
 import database.projectx.dto.VideoResponse;
 import database.projectx.security.CustomUserDetails;
@@ -13,6 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
 
 
 @RestController 
@@ -47,6 +54,24 @@ public class VideosController {
         videoService.deleteVideo(principal.getId(), id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VideoResponse> getVideo(
+        @AuthenticationPrincipal CustomUserDetails principal,
+        @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(videoService.getVideo(principal.getId(), id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<VideoResponse> updateVideo(
+        @AuthenticationPrincipal CustomUserDetails principal,
+        @PathVariable Long id, 
+        @Valid @RequestBody UpdateVideoRequest request) {
+        
+        return ResponseEntity.ok(videoService.updateVideo(principal.getId(), id, request));
+    }
+    
 
     @PutMapping("/{id}/tags")
     public ResponseEntity<VideoResponse> replaceVideoTags(
