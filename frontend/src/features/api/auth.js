@@ -1,7 +1,5 @@
 import { request } from "./api";
 
-
-
 export function registerUser({ displayName, email, password }) {
     return request('/api/auth/register', {
         method: 'POST',

@@ -4,6 +4,7 @@ import { renderLogin }    from "./features/pages/loginPage";
 import { renderMain }     from "./features/pages/mainPage";
 import { renderSettings } from "./features/pages/settingsPage";
 import { getAuth } from "./features/service/auth-storage";
+import { isAuthCallback, handleAuthCallback } from "./features/api/api";
 
 const routes = {
     '/login':    () => renderLogin(),
@@ -15,10 +16,23 @@ const routes = {
 const PUBLIC_ROUTES = ['/login', '/register'];
 
 export async function router() {
-    let path = window.location.pathname;
+
     const app  = document.getElementById('app');
 
     document.querySelectorAll('body > .dropdown').forEach(el => el.remove());
+
+        if (isAuthCallback()) {
+        try {
+            await handleAuthCallback();
+            window.location.replace('/'); 
+            return; 
+        } catch (err) {
+            window.location.replace('/login?error=' + encodeURIComponent(err.message));
+            return; 
+        }
+    }
+
+    let path = window.location.pathname;
 
     const auth = getAuth();
 

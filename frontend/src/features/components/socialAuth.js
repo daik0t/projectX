@@ -21,14 +21,6 @@ export function getProviderButton(container, provider) {
     return container?.querySelector(`[data-provider="${provider}"]`) ?? null;
 }
 
-
-/**
- * Вставляет блок кнопок и подписывается на клики.
- * @param {HTMLElement} container
- * @param {{ onSuccess?: (data) => void, onError?: (err) => void }} handlers
- * @param {Record<string, (container, handlers) => void>} providers — карта обработчиков по имени провайдера
- * @returns {{ destroy: () => void }}
- */
 export function mountSocialAuth(container, handlers = {}, providers = {}) {
     if (!container) throw new Error('mountSocialAuth: контейнер не найден');
 

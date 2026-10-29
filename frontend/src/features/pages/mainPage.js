@@ -74,7 +74,7 @@ function initEvents(){
         onClose: () => editVideoTagsDropdown?.reset(),
     });
 
-    initSidePanel('btn-side-panel', 'sidebar', 'sidebar-overlay')
+    initSidePanel('btn-side-panel', 'sidebar', 'sidebar-overlay', 'sidebar-link logout')
     initDropdown('search-line')
     initList('place-tags')
     initList('edit-place-tags')

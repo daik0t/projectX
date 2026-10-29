@@ -1,3 +1,6 @@
+import { navigate } from "../../routers";
+import { clearAuth } from "../service/auth-storage";
+
 export function sidePanelRender() {
     return `
         <div id="sidebar" class="sidebar">
@@ -7,12 +10,12 @@ export function sidePanelRender() {
             </div>
             
             <div class="sidebar-content">
-                <a href="/settings" class="sidebar-link">Управление аккаунтом</a>
+                <a href="/settings"  class="sidebar-link">Управление аккаунтом</a>
                 <!-- остальные пункты -->
             </div>
 
             <div class="sidebar-footer">
-                <a href="#" class="sidebar-link logout">Выйти</a>
+                <a id="sidebar-link logout" class="sidebar-link logout">Выйти</a>
             </div>
         </div>
 
@@ -20,12 +23,17 @@ export function sidePanelRender() {
     `
 }
 
-export function initSidePanel(openButton, sideBar, overLay) {
+export function initSidePanel(openButton, sideBar, overLay, btnExit) {
     const sidebar = document.getElementById(sideBar);
     const overlay = document.getElementById(overLay);
     const openBtn = document.getElementById(openButton);
+    const exitBtn = document.getElementById(btnExit)
 
-    if (!openBtn || !sidebar || !overlay) {
+    if (openBtn){
+        openBtn.addEventListener('click', openSidebar);
+    }
+
+    if (!openBtn || !sidebar || !overlay || !exitBtn) {
         return;
     }
 
@@ -39,7 +47,7 @@ export function initSidePanel(openButton, sideBar, overLay) {
         overlay.classList.remove('open');
     }
 
-    openBtn.addEventListener('click', openSidebar);
-
     overlay.addEventListener('click', closeSidebar);
+
+    exitBtn.addEventListener('click', clearAuth)
 }

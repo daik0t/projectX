@@ -48,10 +48,7 @@ export function authFormRender(mode) {
     `;
 }
 
-/**
- * @param {'login' | 'register'} mode
- * @param {(data: any) => void} [onSuccess]
- */
+
 export function initAuthForm(mode, onSuccess) {
     const form = document.getElementById('auth-widget-form');
     const messageEl = document.getElementById('auth-message');

@@ -1,3 +1,5 @@
+import { navigate } from "../../routers";
+
 const KEYS = {
     ACCESS_TOKEN: 'accessToken',
     TOKEN_TYPE:   'tokenType',
@@ -5,15 +7,6 @@ const KEYS = {
     USER:         'user',
 };
 
-/**
- * Сохраняет данные авторизации после успешного логина.
- *
- * @param {Object} authData
- * @param {string} authData.accessToken  — JWT / opaque token
- * @param {string} [authData.tokenType]  — обычно "Bearer"
- * @param {number} [authData.expiresIn]  — время жизни в СЕКУНДАХ (как в OAuth 2.0)
- * @param {Object} [authData.user]       — объект пользователя
- */
 export function saveAuth({ accessToken, tokenType, expiresIn, user } = {}) {
     if (!accessToken) {
         console.warn('saveAuth: accessToken отсутствует, сохранение пропущено');
@@ -35,10 +28,6 @@ export function saveAuth({ accessToken, tokenType, expiresIn, user } = {}) {
     }
 }
 
-/**
- * Возвращает сохранённые данные авторизации.
- * @returns {{accessToken: string|null, tokenType: string, expiresAt: number|null, user: Object|null}}
- */
 export function getAuth() {
     const rawUser = localStorage.getItem(KEYS.USER);
     const expiresAtStr = localStorage.getItem(KEYS.EXPIRES_AT);
@@ -51,9 +40,7 @@ export function getAuth() {
     };
 }
 
-/**
- * Проверяет, истёк ли токен. Возвращает true, если токена нет или он протух.
- */
+
 export function isTokenExpired(skewMs = 30_000) {
     const { accessToken, expiresAt } = getAuth();
     if (!accessToken) return true;
@@ -61,16 +48,13 @@ export function isTokenExpired(skewMs = 30_000) {
     return Date.now() + skewMs >= expiresAt;
 }
 
-/**
- * Полностью очищает данные авторизации.
- */
 export function clearAuth() {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+    sessionStorage.removeItem(KEYS.ACCESS_TOKEN);
+    sessionStorage.removeItem(KEYS.USER);
+    navigate("/login")
 }
 
-/**
- * Возвращает готовый заголовок Authorization для fetch/axios.
- */
 export function getAuthHeader() {
     const { accessToken, tokenType } = getAuth();
     return accessToken ? { Authorization: `${tokenType} ${accessToken}` } : {};
