@@ -14,14 +14,6 @@ export function loginUser({ email, password }) {
     });
 }
 
-
-export async function logout() {
-    return request(`/api/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-    });
-}
-
 export async function me(token) {
     return request('/api/auth/me', {
         method: 'GET',

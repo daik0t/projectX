@@ -1,6 +1,6 @@
 import { saveAuth } from "../service/auth-storage";
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = "http://localhost:8080"
 
 export async function request(path, options = {}) {
     const response = await fetch(`${API_BASE_URL}${path}`, {

@@ -15,7 +15,7 @@ export function sidePanelRender() {
             </div>
 
             <div class="sidebar-footer">
-                <a id="sidebar-link logout" class="sidebar-link logout">Выйти</a>
+                <a id="btn-logout" class="sidebar-link logout">Выйти</a>
             </div>
         </div>
 
