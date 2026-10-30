@@ -1,12 +1,26 @@
 package database.projectx.controller;
 
-import database.projectx.model.Videos;
-import database.projectx.model.User;
+import database.projectx.dto.CreateVideoRequest;
+import database.projectx.dto.UpdateVideoRequest;
+import database.projectx.dto.UpdateVideoTagsRequest;
+import database.projectx.dto.VideoResponse;
+import database.projectx.security.CustomUserDetails;
 import database.projectx.service.VideoService;
+import jakarta.validation.Valid;
 
-import java.util.Optional;
+import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
+
 
 @RestController 
 @RequestMapping("/api/videos")
@@ -17,8 +31,55 @@ public class VideosController {
         this.videoService = videoService;
     }
 
-    @GetMapping 
-    public Optional<Videos> getAllVideos(User user) {
-        return videoService.getAllVideos(user);
+    @GetMapping("/me")
+    public ResponseEntity<List<VideoResponse>> getMyVideos(@AuthenticationPrincipal CustomUserDetails principal){
+        List<VideoResponse> videos = videoService.getMyVideos(principal.getId());
+        return ResponseEntity.ok(videos);
+    }
+    
+    @PostMapping
+    public ResponseEntity<VideoResponse> createVideo(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @Valid @RequestBody CreateVideoRequest request) {
+
+        VideoResponse response = videoService.createVideo(principal.getId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteVideo(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @PathVariable Long id) {
+
+        videoService.deleteVideo(principal.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<VideoResponse> getVideo(
+        @AuthenticationPrincipal CustomUserDetails principal,
+        @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(videoService.getVideo(principal.getId(), id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<VideoResponse> updateVideo(
+        @AuthenticationPrincipal CustomUserDetails principal,
+        @PathVariable Long id, 
+        @Valid @RequestBody UpdateVideoRequest request) {
+        
+        return ResponseEntity.ok(videoService.updateVideo(principal.getId(), id, request));
+    }
+    
+
+    @PutMapping("/{id}/tags")
+    public ResponseEntity<VideoResponse> replaceVideoTags(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateVideoTagsRequest request) {
+
+        VideoResponse response = videoService.replaceVideoTags(principal.getId(), id, request.tagIds());
+        return ResponseEntity.ok(response);
     }
 }
