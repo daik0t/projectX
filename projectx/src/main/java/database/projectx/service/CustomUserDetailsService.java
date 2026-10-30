@@ -9,18 +9,22 @@ import database.projectx.model.User;
 import database.projectx.model.UserEmails;
 import database.projectx.repository.PasswordCredentialsRepository;
 import database.projectx.repository.UserEmailsRepository;
+import database.projectx.repository.UserRepository;
 import database.projectx.security.CustomUserDetails;
 
 @Service 
 public class CustomUserDetailsService implements UserDetailsService {
 
+    private final UserRepository userRepository;
     private final UserEmailsRepository userEmailsRepository;
     private final PasswordCredentialsRepository passwordCredentialsRepository;
 
     public CustomUserDetailsService (
+        UserRepository userRepository,
         UserEmailsRepository userEmailsRepository,
         PasswordCredentialsRepository passwordCredentialsRepository
     ) {
+        this.userRepository = userRepository;
         this.userEmailsRepository = userEmailsRepository;
         this.passwordCredentialsRepository = passwordCredentialsRepository;
     }
@@ -33,15 +37,33 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         User user = userEmails.getUser();
 
-        final PasswordCredentials passwordCredentials = passwordCredentialsRepository.findByUserId(user.getId()).orElseThrow(
-            () -> new UsernameNotFoundException("Password wrong" + username)
-        ); 
+        String passwordCredentials = passwordCredentialsRepository.findByUserId(user.getId())
+        .map(PasswordCredentials::getPasswordHash).orElse(null);
 
         return CustomUserDetails.from(
             user, 
             userEmails.getEmail(), 
-            passwordCredentials.getPasswordHash(), 
+            passwordCredentials, 
             userEmails.getIsVerified()
         );
+    }
+
+    public CustomUserDetails loadUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + id));
+
+        UserEmails userEmails = userEmailsRepository.findByUserId(id).orElse(null);
+        return buildUserDetails(user, userEmails);
+    }
+
+    private CustomUserDetails buildUserDetails(User user, UserEmails userEmail) {
+        String email = userEmail != null ? userEmail.getEmail() : null;
+        boolean verified = userEmail != null && Boolean.TRUE.equals(userEmail.getIsVerified());
+
+        String passwordHash = passwordCredentialsRepository.findByUserId(user.getId())
+                .map(PasswordCredentials::getPasswordHash)
+                .orElse(null);
+
+        return CustomUserDetails.from(user, email, passwordHash, verified);
     }
 }

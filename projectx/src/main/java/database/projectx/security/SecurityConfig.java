@@ -2,6 +2,8 @@ package database.projectx.security;
 
 import database.projectx.handler.OAuth2SuccessHandler;
 import database.projectx.service.CustomOAuth2UserService;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,6 +52,15 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**", "/error").permitAll()
             .anyRequest().authenticated()
+        )
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint((request, response, authException) -> {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("""
+                    {"status":401,"error":"Unauthorized","message":"Требуется аутентификация"}
+                """);
+            })
         )
         .oauth2Login( 
             oauth2 -> oauth2

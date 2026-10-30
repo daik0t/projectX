@@ -6,9 +6,9 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import database.projectx.security.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -29,26 +29,27 @@ public class JWTService {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(CustomUserDetails userDetails){
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-        .subject(userDetails.getUsername())
+        .subject(String.valueOf(userDetails.getId()))
         .issuedAt(now)
         .expiration(expiry)
         .signWith(signinKey)
         .compact();
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Long extractUserId(String token) {
+        String sub = extractClaim(token, Claims::getSubject);
+        return Long.parseLong(sub);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails){
+    public boolean isTokenValid(String token, CustomUserDetails userDetails){
         try {
-            String username = extractUsername(token);
-            return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+            Long userId = extractUserId(token);
+            return userId.equals(userDetails.getId()) && !isTokenExpired(token);
         } catch (Exception ex){
             return false;
         }
