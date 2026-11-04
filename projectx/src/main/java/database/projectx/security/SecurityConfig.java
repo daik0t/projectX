@@ -20,16 +20,18 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @Configuration 
 public class SecurityConfig {
     
+    private final RateLimitFilter rateLimitFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CorsConfigurationSource corsConfigurationSource;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig( OAuth2SuccessHandler oAuth2SuccessHandler, JWTAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource, CustomOAuth2UserService customOAuth2UserService) {
+    public SecurityConfig( OAuth2SuccessHandler oAuth2SuccessHandler, JWTAuthenticationFilter jwtAuthenticationFilter, CorsConfigurationSource corsConfigurationSource, CustomOAuth2UserService customOAuth2UserService, RateLimitFilter rateLimitFilter) {
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
         this.customOAuth2UserService = customOAuth2UserService;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean 
@@ -50,7 +52,9 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**", "/error").permitAll()
+            .requestMatchers("/api/auth/register", "/api/auth/login", 
+                            "/api/auth/forgot-password", "/api/auth/reset-password", 
+                            "/error").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(ex -> ex
@@ -68,6 +72,10 @@ public class SecurityConfig {
                 .userService(customOAuth2UserService)
             )
             .successHandler(oAuth2SuccessHandler)
+        )
+        .addFilterBefore(
+            rateLimitFilter, 
+            UsernamePasswordAuthenticationFilter.class
         )
         .addFilterBefore(
             jwtAuthenticationFilter,
