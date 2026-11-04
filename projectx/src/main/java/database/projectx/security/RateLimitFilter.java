@@ -52,7 +52,8 @@ public class RateLimitFilter extends OncePerRequestFilter{
     }
 
     private boolean isAuthEndpoint(String path){
-        return path.equals("/api/auth/login") || path.equals("/api/auth/register");
+        return path.equals("/api/auth/login") || path.equals("/api/auth/register") 
+        || path.equals("/api/auth/forgot-password") || path.equals("/api/auth/reset-password");
     }
 
     private String getClientIp(HttpServletRequest request) {

@@ -52,7 +52,9 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**", "/error").permitAll()
+            .requestMatchers("/api/auth/register", "/api/auth/login", 
+                            "/api/auth/forgot-password", "/api/auth/reset-password", 
+                            "/error").permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(ex -> ex
