@@ -12,10 +12,10 @@ import database.projectx.model.VideoTag;
 import database.projectx.model.VideoTagId;
 
 public interface VideoTagRepository extends JpaRepository<VideoTag, VideoTagId>{
-        @Query("""
-        SELECT vt FROM VideoTag vt
-        JOIN FETCH vt.tag
-        WHERE vt.video.id IN :videoIds
+    @Query("""
+    SELECT vt FROM VideoTag vt
+    JOIN FETCH vt.tag
+    WHERE vt.video.id IN :videoIds
     """)
     List<VideoTag> findAllByVideoIdsWithTags(@Param("videoIds") Collection<Long> videoIds);
 

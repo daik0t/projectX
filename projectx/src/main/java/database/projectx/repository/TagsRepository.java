@@ -10,7 +10,7 @@ import java.util.Optional;
 import database.projectx.model.Tags;
 
 public interface TagsRepository extends JpaRepository<Tags, Long>{
-    Optional<Tags> findByUserId(Long userId);
+    List<Tags> findByUserId(Long userId);
 
     @Query("""
         SELECT t FROM Tags t

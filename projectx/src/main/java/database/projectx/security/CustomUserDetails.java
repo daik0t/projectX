@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails{
         String email,
         String passwordHash,
         String displayName,
-        Boolean emailVerified) {
+        boolean emailVerified) {
             this.id = id;
             this.email = email;
             this.passwordHash = passwordHash;
@@ -31,7 +31,7 @@ public class CustomUserDetails implements UserDetails{
     }
 
     public static CustomUserDetails from(User user, String email, String passwordHash, boolean verified){
-        return new CustomUserDetails(user.getId(), email, passwordHash, passwordHash, verified);
+        return new CustomUserDetails(user.getId(), email, passwordHash, user.getDisplayName(), verified);
     }
 
     @Override
