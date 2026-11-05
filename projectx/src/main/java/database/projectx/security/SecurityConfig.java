@@ -4,6 +4,7 @@ import database.projectx.handler.OAuth2SuccessHandler;
 import database.projectx.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean 
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
         return config.getAuthenticationManager();
     }
