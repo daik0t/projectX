@@ -1,0 +1,35 @@
+.top-main-page{
+    display: flex;
+    border-bottom: 1px solid black;
+    padding: 10px;
+    gap: 5px;
+    box-shadow: 0px 2px 30px rgb(215, 214, 214);
+    padding-left: 100px;
+}
+
+.search-input{
+    padding-left: 23px;
+    background-image: url('../assets/search.svg');
+    background-repeat: no-repeat;
+    background-position: 10px 3px;
+    background-size: 10px 10px;
+    margin-left: auto;
+    width: 20vw;
+}
+
+.raw-path{
+    margin-left: 100px;
+    width: 50vw;
+}
+
+.btn-add{
+   border-radius: 1px;
+   text-align: center;
+   width: 100px;
+   height: 22px;
+}
+
+.btn-add > img {
+    width: 11px;
+    height: 11px;
+}

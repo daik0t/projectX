@@ -1,0 +1,11 @@
+body{
+    padding: 0;
+    margin: 0;
+}
+
+.main-page{
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100vh; 
+}
+

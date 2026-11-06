@@ -1,0 +1,38 @@
+.video-card{
+    margin-left: 20px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    height: 220px;
+    width: 270px;
+}
+
+.video-card:hover{
+    background-color: #f2f2f2;
+    cursor: pointer;
+}
+
+.card-preview{
+    background-image: url('../assets/back.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 360px;
+}
+
+.card-title{
+    margin-top: 5px;
+    overflow: hidden;
+    text-wrap-mode: nowrap;
+    text-overflow: ellipsis;
+    color: inherit;
+    text-decoration: none;
+    margin: auto;
+    width: 270px;
+    
+}
+
+.card-preview > img {
+    height: 160px;
+    width: 150px;
+}

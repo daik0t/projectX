@@ -1,20 +1,17 @@
 {
-  "name": "frontend",
+  "name": "frontup",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^8.3.0"
-  },
-  "overrides": {
-    "file-type": "21.3.1"
+    "vite": "^8.3.5"
   },
   "dependencies": {
-    "dotenv": "^18.0.9"
+    "shareon": "^2.8.1"
   }
 }

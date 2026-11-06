@@ -1,0 +1,81 @@
+.toggle-checkbox {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+
+.tag-button {
+    display: inline-block;
+    padding: 4px 8px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-checkbox:checked + .tag-button {
+    background-color: gray;
+    color: white;
+    border-color: black;
+}
+
+.tags-list-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-add-btn {
+    padding: 4px 8px;
+    border: 1px dashed #999;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #555;
+    transition: all .15s ease;
+}
+.tag-add-btn:hover {
+    background: #f0f0f0;
+}
+
+.tag-input-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.new-tag-input {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    width: 140px;
+}
+
+.tag-save-btn {
+    padding: 4px 8px;
+    border: 1px solid #333;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.tag-save-btn:hover { background: #eee; }
+.tag-save-btn:disabled { opacity: .6; cursor: default; }
+
+.hidden {
+    display: none !important;
+}

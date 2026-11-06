@@ -1,16 +1,16 @@
 // src/router.js
-import { renderRegister } from "./features/pages/registerPage";
-import { renderLogin }    from "./features/pages/loginPage";
-import { renderMain }     from "./features/pages/mainPage";
-import { renderSettings } from "./features/pages/settingsPage";
-import { getAuth } from "./features/service/auth-storage";
-import { isAuthCallback, handleAuthCallback } from "./features/api/api";
+import { renderRegister } from "./pages/registerPage";
+import { renderLogin }    from "./pages/loginPage";
+import { renderMain }     from "./pages/mainPage";
+import { renderSettingsPage } from "./pages/settingsPage";
+import { getAuth } from "./services/auth-storage";
+import { isAuthCallback, handleAuthCallback } from "./api/api";
 
 const routes = {
     '/login':    () => renderLogin(),
     '/register': () => renderRegister(),
     '/':         () => renderMain(),
-    '/settings': () => renderSettings()
+    '/settings': () => renderSettingsPage()
 };
 
 const PUBLIC_ROUTES = ['/login', '/register'];

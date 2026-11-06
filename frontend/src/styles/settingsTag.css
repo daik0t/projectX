@@ -1,0 +1,14 @@
+.settings-tags{
+    display: flex;
+    flex-direction: column;
+}
+
+.delete-tags{
+    margin-top: 20px;
+    margin-left: 10px;
+    width: 80px;
+}
+
+.place-tags-settings{
+    margin: 10px;
+}

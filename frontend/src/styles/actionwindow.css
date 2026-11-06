@@ -1,0 +1,28 @@
+.action-window{
+    visibility: hidden;
+    position: fixed;
+    display: flex;
+    opacity: 0;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.action-window.show{
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.action-window-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;        
+}
+
+.action-window-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}

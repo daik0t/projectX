@@ -1,0 +1,77 @@
+.center-main-page{
+    display: grid;
+    grid-template-columns: 1fr 7fr;
+}
+
+.sidebar-tags{
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    border-right: 1px solid black;
+    box-shadow: 0px 2px 30px rgb(215, 214, 214);
+    padding-left: calc(var(--i) * 20px);
+}
+
+.user-name{
+    padding-left: 5px;
+}
+
+.one{
+    padding-left: 10px;
+}
+
+.video-tag{
+     margin-left: 20px;
+     border: 0px;
+
+}
+
+.title{
+    padding-left: 10px;
+}
+
+.video-grid{
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 88vh;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(0px, 320px));
+    grid-auto-rows: max-content; 
+    row-gap: 5px;
+    columns: 5px;
+}
+
+.place-tags-filter{
+    visibility: hidden;
+    opacity: 0;
+    z-index: 1000;
+    width: 400px;
+    height: 200px;
+    background-color: white;
+    overflow: hidden; 
+    box-sizing: border-box;
+    position: fixed;
+    border: 1px solid black;
+    box-shadow: 0px 2px 30px rgb(215, 214, 214);
+}
+
+.place-tags-filter.show{
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+.place-tags-filter-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease; 
+}
+
+.place-tags-filter-overlay.show{
+    opacity: 1;
+    visibility: visible;
+}
