@@ -60,23 +60,33 @@ public class VideoService {
             .collect(Collectors.toSet());
     }
 
-    
-
     public List<VideoResponse> getMyVideos(Long userId) {
-        List<Videos> videos = videosRepository.findAllByUserIdOrderByIdDesc(userId);
-        if (videos.isEmpty()){
+        return getMyVideos(userId, null);
+    }
+
+    public List<VideoResponse> getMyVideos(Long userId, Set<Long> tagIds) {
+        List<Videos> videos;
+        if (tagIds == null || tagIds.isEmpty()) {
+            videos = videosRepository.findAllByUserIdOrderByIdDesc(userId);
+        } else {
+            videos = videosRepository.findAllByUserIdAndTagIds(userId, tagIds);
+        }
+
+        if (videos.isEmpty()) {
             return List.of();
         }
 
         List<Long> videoIds = videos.stream().map(Videos::getId).toList();
         List<VideoTag> links = videoTagRepository.findAllByVideoIdsWithTags(videoIds);
 
-        Map<Long, Set<TagDto>> tagsByVideoId = links.stream()
-        .collect(Collectors.groupingBy(link -> link.getVideo().getId(),
-                Collectors.mapping(link -> TagDto.from(link.getTag()), Collectors.toSet()))
-        );
+        Map<Long, Set<TagDto>> tagsByVideo = links.stream()
+        .collect(Collectors.groupingBy(
+            link -> link.getVideo().getId(), Collectors.mapping(link -> TagDto.from(link.getTag()), Collectors.toSet())
+        ));
 
-        return videos.stream().map(v -> VideoResponse.from(v, tagsByVideoId.getOrDefault(v.getId(), Set.of()))).toList();
+        return videos.stream()
+        .map(v -> VideoResponse.from(v, tagsByVideo.getOrDefault(v.getId(), Set.of())))
+        .toList();
     }
 
     public VideoResponse createVideo(Long userId, CreateVideoRequest request){

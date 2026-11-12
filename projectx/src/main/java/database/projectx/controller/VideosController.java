@@ -9,6 +9,7 @@ import database.projectx.service.VideoService;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +33,10 @@ public class VideosController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<VideoResponse>> getMyVideos(@AuthenticationPrincipal CustomUserDetails principal){
-        List<VideoResponse> videos = videoService.getMyVideos(principal.getId());
+    public ResponseEntity<List<VideoResponse>> getMyVideos(@AuthenticationPrincipal CustomUserDetails principal,
+        @RequestParam (required = false) Set<Long> tagIds
+    ){
+        List<VideoResponse> videos = videoService.getMyVideos(principal.getId(), tagIds);
         return ResponseEntity.ok(videos);
     }
     
