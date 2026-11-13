@@ -23,9 +23,9 @@ public interface VideosRepository extends JpaRepository<Videos, Long>{
 
     @Query("""
         SELECT DISTINCT v FROM Videos v
-        JOIN v.videoTags vt
+        JOIN VideoTag vt ON vt.video.id = v.id
         WHERE v.user.id = :userId
-          AND vt.tag.id IN :tagIds
+        AND vt.tag.id IN :tagIds
         ORDER BY v.id DESC
     """)
     List<Videos> findAllByUserIdAndTagIds(
