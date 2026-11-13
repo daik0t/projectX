@@ -49,8 +49,7 @@ export async function handleAuthCallback() {
         throw new Error('Сервер не вернул токен');
     }
     
-
-    saveAuth({ accessToken: token });
+    saveAuth({ accessToken: token});
 }
 
 export function isAuthCallback() {

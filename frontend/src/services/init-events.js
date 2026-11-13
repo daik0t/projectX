@@ -8,6 +8,8 @@ import { openPage} from "./open-page";
 import { renderSettingsTags } from "../components/settingsTags";
 import { initSettingsTagsDelete, initTagsList } from "./add-tags";
 import { createTag } from "../api/video";
+import { initFilter, bindSidePanelTags } from "./filter";
+import { bindDropdownFilter } from "../components/dropdownFilter";
 
 export async function initMainEvents(user) {
     
@@ -34,6 +36,16 @@ export async function initMainEvents(user) {
     const btnchache = getContainer("btn-delete-chache")
     btnchache.addEventListener('click', clearAllMetadata)
 
+    const videosContainer = getContainer("video-grid");
+    initFilter({ container: videosContainer, token: user.accessToken });
+    bindSidePanelTags();
+
+    const ddHost = getContainer("#dropdown-filter-host");
+    if (ddHost) {
+        ddHost.innerHTML = await renderDropdownFilter(token);
+        bindDropdownFilter();
+    }
+
     await openPage("btn-setting", "/settings")
 }   
 
@@ -56,6 +68,8 @@ export async function initSettingEvents() {
                 initSettingsTagsDelete(user.accessToken)
             }
         })
+
+
 } 
 
     

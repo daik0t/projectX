@@ -8,7 +8,6 @@ import { renderHomeBoard } from "../components/homeBoard"
 import { initTagsList } from "../services/add-tags"
 import { createTag } from "../api/video"
 
-
 export async function renderMain() {
 
     const user = await getAuth()
@@ -37,12 +36,12 @@ export async function renderMain() {
         <div class="center-main-page">
             <aside class="sidebar-tags" id="sidebar-tags">
                 <div class="user-name" id="user-name">
-                    >${user.user ? user.user.displayName : "Пользователь"} 
+                    >${user.displayName} 
                 </div>
                 <div class="title">>видео</div>
                 <div class="tags-list" id="tags-list">
                     <button class="video-tag">>все</button>
-                    <br>${tags.map(t => `<button class="video-tag">>${t.name}</button>`).join(`<br>`)}
+                    <br>${tags.map(t => `<button class="video-tag" data-tag-id="${t.id}" >>${t.name}</button>`).join(`<br>`)}
                 </div>
             </aside>
             <div class="video-grid" id="video-grid">
@@ -70,6 +69,8 @@ export async function renderMain() {
     initTagsList("place-tags-filter", {
         onCreateTag: (name) => createTag(user.accessToken, { name }),
     });
+
+
     initMainEvents(user, container)
 
 }

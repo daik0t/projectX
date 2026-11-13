@@ -4,37 +4,38 @@ import { getMetadata, saveMetadata } from "./video-storage";
 
 
 
-export async function renderVideoList(container, token) {
+export async function renderVideoList(container, token, tags) {
 
     if (!container) {
         console.warn('renderVideoList: контейнер не передан');
         return;
     }
-
     
     try {
-        const videos = await getMyVideos(token);
+        const hasFilter = Array.isArray(tags) && tags.length > 0;
+        const videos = hasFilter
+            ? await getMyVideos(token, tags)
+            : await getMyVideos(token);
+                    
         
-        if (videos.length === 0) {
-            container.innerHTML = '<p>У вас пока нет видео.</p>';
+        if (!videos || videos.length === 0) {
+            container.innerHTML = hasFilter
+                ? "<p>По выбранным тегам видео не найдены.</p>"
+                : "<p>У вас пока нет видео.</p>";
             return;
         }
 
         for (const video of videos){
             const { id, url, tags = [] } = video;
-            const cached = getMetadata(id);
-            if (cached) {
-                continue;
-            } else {
-                const re = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?(?:[^#]*&)?v=|youtu\.be\/)([\w-]{11})/;
-                const endpoint = url.match(re)?.[1];
-                const oembedUrl =
-                `https://www.youtube.com/oembed?url=${encodeURIComponent(
-                    `https://www.youtube.com/watch?v=${endpoint}`
-                )}&format=json`;
-                const meta = await getOembed(url, oembedUrl);
-                saveMetadata(id, meta, url, tags);
-            }
+            if (getMetadata(id)) continue;
+            const re = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?(?:[^#]*&)?v=|youtu\.be\/)([\w-]{11})/;
+            const endpoint = url.match(re)?.[1];
+            if (!endpoint) continue;
+            const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(
+                `https://www.youtube.com/watch?v=${endpoint}`
+            )}&format=json`;
+            const meta = await getOembed(url, oembedUrl);
+            saveMetadata(id, meta, url, tags);
         }
 
         container.innerHTML = (

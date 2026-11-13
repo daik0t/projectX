@@ -79,3 +79,14 @@
 .hidden {
     display: none !important;
 }
+
+.video-tag.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+.video-tag { cursor: pointer; transition: background .15s, color .15s; }
+
+.place-tags-filter-actions {
+    display: flex; gap: 8px; padding: 8px 0 0;
+    border-top: 1px solid #eee; margin-top: 8px;
+}
+.tag-apply-btn, .tag-reset-btn { padding: 6px 14px; cursor: pointer; }
+.tag-apply-btn { background: #2563eb; color: #fff; border: none; }
+.tag-reset-btn { background: transparent; border: 1px solid #ccc; }

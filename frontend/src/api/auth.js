@@ -15,7 +15,7 @@ export function loginUser({ email, password }) {
 }
 
 export async function me(token) {
-    return request('/api/auth/me', {
+    return request('/api/users/me', {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,

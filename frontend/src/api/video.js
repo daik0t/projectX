@@ -35,8 +35,13 @@ export function createVideo(token, { url, tagIds }) {
     });
 }
 
-export function getMyVideos(token) {
-    return request('/api/videos/me', {
+export function getMyVideos(token, tags) {
+
+    const params = new URLSearchParams();
+    (tags ?? []).forEach((id) => params.append("tagIds", id));
+    const query = params.toString();
+    const url = `/api/videos/me${query ? `?${query}` : ""}`;
+    return request(url, {
         method: 'GET',
         headers: getAuthHeaders(token),
     });

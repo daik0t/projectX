@@ -1,3 +1,4 @@
+import { me } from "../api/auth";
 import { navigate } from "../routers";
 
 const KEYS = {
@@ -7,7 +8,7 @@ const KEYS = {
     USER:         'user',
 };
 
-export function saveAuth({ accessToken, tokenType, expiresIn, user } = {}) {
+export async function saveAuth({ accessToken, tokenType, expiresIn, user } = {}) {
     if (!accessToken) {
         console.warn('saveAuth: accessToken отсутствует, сохранение пропущено');
         return;
@@ -25,6 +26,10 @@ export function saveAuth({ accessToken, tokenType, expiresIn, user } = {}) {
 
     if (user) {
         localStorage.setItem(KEYS.USER, JSON.stringify(user));
+    }
+    else{
+        const userData = await me(accessToken)
+        localStorage.setItem(KEYS.USER, JSON.stringify(userData))
     }
 }
 
