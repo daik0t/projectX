@@ -62,20 +62,6 @@ export function deleteVideo(token, videoId) {
     });
 }
 
-export async function getOembed(resourceUrl, endpoint){
-
-    const params = new URLSearchParams({
-    url: resourceUrl,
-    format: "json",
-    });
-    const response = await fetch(`${endpoint}?${params.toString()}`);
-    if (!response.ok) {
-        throw new Error(`oEmbed request failed: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-}
-
 export function deleteTag(token, tagId) {
     return request(`/api/tags/${tagId}`, {
         method: 'DELETE',
