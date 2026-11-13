@@ -9,7 +9,7 @@ import { renderSettingsTags } from "../components/settingsTags";
 import { initSettingsTagsDelete, initTagsList } from "./add-tags";
 import { createTag } from "../api/video";
 import { initFilter, bindSidePanelTags } from "./filter";
-import { bindDropdownFilter } from "../components/dropdownFilter";
+import { bindDropdownFilter, renderDropdownFilter } from "../components/dropdownFilter";
 
 export async function initMainEvents(user) {
     
@@ -40,9 +40,9 @@ export async function initMainEvents(user) {
     initFilter({ container: videosContainer, token: user.accessToken });
     bindSidePanelTags();
 
-    const ddHost = getContainer("#dropdown-filter-host");
+    const ddHost = getContainer("place-tags-filter");
     if (ddHost) {
-        ddHost.innerHTML = await renderDropdownFilter(token);
+        ddHost.innerHTML = await renderDropdownFilter(user.accessToken);
         bindDropdownFilter();
     }
 
