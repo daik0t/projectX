@@ -51,61 +51,72 @@ export async function initMainEvents(user) {
 }   
 
 export async function initSettingEvents() {
-    const user  = await getAuth()
-    const place = getContainer("information-place-settings")
-    await openPage("btn-close-settings", "/")
-    await openPage("btn-explorer", "/")
-    const btnSetTag = getContainer('tab-tags')
-    btnSetTag.addEventListener('click', async (event) => {
-            event.preventDefault();
-            const html = await renderSettingsTags(user.accessToken);
-            place.innerHTML = html;
+    const user = await getAuth();
+    const token = user?.accessToken;
 
-            const placeTags = getContainer('place-tags-settings');
-            if (placeTags) {
-                initTagsList(placeTags, {
-                    onCreateTag: (name) => createTag(user.accessToken, { name })
-                });
-                initSettingsTagsDelete(user.accessToken)
-            }
-        })
+    // Одноразовые навигационные хэндлеры — кнопки пересоздаются при каждом рендере,
+    // вешаем на новые DOM-элементы (openPage работает с текущим DOM)
+    await openPage("btn-close-settings", "/");
+    await openPage("btn-explorer", "/");
 
-     if (document.__settingsBound) return;
-    document.__settingsBound = true;
+    // Делегирование — ОДИН раз на document, переживает перерисовки страницы
+    if (!document.__settingsBound) {
+        document.__settingsBound = true;
+        document.addEventListener("click", onSettingsTabClick);
+    }
+
+    // При КАЖДОМ заходе открываем вкладку «Профиль» по умолчанию
+    await openDefaultSettingsTab(token);
+}
+
+async function onSettingsTabClick(e) {
+    const tab = e.target.closest("#tab-list .tab");
+    if (!tab) return;
+
+    const infoPlace = document.getElementById("information-place-settings");
+    if (!infoPlace) return;                  // клик не на странице настроек
+
+    e.preventDefault();
+
+    document.querySelectorAll("#tab-list .tab")
+        .forEach((b) => b.classList.toggle("active", b === tab));
 
     const token = getAuth()?.accessToken;
-    const infoPlace = document.getElementById("information-place-settings");
-    if (!infoPlace) return;
 
-    const tabList = document.getElementById("tab-list");
-    tabList?.addEventListener("click", async (e) => {
-        const tab = e.target.closest(".tab");
-        if (!tab) return;
-        e.preventDefault();
+    try {
+        if (tab.id === "tab-tags") {
+            infoPlace.innerHTML = await renderSettingsTags(token);
 
-        // подсветка активной вкладки
-        tabList.querySelectorAll(".tab").forEach((b) =>
-            b.classList.toggle("active", b === tab)
-        );
-
-        // отрисовка контента
-        try {
-            if (tab.id === "tab-tags") {
-                infoPlace.innerHTML = await renderSettingsTags(token);
-                initSettingsProfile();
-            } else if (tab.id === "tab-profile") {
-                infoPlace.innerHTML = await renderSettingsProfile(token);
-                initSettingsProfile();
+            const placeTags = document.getElementById("place-tags-settings");
+            if (placeTags) {
+                initTagsList(placeTags, {
+                    onCreateTag: (name) => createTag(token, { name }),
+                });
+                initSettingsTagsDelete(token);
             }
-        } catch (err) {
-            console.error("[settings] tab render failed:", err);
-            infoPlace.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;
+        } else if (tab.id === "tab-profile") {
+            infoPlace.innerHTML = await renderSettingsProfile(token);
+            initSettingsProfile(token);
         }
-    });
+    } catch (err) {
+        console.error("[settings] tab render failed:", err);
+        infoPlace.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;
+    }
+}
 
-    // по умолчанию — вкладка «Профиль»
-    tabList?.querySelector("#tab-profile")?.click();
+async function openDefaultSettingsTab(token) {
+    const infoPlace = document.getElementById("information-place-settings");
+    const tabList = document.getElementById("tab-list");
+    if (!infoPlace || !tabList) return;       // не на странице настроек
 
-} 
+    tabList.querySelectorAll(".tab")
+        .forEach((b) => b.classList.toggle("active", b.id === "tab-profile"));
 
-    
+    try {
+        infoPlace.innerHTML = await renderSettingsProfile(token);
+        initSettingsProfile();
+    } catch (err) {
+        console.error("[settings] profile render failed:", err);
+        infoPlace.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;
+    }
+}

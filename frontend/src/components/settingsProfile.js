@@ -72,13 +72,14 @@ function escapeHtml(value) {
     }[c]));
 }
 
-export function initSettingsProfile() {
+export function initSettingsProfile(token) {
     const btn = document.getElementById("btn-change-password");
     const msg = document.getElementById("profile-message");
     if (!btn) return;
 
     btn.addEventListener("click", async () => {
-        const email = getAuth()?.user?.email;
+        const user = await me(token);
+        const email = user.email 
         if (!email) {
             showProfileMessage(msg, "Не найден email пользователя", "error");
             return;
