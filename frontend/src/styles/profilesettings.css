@@ -1,0 +1,66 @@
+/* settings-profile */
+.settings-profile {
+    padding: 16px;
+}
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.profile-avatar {
+    flex: 0 0 auto;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: black;
+    color: #fff;
+    font-size: 32px;
+    font-weight: 600;
+    display: grid;
+    place-items: center;
+    user-select: none;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111;
+    word-break: break-word;
+}
+
+.profile-email {
+    font-size: 14px;
+    color: #666;
+    word-break: break-all;
+}
+
+.profile-meta {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #888;
+    display: flex;
+    gap: 6px;
+}
+
+.profile-meta-label {
+    color: #aaa;
+}
+
+/* активная вкладка (если ещё не стилизовано) */
+.tab.active {
+    background: gray;
+    color: #fff;
+}

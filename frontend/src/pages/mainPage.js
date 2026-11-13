@@ -7,10 +7,13 @@ import { renderDropdownFilter } from "../components/dropdownFilter"
 import { renderHomeBoard } from "../components/homeBoard"
 import { initTagsList } from "../services/add-tags"
 import { createTag } from "../api/video"
+import { me } from "../api/auth"
 
 export async function renderMain() {
 
     const user = await getAuth()
+
+    const userH = await me(user.accessToken)
 
     const tags = await getTags(user.accessToken)
 
@@ -36,7 +39,7 @@ export async function renderMain() {
         <div class="center-main-page">
             <aside class="sidebar-tags" id="sidebar-tags">
                 <div class="user-name" id="user-name">
-                    >${user.displayName} 
+                    >${userH.displayName} 
                 </div>
                 <div class="title">>видео</div>
                 <div class="tags-list" id="tags-list">

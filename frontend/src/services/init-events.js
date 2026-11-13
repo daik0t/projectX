@@ -10,6 +10,7 @@ import { initSettingsTagsDelete, initTagsList } from "./add-tags";
 import { createTag } from "../api/video";
 import { initFilter, bindSidePanelTags } from "./filter";
 import { bindDropdownFilter, renderDropdownFilter } from "../components/dropdownFilter";
+import { renderSettingsProfile } from "../components/settingsProfile";
 
 export async function initMainEvents(user) {
     
@@ -69,6 +70,40 @@ export async function initSettingEvents() {
             }
         })
 
+     if (document.__settingsBound) return;
+    document.__settingsBound = true;
+
+    const token = getAuth()?.accessToken;
+    const infoPlace = document.getElementById("information-place-settings");
+    if (!infoPlace) return;
+
+    const tabList = document.getElementById("tab-list");
+    tabList?.addEventListener("click", async (e) => {
+        const tab = e.target.closest(".tab");
+        if (!tab) return;
+        e.preventDefault();
+
+        // подсветка активной вкладки
+        tabList.querySelectorAll(".tab").forEach((b) =>
+            b.classList.toggle("active", b === tab)
+        );
+
+        // отрисовка контента
+        try {
+            if (tab.id === "tab-tags") {
+                infoPlace.innerHTML = await renderSettingsTags(token);
+                // если нужно — здесь же переинициализировать обработчики удаления тэгов
+            } else if (tab.id === "tab-profile") {
+                infoPlace.innerHTML = await renderSettingsProfile(token);
+            }
+        } catch (err) {
+            console.error("[settings] tab render failed:", err);
+            infoPlace.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;
+        }
+    });
+
+    // по умолчанию — вкладка «Профиль»
+    tabList?.querySelector("#tab-profile")?.click();
 
 } 
 
