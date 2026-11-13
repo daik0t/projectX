@@ -107,6 +107,11 @@ export async function initActiveWindow(user) {
         const share = getContainer('shareon')
         share.dataset.url = data.url
         share.dataset.title = data.title
+
+        const fresh = share.cloneNode(true);
+        fresh.dataset.url = data.url ?? "";
+        fresh.dataset.title = data.title ?? "";
+        share.parentNode.replaceChild(fresh, share);
         init()
         actionWindow.style.left = `${event.clientX + 5}px`;
         actionWindow.style.top  = `${event.clientY + 5}px`;
@@ -152,7 +157,7 @@ export async function initActiveWindow(user) {
 
     getContainer('btn-share').addEventListener('click', async () => {
         if (!currentVideoId) return;
-        
+        const html = await renderPropertiesWindow(currentVideoId);
         area.insertAdjacentHTML('beforeend', html);
 
 
