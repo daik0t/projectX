@@ -5,15 +5,19 @@ import { renderMain }     from "./pages/mainPage";
 import { renderSettingsPage } from "./pages/settingsPage";
 import { getAuth, clearAuth } from "./services/auth-storage";   // ← добавь clearAuth
 import { isAuthCallback, handleAuthCallback } from "./api/api";
+import { renderForgotPassword } from "./pages/forgotPasswordPage";
+import { renderResetPassword } from "./pages/resetPasswordPage";
 
 const routes = {
     '/login':    () => renderLogin(),
     '/register': () => renderRegister(),
     '/':         () => renderMain(),
-    '/settings': () => renderSettingsPage()
+    '/settings': () => renderSettingsPage(),
+    '/forgot-password': () => renderForgotPassword(),
+    '/reset-password': () => renderResetPassword()
 };
 
-const PUBLIC_ROUTES = ['/login', '/register'];
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 
 // ── Хелпер: определить, что ошибка — это 401/Unauthorized
 function isAuthError(error) {

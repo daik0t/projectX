@@ -46,6 +46,18 @@ export async function renderSettingsProfile(token) {
                 </div>` : ""}
             </div>
         </div>
+        <div class="profile-section">
+            <div class="profile-section-title">Безопасность</div>
+            <div class="profile-section-body">
+                <p class="profile-section-hint">
+                    Мы отправим на ваш email ссылку для смены пароля.
+                </p>
+                <button class="profile-action-btn" id="btn-change-password" type="button">
+                    Сменить пароль
+                </button>
+                <div class="profile-section-message" id="profile-message" hidden></div>
+            </div>
+        </div>
     </div>
     `;
 }
@@ -58,4 +70,49 @@ function escapeHtml(value) {
         '"': "&quot;",
         "'": "&#39;",
     }[c]));
+}
+
+export function initSettingsProfile() {
+    const btn = document.getElementById("btn-change-password");
+    const msg = document.getElementById("profile-message");
+    if (!btn) return;
+
+    btn.addEventListener("click", async () => {
+        const email = getAuth()?.user?.email;
+        if (!email) {
+            showProfileMessage(msg, "Не найден email пользователя", "error");
+            return;
+        }
+
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Отправка...";
+        showProfileMessage(msg, "", null);
+
+        try {
+            const res = await forgotPassword({ email });
+            showProfileMessage(
+                msg,
+                res?.message ?? `Инструкции отправлены на ${email}`,
+                "success"
+            );
+        } catch (err) {
+            showProfileMessage(msg, err.message ?? "Не удалось отправить письмо", "error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = original;
+        }
+    });
+}
+
+function showProfileMessage(el, text, type) {
+    if (!el) return;
+    if (!text) {
+        el.hidden = true;
+        el.textContent = "";
+        return;
+    }
+    el.hidden = false;
+    el.textContent = text;
+    el.dataset.type = type;
 }

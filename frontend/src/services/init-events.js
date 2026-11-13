@@ -10,7 +10,7 @@ import { initSettingsTagsDelete, initTagsList } from "./add-tags";
 import { createTag } from "../api/video";
 import { initFilter, bindSidePanelTags } from "./filter";
 import { bindDropdownFilter, renderDropdownFilter } from "../components/dropdownFilter";
-import { renderSettingsProfile } from "../components/settingsProfile";
+import { renderSettingsProfile, initSettingsProfile } from "../components/settingsProfile";
 
 export async function initMainEvents(user) {
     
@@ -92,9 +92,10 @@ export async function initSettingEvents() {
         try {
             if (tab.id === "tab-tags") {
                 infoPlace.innerHTML = await renderSettingsTags(token);
-                // если нужно — здесь же переинициализировать обработчики удаления тэгов
+                initSettingsProfile();
             } else if (tab.id === "tab-profile") {
                 infoPlace.innerHTML = await renderSettingsProfile(token);
+                initSettingsProfile();
             }
         } catch (err) {
             console.error("[settings] tab render failed:", err);
