@@ -6,6 +6,7 @@ import database.projectx.model.UserEmails;
 import database.projectx.repository.PasswordCredentialsRepository;
 import database.projectx.repository.UserEmailsRepository;
 import database.projectx.repository.UserRepository;
+import database.projectx.security.CustomUserDetails;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +33,7 @@ class CustomUserDetailsServiceTest {
     void loadUserByUsername_whenUserExists_shouldReturnDetails() {
         User user = new User(); user.setId(1L);
         UserEmails email = new UserEmails(); email.setEmail("test@test.com"); email.setUser(user);
+        email.setIsVerified(true);
         PasswordCredentials pwd = new PasswordCredentials(); pwd.setPasswordHash("hash");
 
         when(userEmailsRepository.findByEmail("test@test.com")).thenReturn(Optional.of(email));
@@ -41,12 +43,14 @@ class CustomUserDetailsServiceTest {
 
         assertThat(result.getUsername()).isEqualTo("test@test.com");
         assertThat(result.getPassword()).isEqualTo("hash");
+        assertThat(result.isEmailVerified()).isTrue();
     }
 
     @Test
     void loadUserByUsername_whenOAuthUserWithoutPassword_shouldReturnDetailsWithNullPassword() {
         User user = new User(); user.setId(1L);
         UserEmails email = new UserEmails(); email.setEmail("oauth@test.com"); email.setUser(user);
+        email.setIsVerified(true);
 
         when(userEmailsRepository.findByEmail("oauth@test.com")).thenReturn(Optional.of(email));
         when(passwordCredentialsRepository.findByUserId(1L)).thenReturn(Optional.empty());
@@ -62,5 +66,49 @@ class CustomUserDetailsServiceTest {
 
         assertThatThrownBy(() -> userDetailsService.loadUserById(99L))
                 .isInstanceOf(UsernameNotFoundException.class);
+    }
+
+    @Test
+    void loadUserByUsername_whenUserNotFound_shouldThrowException() {
+        when(userEmailsRepository.findByEmail("missing@test.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userDetailsService.loadUserByUsername("missing@test.com"))
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessageContaining("User not found");
+    }
+
+    @Test
+    void loadUserById_whenExists_shouldReturnDetails() {
+        User user = new User(); user.setId(1L); user.setDisplayName("alice");
+        UserEmails email = new UserEmails(); email.setEmail("alice@test.com"); email.setUser(user);
+        email.setIsVerified(true);
+        PasswordCredentials pwd = new PasswordCredentials(); pwd.setPasswordHash("hash");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userEmailsRepository.findByUserId(1L)).thenReturn(Optional.of(email));
+        when(passwordCredentialsRepository.findByUserId(1L)).thenReturn(Optional.of(pwd));
+
+        CustomUserDetails result = userDetailsService.loadUserById(1L);
+
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getUsername()).isEqualTo("alice@test.com");
+        assertThat(result.getPassword()).isEqualTo("hash");
+        assertThat(result.isEmailVerified()).isTrue();
+    }
+
+    @Test
+    void loadUserById_whenEmailMissing_shouldReturnDetailsWithoutEmailAndPassword() {
+        User user = new User(); user.setId(1L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userEmailsRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(passwordCredentialsRepository.findByUserId(1L)).thenReturn(Optional.empty());
+
+        CustomUserDetails result = userDetailsService.loadUserById(1L);
+
+        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result.getUsername()).isNull();
+        assertThat(result.getPassword()).isNull();
+        assertThat(result.isEmailVerified()).isFalse();
     }
 }

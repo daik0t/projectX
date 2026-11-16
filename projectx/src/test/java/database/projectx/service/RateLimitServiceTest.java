@@ -33,4 +33,12 @@ class RateLimitServiceTest {
         
         assertThat(b1).isSameAs(b2);
     }
+
+    @Test
+    void resolveBucket_shouldReturnDifferentBucketForDifferentIp() {
+        Bucket first = rateLimitService.resolveBucket("1.1.1.1", 10, Duration.ofMinutes(1));
+        Bucket second = rateLimitService.resolveBucket("2.2.2.2", 10, Duration.ofMinutes(1));
+
+        assertThat(first).isNotSameAs(second);
+    }
 }
