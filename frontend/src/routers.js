@@ -3,42 +3,72 @@ import { renderRegister } from "./pages/registerPage";
 import { renderLogin }    from "./pages/loginPage";
 import { renderMain }     from "./pages/mainPage";
 import { renderSettingsPage } from "./pages/settingsPage";
-import { getAuth } from "./services/auth-storage";
+import { getAuth, clearAuth } from "./services/auth-storage";   // ← добавь clearAuth
 import { isAuthCallback, handleAuthCallback } from "./api/api";
+import { renderForgotPassword } from "./pages/forgotPasswordPage";
+import { renderResetPassword } from "./pages/resetPasswordPage";
 
 const routes = {
     '/login':    () => renderLogin(),
     '/register': () => renderRegister(),
     '/':         () => renderMain(),
-    '/settings': () => renderSettingsPage()
+    '/settings': () => renderSettingsPage(),
+    '/forgot-password': () => renderForgotPassword(),
+    '/reset-password': () => renderResetPassword()
 };
 
-const PUBLIC_ROUTES = ['/login', '/register'];
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
+
+// ── Хелпер: определить, что ошибка — это 401/Unauthorized
+function isAuthError(error) {
+    if (!error) return false;
+    if (error.status === 401 || error.statusCode === 401) return true;
+    const msg = String(error.message || '').toLowerCase();
+    return (
+        msg.includes('аутентификац') ||
+        msg.includes('authenticat')  ||
+        msg.includes('unauthorized') ||
+        msg.includes('401')
+    );
+}
+
+// ── Хелпер: нормализовать expiresAt (секунды → мс, ISO → ms)
+function normalizeExpiresAt(v) {
+    if (!v) return null;
+    if (typeof v === 'number') return v < 1e12 ? v * 1000 : v; // секунды → мс
+    if (typeof v === 'string') {
+        const n = Number(v);
+        if (!Number.isNaN(n)) return n < 1e12 ? n * 1000 : n;
+        const parsed = Date.parse(v);
+        return Number.isNaN(parsed) ? null : parsed;
+    }
+    return null;
+}
 
 export async function router() {
-
-    const app  = document.getElementById('app');
+    const app = document.getElementById('app');
 
     document.querySelectorAll('body > .dropdown').forEach(el => el.remove());
 
-        if (isAuthCallback()) {
+    // 1. OAuth-колбэк
+    if (isAuthCallback()) {
         try {
             await handleAuthCallback();
-            window.location.replace('/'); 
-            return; 
+            window.location.replace('/');
         } catch (err) {
             window.location.replace('/login?error=' + encodeURIComponent(err.message));
-            return; 
         }
+        return;
     }
 
     let path = window.location.pathname;
 
+    // 2. Проверка токена
     const auth = getAuth();
-
+    const expiresAt = normalizeExpiresAt(auth?.expiresAt);
     const tokenValid =
-        !!auth.accessToken &&
-        (!auth.expiresAt || auth.expiresAt > Date.now());
+        !!auth?.accessToken &&
+        (expiresAt === null || expiresAt > Date.now());
 
     const isPublic = PUBLIC_ROUTES.includes(path);
 
@@ -50,6 +80,7 @@ export async function router() {
         path = '/';
     }
 
+    // 3. Поиск роута
     let matchedRoute = null;
     let params = {};
 
@@ -72,11 +103,20 @@ export async function router() {
         }
     }
 
+    // 4. Рендер с обработкой 401
     if (matchedRoute) {
         try {
             await matchedRoute(params);
         } catch (error) {
-            app.innerHTML = `<div class="alert alert-danger">Ошибка: ${error.message}</div>`;
+            if (isAuthError(error)) {
+                // Токен невалиден по мнению сервера — сбрасываем и уводим на логин
+                try { clearAuth(); } catch (_) {}
+                history.replaceState({}, '', '/login');
+                await renderLogin(error.message);
+                return;
+            }
+            app.innerHTML =
+                `<div class="alert alert-danger">Ошибка: ${error.message}</div>`;
         }
     } else {
         app.innerHTML = '<h1>404 - Страница не найдена</h1>';

@@ -35,8 +35,13 @@ export function createVideo(token, { url, tagIds }) {
     });
 }
 
-export function getMyVideos(token) {
-    return request('/api/videos/me', {
+export function getMyVideos(token, tags) {
+
+    const params = new URLSearchParams();
+    (tags ?? []).forEach((id) => params.append("tagIds", id));
+    const query = params.toString();
+    const url = `/api/videos/me${query ? `?${query}` : ""}`;
+    return request(url, {
         method: 'GET',
         headers: getAuthHeaders(token),
     });
@@ -55,20 +60,6 @@ export function deleteVideo(token, videoId) {
         method: 'DELETE',
         headers: getAuthHeaders(token),
     });
-}
-
-export async function getOembed(resourceUrl, endpoint){
-
-    const params = new URLSearchParams({
-    url: resourceUrl,
-    format: "json",
-    });
-    const response = await fetch(`${endpoint}?${params.toString()}`);
-    if (!response.ok) {
-        throw new Error(`oEmbed request failed: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
 }
 
 export function deleteTag(token, tagId) {

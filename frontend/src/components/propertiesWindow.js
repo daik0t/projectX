@@ -23,7 +23,7 @@ export async function renderPropertiesWindow(id) {
             Автор: ${data.author_name}
         </div>
         <div class="video-provaider" id="video-provaider">
-            Откуда: ${data.provaider_name}
+            Откуда: ${data.provider_name}
         </div>
         <div class="place-tags-properties" id="place-tags-properties">
             Тэги: ${data.tags}

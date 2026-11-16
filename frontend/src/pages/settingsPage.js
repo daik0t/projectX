@@ -8,7 +8,7 @@ export async function renderSettingsPage(){
     container.innerHTML = `
     <div class="settings-page" id="settings-page">
         <div class="title-settings-window" id="header-settings-page">
-            <div calss="title-text-settings">
+            <div class="title-text-settings">
                 Настройки
             </div>
             <button class="btn-close" id="btn-close-settings" type="button">
@@ -21,6 +21,7 @@ export async function renderSettingsPage(){
                     <input type="text" class="search-settings" id="search-settings">
                 </div>
                 <div class="tab-list" id="tab-list">
+                    <button class="tab" id="tab-profile">Профиль</button>
                     <button class="tab" id="tab-tags">Управление тэгами</button>
                 </div>
             </div>

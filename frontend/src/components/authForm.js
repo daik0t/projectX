@@ -15,6 +15,17 @@ export function authFormRender(mode) {
         `
         : '';
 
+    const forgotLink = mode === 'login'
+        ? `
+            <div class="auth-widget-forgot">
+                <a href="/forgot-password" class="auth-widget-forgot-link" data-link>
+                    Забыли пароль?
+                </a>
+            </div>
+        `
+        : '';
+
+
     return `
         <form id="auth-widget-form" novalidate>
             ${displayNameField}
@@ -38,6 +49,8 @@ export function authFormRender(mode) {
                     autocomplete="${mode === 'register' ? 'new-password' : 'current-password'}"
                 >
             </div>
+
+            ${forgotLink}
 
             <div class="auth-widget-message" id="auth-message" hidden></div>
 
