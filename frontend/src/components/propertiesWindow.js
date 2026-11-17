@@ -1,36 +1,51 @@
-import { getMetadata } from "../services/video-storage"
+import { getMetadata } from "../services/video-storage";
+import { escapeHtml } from "../lib/html";
+
+function formatTags(tags) {
+    if (!Array.isArray(tags)) return "—";
+
+    const names = tags
+        .map((tag) => (tag && typeof tag === "object" ? tag.name : null))
+        .filter(Boolean);
+
+    return names.length ? names.join(", ") : "—";
+}
 
 export async function renderPropertiesWindow(id) {
-    
-    const data = getMetadata(id)
+    const data = getMetadata(id) ?? {};
 
-    return`
+    const title = escapeHtml(data.title ?? "Без названия");
+    const thumbnail = data.thumbnail_url ? escapeHtml(data.thumbnail_url) : "";
+    const author = escapeHtml(data.author_name ?? "—");
+    const provider = escapeHtml(data.provider_name ?? "—");
+    const url = escapeHtml(data.url ?? "—");
+    const tags = escapeHtml(formatTags(data.tags));
+
+    return `
     <div class="properties-window-overlay" id="properties-window-overlay"></div>
     <div class="properties-window" id="properties-window">
         <div class="title-add-window">
             <div class="title-text">Свойства</div>
             <button class="btn-close" id="btn-close-properties" type="button">
-                <img src="./src/assets/cross.svg">
+                <img src="/assets/cross.svg" alt="">
             </button>
         </div>
-        ${data.thumbnail_url
-                    ? `<img src="${data.thumbnail_url}" class="img-properties" alt="${data.title}">`
-                    : `<img>`}
+        ${thumbnail ? `<img src="${thumbnail}" class="img-properties" alt="${title}">` : ""}
         <div class="title-video" id="title-video">
-            Название: ${data.title}
+            Название: ${title}
         </div>
         <div class="video-author" id="video-author">
-            Автор: ${data.author_name}
+            Автор: ${author}
         </div>
         <div class="video-provaider" id="video-provaider">
-            Откуда: ${data.provider_name}
+            Откуда: ${provider}
         </div>
         <div class="place-tags-properties" id="place-tags-properties">
-            Тэги: ${data.tags}
+            Тэги: ${tags}
         </div>
         <div class="link-properties" id="link-properties">
-            Ссылка: ${data.url}
+            Ссылка: ${url}
         </div>
     </div>
-    `
+    `;
 }

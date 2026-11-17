@@ -27,13 +27,13 @@ export async function renderMain() {
     <div class="main-page">
         <header class="top-main-page">
             <button class="btn-add" id="btn-add">
-                <img src="./src/assets/plus.svg">
+                <img src="/assets/plus.svg">
                 Добавить
             </button>
             <input class="raw-path" id="raw-path" readonly>
             <input class="search-input" id="search-input" type="text" placeholder="Поиск">
             <button class="btn-filter" id="btn-filter">
-                <img src="./src/assets/filter.svg" width="10px" height="10px">
+                <img src="/assets/filter.svg" width="10px" height="10px">
             </button>
         </header>
         <div class="center-main-page">
@@ -53,15 +53,15 @@ export async function renderMain() {
 
         <footer class="bottom-main-page">
             <button class="btn-home" id="btn-home">
-                <img src="./src/assets/home.svg">
+            <img src="/assets/home.svg">
             </button>
             <button class="btn-explorer" id="btn-explorer">
-                <img src="./src/assets/mainfolder.svg">
+                <img src="/assets/mainfolder.svg">
             </button>
             <button class="btn-setting" id="btn-setting">
-                <img src="./src/assets/settings.svg">
+                <img src="/assets/settings.svg">
             </button>
-            <img src="./src/assets/trash.svg" id="trash" class="trash">
+            <img src="/assets/trash.svg" id="trash" class="trash">
         </footer>
     </div>
     `
@@ -74,7 +74,7 @@ export async function renderMain() {
     });
 
 
-    initMainEvents(user, container)
+    await initMainEvents(user)
 
 }
 

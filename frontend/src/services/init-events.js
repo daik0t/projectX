@@ -9,7 +9,7 @@ import { renderSettingsTags } from "../components/settingsTags";
 import { initSettingsTagsDelete, initTagsList } from "./add-tags";
 import { createTag } from "../api/video";
 import { initFilter, bindSidePanelTags } from "./filter";
-import { bindDropdownFilter, renderDropdownFilter } from "../components/dropdownFilter";
+import { bindDropdownFilter } from "../components/dropdownFilter";
 import { renderSettingsProfile, initSettingsProfile } from "../components/settingsProfile";
 
 export async function initMainEvents(user) {
@@ -25,7 +25,7 @@ export async function initMainEvents(user) {
     initBoard("btn-home", "home-board", "home-board-overlay")
 
     const btn = getContainer("btn-exit")
-    btn.addEventListener('click', clearAuth)
+    btn?.addEventListener('click', clearAuth)
 
     await setupAddVideo({
     token: user.accessToken,
@@ -35,15 +35,13 @@ export async function initMainEvents(user) {
     });
 
     const btnchache = getContainer("btn-delete-chache")
-    btnchache.addEventListener('click', clearAllMetadata)
+    btnchache?.addEventListener('click', clearAllMetadata)
 
     const videosContainer = getContainer("video-grid");
     initFilter({ container: videosContainer, token: user.accessToken });
     bindSidePanelTags();
 
-    const ddHost = getContainer("place-tags-filter");
-    if (ddHost) {
-        ddHost.innerHTML = await renderDropdownFilter(user.accessToken);
+    if (getContainer("place-tags-filter")) {
         bindDropdownFilter();
     }
 
@@ -54,18 +52,15 @@ export async function initSettingEvents() {
     const user = await getAuth();
     const token = user?.accessToken;
 
-    // Одноразовые навигационные хэндлеры — кнопки пересоздаются при каждом рендере,
-    // вешаем на новые DOM-элементы (openPage работает с текущим DOM)
     await openPage("btn-close-settings", "/");
     await openPage("btn-explorer", "/");
 
-    // Делегирование — ОДИН раз на document, переживает перерисовки страницы
+
     if (!document.__settingsBound) {
         document.__settingsBound = true;
         document.addEventListener("click", onSettingsTabClick);
     }
 
-    // При КАЖДОМ заходе открываем вкладку «Профиль» по умолчанию
     await openDefaultSettingsTab(token);
 }
 
@@ -74,7 +69,7 @@ async function onSettingsTabClick(e) {
     if (!tab) return;
 
     const infoPlace = document.getElementById("information-place-settings");
-    if (!infoPlace) return;                  // клик не на странице настроек
+    if (!infoPlace) return;
 
     e.preventDefault();
 
@@ -107,14 +102,14 @@ async function onSettingsTabClick(e) {
 async function openDefaultSettingsTab(token) {
     const infoPlace = document.getElementById("information-place-settings");
     const tabList = document.getElementById("tab-list");
-    if (!infoPlace || !tabList) return;       // не на странице настроек
+    if (!infoPlace || !tabList) return;
 
     tabList.querySelectorAll(".tab")
         .forEach((b) => b.classList.toggle("active", b.id === "tab-profile"));
 
     try {
         infoPlace.innerHTML = await renderSettingsProfile(token);
-        initSettingsProfile();
+        initSettingsProfile(token);
     } catch (err) {
         console.error("[settings] profile render failed:", err);
         infoPlace.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;

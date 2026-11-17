@@ -1,3 +1,4 @@
+import './styles/index.css';
 import { router } from './routers.js';
 
 document.addEventListener('click', (e) => {

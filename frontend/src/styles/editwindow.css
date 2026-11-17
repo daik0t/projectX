@@ -3,8 +3,9 @@
     position: fixed;
     opacity: 0;
     z-index: 1000;
-    width: 400px;
-    height: 200px;
+    width: min(400px, calc(100vw - 16px));
+    height: auto;
+    max-height: min(80vh, 520px);
     background-color: white;
     overflow: hidden; 
     box-sizing: border-box;
@@ -17,8 +18,14 @@
 .edit-window-form{
     display: flex;
     flex-direction: column;
-    width: 400px;
-    height: 200px;
+    width: 100%;
+    height: auto;
+    max-height: min(80vh, 520px);
+}
+
+.body-edit-window{
+    flex: 1 1 auto;
+    overflow-y: auto;
 }
 
 .edit-window.show{

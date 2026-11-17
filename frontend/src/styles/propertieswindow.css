@@ -5,10 +5,11 @@
     position: fixed;
     opacity: 0;
     z-index: 1000;
-    width: 400px;
-    height: 500px;
+    width: min(400px, calc(100vw - 16px));
+    height: auto;
+    max-height: min(85vh, 560px);
     background-color: white;
-    overflow: hidden; 
+    overflow-y: auto;
     box-sizing: border-box;
     top: 10%;
     left: 40%;

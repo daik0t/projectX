@@ -12,7 +12,7 @@ export async function renderSettingsPage(){
                 Настройки
             </div>
             <button class="btn-close" id="btn-close-settings" type="button">
-                <img src="./src/assets/cross.svg">
+                <img src="/assets/cross.svg">
             </button>
         </div>
         <div class="body-settings-page" id="body-settings-page">
@@ -34,15 +34,15 @@ export async function renderSettingsPage(){
         </div>
         <footer class="bottom-main-page">
             <button class="btn-home" id="btn-home">
-                <img src="./src/assets/home.svg">
+                <img src="/assets/home.svg">
             </button>
             <button class="btn-explorer" id="btn-explorer">
-                <img src="./src/assets/mainfolder.svg">
+                <img src="/assets/mainfolder.svg">
             </button>
             <button class="btn-setting" id="btn-setting">
-                <img src="./src/assets/settings.svg">
+                <img src="/assets/settings.svg">
             </button>
-            <img src="./src/assets/trash.svg" id="trash" class="trash">
+            <img src="/assets/trash.svg" id="trash" class="trash">
         </footer>
     </div>
     `

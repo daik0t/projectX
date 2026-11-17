@@ -1,20 +1,19 @@
 import { getMetadata } from "../services/video-storage";
+import { escapeHtml } from "../lib/html";
 
 export async function videoCardRender(video) {
-
-    const data = getMetadata(video.id)
+    const meta = getMetadata(video.id) ?? {};
+    const title = escapeHtml(meta.title ?? 'Без названия');
+    const thumbnail = meta.thumbnail_url ? escapeHtml(meta.thumbnail_url) : '';
 
     return `
         <div class="video-card" data-video-id="${video.id}">
             <div class="card-preview">
-                ${data.thumbnail_url
-                    ? `<img src="${data.thumbnail_url}" alt="${data.title}">`
-                    : `<img>`}
+                ${thumbnail ? `<img src="${thumbnail}" alt="${title}" loading="lazy">` : ""}
             </div>
             <div class="card-title">
-                ${data.title}
+                ${title}
             </div>
         </div>
     `;
 }
-

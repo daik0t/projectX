@@ -4,6 +4,7 @@ import { renderLogin }    from "./pages/loginPage";
 import { renderMain }     from "./pages/mainPage";
 import { renderSettingsPage } from "./pages/settingsPage";
 import { getAuth, clearAuth } from "./services/auth-storage";   // ← добавь clearAuth
+import { resetPage } from "./lib/page-lifecycle";
 import { isAuthCallback, handleAuthCallback } from "./api/api";
 import { renderForgotPassword } from "./pages/forgotPasswordPage";
 import { renderResetPassword } from "./pages/resetPasswordPage";
@@ -19,7 +20,6 @@ const routes = {
 
 const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 
-// ── Хелпер: определить, что ошибка — это 401/Unauthorized
 function isAuthError(error) {
     if (!error) return false;
     if (error.status === 401 || error.statusCode === 401) return true;
@@ -32,7 +32,6 @@ function isAuthError(error) {
     );
 }
 
-// ── Хелпер: нормализовать expiresAt (секунды → мс, ISO → ms)
 function normalizeExpiresAt(v) {
     if (!v) return null;
     if (typeof v === 'number') return v < 1e12 ? v * 1000 : v; // секунды → мс
@@ -46,11 +45,9 @@ function normalizeExpiresAt(v) {
 }
 
 export async function router() {
-    const app = document.getElementById('app');
 
-    document.querySelectorAll('body > .dropdown').forEach(el => el.remove());
+    const app = resetPage();
 
-    // 1. OAuth-колбэк
     if (isAuthCallback()) {
         try {
             await handleAuthCallback();
@@ -80,7 +77,6 @@ export async function router() {
         path = '/';
     }
 
-    // 3. Поиск роута
     let matchedRoute = null;
     let params = {};
 
@@ -103,13 +99,11 @@ export async function router() {
         }
     }
 
-    // 4. Рендер с обработкой 401
     if (matchedRoute) {
         try {
             await matchedRoute(params);
         } catch (error) {
             if (isAuthError(error)) {
-                // Токен невалиден по мнению сервера — сбрасываем и уводим на логин
                 try { clearAuth(); } catch (_) {}
                 history.replaceState({}, '', '/login');
                 await renderLogin(error.message);

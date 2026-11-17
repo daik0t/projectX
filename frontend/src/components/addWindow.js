@@ -12,7 +12,7 @@ import { setupAddVideo } from "../services/add-video";
                 <div class="title-add-window">
                     <div class="title-text">Окно добавления</div>
                     <button class="btn-close" id="btn-close" type="button">
-                        <img src="./src/assets/cross.svg">
+                        <img src="/assets/cross.svg">
                     </button>
                 </div>
                 <div class="body-add-window">

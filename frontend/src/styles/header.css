@@ -9,7 +9,7 @@
 
 .search-input{
     padding-left: 23px;
-    background-image: url('../assets/search.svg');
+    background-image: url('/assets/search.svg');
     background-repeat: no-repeat;
     background-position: 10px 3px;
     background-size: 10px 10px;

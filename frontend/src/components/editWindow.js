@@ -1,13 +1,10 @@
 import { getMetadata } from "../services/video-storage";
 import { tagsListRender } from "./tagsList";
+import { escapeHtml } from "../lib/html";
 
-export async function renderEditWindow (token, id){
+export async function renderEditWindow(token, id) {
 
-    const data = getMetadata(id)
-    
-    if (!data){
-        return `<div class="error">Видео не найдено</div>`;
-    }
+    const data = getMetadata(id) ?? {};
 
     return `
     <div class="edit-window-overlay" id="edit-window-overlay"></div>
@@ -16,18 +13,18 @@ export async function renderEditWindow (token, id){
             <div class="title-edit-window">
                 <div class="title-text-edit">Окно редактирования</div>
                 <button class="btn-close-edit" id="btn-close-edit" type="button">
-                    <img src="./src/assets/cross.svg">
+                    <img src="/assets/cross.svg" alt="">
                 </button>
             </div>
             <div class="body-edit-window">
                 <div class="title-video" id="title-video">
-                    ${data.title}
+                    ${escapeHtml(data.title ?? "Без названия")}
                 </div>
                 <div class="url-video" id="url-video">
-                    ${data.url}
+                    ${escapeHtml(data.url ?? "—")}
                 </div>
                 <div class="place-tags-edit">
-                    ${await tagsListRender(token, data, 1   )}
+                    ${await tagsListRender(token, data, 1)}
                 </div>
             </div>
             <div class="footer-edit-window">
@@ -36,5 +33,5 @@ export async function renderEditWindow (token, id){
             </div>
         </form>
     </div>  
-    `
+    `;
 }

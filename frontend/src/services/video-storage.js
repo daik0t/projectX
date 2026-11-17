@@ -1,5 +1,9 @@
 const STORAGE_KEY = "yt_metadata";
 
+// Необязательный серверный прокси для oEmbed (YouTube/Vimeo/TikTok запрашиваются
+// из браузера напрямую). Пример: VITE_OEMBED_PROXY=http://localhost:8080/api/oembed
+const OEMBED_PROXY = import.meta.env.VITE_OEMBED_PROXY ?? "";
+
 // ---------- storage ----------
 
 function loadCache() {
@@ -53,6 +57,8 @@ export async function clearAllMetadata() {
 // ---------- URL parsing ----------
 
 export function parseVideoUrl(rawUrl) {
+    if (typeof rawUrl !== "string" || rawUrl.trim() === "") return null;
+
     let u;
     try {
         u = new URL(/^https?:\/\//.test(rawUrl) ? rawUrl : `https://${rawUrl}`);
@@ -114,11 +120,18 @@ const OEMBED_PROVIDERS = {
         `https://www.tiktok.com/oembed?url=${encodeURIComponent(p.canonical)}`,
 };
 
+function buildProxyUrl(parsed) {
+    if (!OEMBED_PROXY) return null;
+    const params = new URLSearchParams({ url: parsed.canonical });
+    return `${OEMBED_PROXY}?${params.toString()}`;
+}
+
 /**
- * Строгая проверка + загрузка метаданных.
- * БРОСАЕТ Error с человекочитаемым сообщением при любой проблеме.
- * Используется в add-video.js — если упало, видео не создаётся.
- * @returns {Promise<{ meta: object, parsed: object }>}
+ * Пытается получить метаданные видео.
+ * Из-за сети/провайдера НЕ бросает: возвращает { meta: null, parsed, reason },
+ * чтобы добавление видео не зависело от доступности oEmbed.
+ * Бросает только при синтаксически некорректной ссылке.
+ * @returns {Promise<{ meta: object|null, parsed: object, reason?: string }>}
  */
 export async function fetchVideoMetadata(rawUrl) {
     const parsed = parseVideoUrl(rawUrl);
@@ -127,61 +140,34 @@ export async function fetchVideoMetadata(rawUrl) {
     }
 
     const build = OEMBED_PROVIDERS[parsed.platform];
+    const endpoint = build ? build(parsed) : buildProxyUrl(parsed);
 
-    // Известный провайдер — прямой запрос из браузера
-    if (build) {
-        let res;
-        try {
-            res = await fetchWithTimeout(build(parsed));
-        } catch (e) {
-            if (e.name === "AbortError") {
-                throw new Error(`Не удалось связаться с ${parsed.platform}: превышено время ожидания`);
-            }
-            throw new Error(`Не удалось связаться с ${parsed.platform}: ${e.message}`);
-        }
+    if (!endpoint) {
+        // Платформа без прямого oEmbed и без настроенного прокси.
+        return { meta: null, parsed, reason: "unsupported" };
+    }
+
+    try {
+        const res = await fetchWithTimeout(endpoint);
         if (!res.ok) {
-            throw new Error(`Видео недоступно на ${parsed.platform} (HTTP ${res.status})`);
+            return { meta: null, parsed, reason: `HTTP ${res.status}` };
         }
-        let meta;
-        try {
-            meta = await res.json();
-        } catch {
-            throw new Error(`${parsed.platform} вернул некорректный ответ`);
-        }
+        const meta = await res.json();
         return { meta, parsed };
+    } catch (err) {
+        return {
+            meta: null,
+            parsed,
+            reason: err?.name === "AbortError" ? "timeout" : String(err?.message ?? err),
+        };
     }
-
-    // Неизвестная платформа — discovery через бэк
-    let res;
-    try {
-        const params = new URLSearchParams({ url: parsed.canonical });
-        res = await fetchWithTimeout(`/api/oembed?${params}`, { timeoutMs: 8000 });
-    } catch (e) {
-        if (e.name === "AbortError") {
-            throw new Error("Сервер проверки ссылок не ответил вовремя");
-        }
-        throw new Error(`Не удалось проверить ссылку: ${e.message}`);
-    }
-
-    if (!res.ok) {
-        throw new Error(`Платформа не поддерживается (HTTP ${res.status})`);
-    }
-
-    let meta;
-    try {
-        meta = await res.json();
-    } catch {
-        throw new Error("Сервер вернул некорректный ответ");
-    }
-    return { meta, parsed };
 }
 
 // ---------- ensure (мягкий, для рендера) ----------
 
 /**
  * Мягкая версия: никогда не бросает.
- * Если метаданных нет и fetchVideoMetadata упал — возвращает null,
- * карточка отрендерится с заглушкой, список не сломается.
+ * Если метаданных нет — карточка рендерится с заглушкой, список не ломается.
  */
 export async function ensureVideoMetadata(video) {
     const { id, url, tags = [] } = video;
@@ -189,14 +175,21 @@ export async function ensureVideoMetadata(video) {
     const cached = getMetadata(id);
     if (cached) return cached;
 
+    let result;
     try {
-        const { meta } = await fetchVideoMetadata(url);
-        saveMetadata(id, meta, url, tags);
-        return meta;
+        result = await fetchVideoMetadata(url);
     } catch (err) {
-        console.warn(`[video-storage] oEmbed упал для ${url}:`, err.message);
+        console.warn(`[video-storage] некорректная ссылка ${url}:`, err.message);
         return null;
     }
+
+    if (!result.meta) {
+        console.warn(`[video-storage] метаданные недоступны для ${url}: ${result.reason}`);
+        return null;
+    }
+
+    saveMetadata(id, result.meta, url, tags);
+    return result.meta;
 }
 
 export async function ensureVideosMetadata(videos, { concurrency = 4 } = {}) {

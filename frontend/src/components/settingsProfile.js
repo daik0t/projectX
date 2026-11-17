@@ -1,8 +1,7 @@
 import { getAuth } from "../services/auth-storage";
-import { me } from "../api/auth";
+import { me, forgotPassword } from "../api/auth";
 
 export async function renderSettingsProfile(token) {
-    // 1) Пытаемся взять свежие данные с бэка
     let user = null;
     try {
         user = await me(token);
@@ -10,7 +9,6 @@ export async function renderSettingsProfile(token) {
         console.warn("[settings-profile] не удалось загрузить с сервера:", err.message);
     }
 
-    // 2) Фолбэк — то, что лежит в localStorage после логина
     if (!user) {
         user = getAuth()?.user ?? null;
     }
@@ -78,8 +76,15 @@ export function initSettingsProfile(token) {
     if (!btn) return;
 
     btn.addEventListener("click", async () => {
-        const user = await me(token);
-        const email = user.email 
+        let email = getAuth()?.user?.email ?? null;
+
+        try {
+            const user = await me(token);
+            if (user?.email) email = user.email;
+        } catch (err) {
+            console.warn("[settings-profile] не удалось получить email:", err.message);
+        }
+
         if (!email) {
             showProfileMessage(msg, "Не найден email пользователя", "error");
             return;

@@ -46,10 +46,11 @@
     visibility: hidden;
     opacity: 0;
     z-index: 1000;
-    width: 400px;
-    height: 200px;
+    width: min(400px, calc(100vw - 16px));
+    max-height: min(70vh, 480px);
     background-color: white;
-    overflow: hidden; 
+    overflow-y: auto;
+    overflow-x: hidden;
     box-sizing: border-box;
     position: fixed;
     border: 1px solid black;
