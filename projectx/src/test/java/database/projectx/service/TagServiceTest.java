@@ -1,5 +1,7 @@
 package database.projectx.service;
 
+import database.projectx.dto.TagDto;
+import database.projectx.exception.ResourceNotFoundException;
 import database.projectx.model.Tags;
 import database.projectx.repository.TagsRepository;
 import database.projectx.repository.UserRepository;
@@ -10,8 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -59,5 +63,39 @@ class TagServiceTest {
         assertThat(result.created()).isTrue(); 
         assertThat(result.tag().id()).isEqualTo(11L);
         verify(tagsRepository).save(any());
+    }
+
+    @Test
+    void getAvailableTags_shouldMapEntitiesToDtos() {
+        Tags first = new Tags(); first.setId(10L); first.setName("gaming");
+        Tags second = new Tags(); second.setId(11L); second.setName("global");
+
+        when(tagsRepository.findUserAndGlobalTags(1L)).thenReturn(List.of(first, second));
+
+        List<TagDto> result = tagService.getAvailableTags(1L);
+
+        assertThat(result).extracting(TagDto::id).containsExactly(10L, 11L);
+        assertThat(result).extracting(TagDto::name).containsExactly("gaming", "global");
+    }
+
+    @Test
+    void deleteTag_whenOwned_shouldDeleteTag() {
+        Tags tag = new Tags(); tag.setId(10L); tag.setName("gaming");
+        when(tagsRepository.findByIdAndUserId(10L, 1L)).thenReturn(Optional.of(tag));
+
+        tagService.deleteTag(1L, 10L);
+
+        verify(tagsRepository).delete(tag);
+    }
+
+    @Test
+    void deleteTag_whenNotFound_shouldThrowException() {
+        when(tagsRepository.findByIdAndUserId(10L, 1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> tagService.deleteTag(1L, 10L))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Тег не найден");
+
+        verify(tagsRepository, never()).delete(any());
     }
 }

@@ -2,10 +2,12 @@ package database.projectx.service;
 
 import database.projectx.security.CustomUserDetails;
 import database.projectx.model.User;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class JWTServiceTest {
 
@@ -59,5 +61,29 @@ class JWTServiceTest {
 
         boolean isValid = jwtService.isTokenValid(expiredToken, userDetails);
         assertThat(isValid).isFalse();
+    }
+
+    @Test
+    void isTokenValid_whenTokenMalformed_shouldReturnFalse() {
+        assertThat(jwtService.isTokenValid("not-a-jwt", userDetails)).isFalse();
+    }
+
+    @Test
+    void isTokenExpired_whenFreshToken_shouldReturnFalse() {
+        String token = jwtService.generateToken(userDetails);
+
+        assertThat(jwtService.isTokenExpired(token)).isFalse();
+    }
+
+    @Test
+    void isTokenExpired_whenExpiredToken_shouldThrowExpiredJwtException() {
+        // Фактическое поведение: parseSignedClaims падает на просроченном токене,
+        // поэтому isTokenExpired не возвращает true, а бросает ExpiredJwtException.
+        // isTokenValid это исключение перехватывает и отдаёт false.
+        JWTService expiredService = new JWTService(secret, -1000L);
+        String token = expiredService.generateToken(userDetails);
+
+        assertThatThrownBy(() -> jwtService.isTokenExpired(token))
+                .isInstanceOf(ExpiredJwtException.class);
     }
 }

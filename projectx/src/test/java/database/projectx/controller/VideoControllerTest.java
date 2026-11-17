@@ -49,7 +49,7 @@ public class VideoControllerTest {
     @Test 
     void getMyVideos_shouldReturnListOfVideos() throws Exception {
         VideoResponse mockVideo = new VideoResponse(1L, "test", Set.of());
-        when(videoService.getMyVideos(any())).thenReturn(List.of(mockVideo));
+        when(videoService.getMyVideos(any(), any())).thenReturn(List.of(mockVideo));
         
         mockMvc.perform(get("/api/videos/me").with(user(mockPrincipal())))
         .andDo(print())
