@@ -23,6 +23,17 @@
     border-color: black;
 }
 
+.toggle-checkbox:focus-visible + .tag-button {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+
 .tags-list-wrapper {
     display: flex;
     flex-wrap: wrap;

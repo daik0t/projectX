@@ -10,7 +10,7 @@ export async function renderSettingsTags(token) {
         <div class="place-tags-settings" id="place-tags-settings">
             ${tagsHtml}
         </div>
-        <button class="delete-tags" id="delete-tags">Удалить</button>
+        <button class="delete-tags" id="delete-tags" type="button">Удалить</button>
     </div>
     `
 }

@@ -24,6 +24,9 @@ const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-passwo
 export async function router() {
     const app = resetPage();
 
+    // Не оставляем прокрутку предыдущей страницы.
+    window.scrollTo(0, 0);
+
     let path = window.location.pathname;
 
     if (isAuthCallback()) {
@@ -80,16 +83,27 @@ export async function router() {
     }
 
     if (matchedRoute) {
+        app.innerHTML = '<div class="page-loading" role="status">Загрузка…</div>';
+
         try {
             await matchedRoute(params);
         } catch (error) {
             if (error?.status === 401) return;
 
-            app.innerHTML =
-                `<div class="alert alert-danger">Ошибка: ${escapeHtml(error?.message ?? 'Неизвестная ошибка')}</div>`;
+            app.innerHTML = `
+                <div class="error-state" role="alert">
+                    <p>Ошибка: ${escapeHtml(error?.message ?? 'Неизвестная ошибка')}</p>
+                    <a href="/" data-link>На главную</a>
+                </div>
+            `;
         }
     } else {
-        app.innerHTML = '<h1>404 - Страница не найдена</h1>';
+        app.innerHTML = `
+            <div class="error-state" role="alert">
+                <p>404 — страница не найдена</p>
+                <a href="/" data-link>На главную</a>
+            </div>
+        `;
     }
 }
 

@@ -2,7 +2,7 @@ import { forgotPassword } from "../api/auth";
 
 export function forgotPasswordFormRender() {
     return `
-    <form id="forgot-form" novalidate>
+    <form id="forgot-form">
         <p class="auth-widget-hint">
             Введите email, указанный при регистрации. Мы пришлём ссылку для сброса пароля.
         </p>
@@ -12,11 +12,13 @@ export function forgotPasswordFormRender() {
                 type="email"
                 name="email"
                 placeholder="почта"
+                aria-label="Email"
                 autocomplete="email"
+                maxlength="255"
                 required
             >
         </div>
-        <div class="auth-widget-message" id="forgot-message" hidden></div>
+        <div class="auth-widget-message" id="forgot-message" role="alert" aria-live="polite" hidden></div>
         <div>
             <button class="auth-widget-submit" type="submit">Отправить</button>
         </div>

@@ -3,6 +3,8 @@
 // навешанные на элементы страницы, исчезают вместе с ним. Слушатели на
 // window/document отменяются через AbortController (pageSignal).
 
+import { closeAllModals } from './modal';
+
 let controller = new AbortController();
 
 /** Сигнал текущей страницы — передавать в addEventListener({ signal }). */
@@ -15,6 +17,7 @@ export function pageSignal() {
  * свежий #app. Вызывать из роутера перед рендером маршрута.
  */
 export function resetPage() {
+    closeAllModals();
     controller.abort();
     controller = new AbortController();
 

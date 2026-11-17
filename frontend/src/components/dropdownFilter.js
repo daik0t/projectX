@@ -3,8 +3,9 @@ import { setTag, applyFilter, clearFilter, syncUI } from "../services/filter";
 
 export async function renderDropdownFilter(token, tags = null) {
     return `
-    <div class="place-tags-filter-overlay" id="place-tags-filter-overlay"></div>
-    <form class="place-tags-filter" id="place-tags-filter">
+    <div class="place-tags-filter-overlay" id="place-tags-filter-overlay" aria-hidden="true"></div>
+    <form class="place-tags-filter" id="place-tags-filter" role="group"
+        aria-label="Фильтр по тегам" aria-hidden="true">
         ${await tagsListRender(token, {}, 1, tags)}
         <div class="place-tags-filter-actions">
             <button type="button" class="tag-apply-btn" id="tag-apply-btn">Применить</button>

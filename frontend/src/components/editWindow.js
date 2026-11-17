@@ -3,16 +3,15 @@ import { tagsListRender } from "./tagsList";
 import { escapeHtml } from "../lib/html";
 
 export async function renderEditWindow(token, id) {
-
     const data = getMetadata(id) ?? {};
 
     return `
-    <div class="edit-window-overlay" id="edit-window-overlay"></div>
-    <div class="edit-window" id="edit-window">
+    <div class="edit-window-overlay" id="edit-window-overlay" aria-hidden="true"></div>
+    <div class="edit-window" id="edit-window" role="dialog" aria-modal="true" aria-labelledby="edit-window-title" aria-hidden="true">
         <form class="edit-window-form" id="edit-window-form">
             <div class="title-edit-window">
-                <div class="title-text-edit">Окно редактирования</div>
-                <button class="btn-close-edit" id="btn-close-edit" type="button">
+                <div class="title-text-edit" id="edit-window-title">Окно редактирования</div>
+                <button class="btn-close-edit" id="btn-close-edit" type="button" aria-label="Закрыть">
                     <img src="/assets/cross.svg" alt="">
                 </button>
             </div>

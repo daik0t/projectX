@@ -1,38 +1,57 @@
-.video-card{
-    margin-left: 20px;
-    margin-top: 20px;
+.video-card {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    padding: 6px;
+    border: 1px solid transparent;
+    border-radius: 8px;
     text-align: center;
-    height: 220px;
-    width: 270px;
+    cursor: grab;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
 }
 
-.video-card:hover{
+.video-card:active {
+    cursor: grabbing;
+}
+
+.video-card.dragging {
+    opacity: 0.45;
+    border-style: dashed;
+}
+
+.video-card:hover,
+.video-card:focus-visible {
     background-color: #f2f2f2;
-    cursor: pointer;
+    border-color: var(--border);
 }
 
-.card-preview{
+.card-preview {
     background-image: url('/assets/back.svg');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 360px;
-}
-
-.card-title{
-    margin-top: 5px;
+    background-size: 80%;
+    aspect-ratio: 16 / 9;
+    background-color: #fafafa;
+    border-radius: 6px;
     overflow: hidden;
-    text-wrap-mode: nowrap;
-    text-overflow: ellipsis;
-    color: inherit;
-    text-decoration: none;
-    margin: auto;
-    width: 270px;
-    
 }
 
 .card-preview > img {
-    height: 160px;
-    width: 150px;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-title {
+    margin-top: 8px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: inherit;
 }

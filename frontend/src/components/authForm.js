@@ -1,5 +1,7 @@
 import { registerUser, loginUser } from '../api/auth.js';
 
+const DISPLAY_NAME_RE = /^[a-zA-Z0-9_]+$/;
+
 export function authFormRender(mode) {
     const displayNameField = mode === 'register'
         ? `
@@ -9,10 +11,20 @@ export function authFormRender(mode) {
                     type="text"
                     name="displayName"
                     placeholder="имя"
+                    aria-label="Имя пользователя"
+                    autocomplete="username"
+                    minlength="3"
+                    maxlength="30"
+                    pattern="[A-Za-z0-9_]+"
+                    title="3–30 символов: латиница, цифры и _"
                     required
                 >
             </div>
         `
+        : '';
+
+    const hint = mode === 'register'
+        ? `<p class="auth-widget-hint">Имя: 3–30 символов (латиница, цифры, _). Пароль: от 8 символов.</p>`
         : '';
 
     const forgotLink = mode === 'login'
@@ -27,16 +39,19 @@ export function authFormRender(mode) {
 
 
     return `
-        <form id="auth-widget-form" novalidate>
+        <form id="auth-widget-form">
             ${displayNameField}
+            ${hint}
             <div class="auth-widget-group">
                 <input
                     id="email"
                     type="email"
                     name="email"
                     placeholder="почта"
-                    required
+                    aria-label="Email"
                     autocomplete="email"
+                    maxlength="255"
+                    required
                 >
             </div>
             <div class="auth-widget-group">
@@ -45,14 +60,17 @@ export function authFormRender(mode) {
                     type="password"
                     name="password"
                     placeholder="пароль"
-                    required
+                    aria-label="Пароль"
                     autocomplete="${mode === 'register' ? 'new-password' : 'current-password'}"
+                    ${mode === 'register' ? 'minlength="8"' : ''}
+                    maxlength="100"
+                    required
                 >
             </div>
 
             ${forgotLink}
 
-            <div class="auth-widget-message" id="auth-message" hidden></div>
+            <div class="auth-widget-message" id="auth-message" role="alert" aria-live="polite" hidden></div>
 
             <div>
                 <button class="auth-widget-submit" type="submit">Подтвердить</button>
@@ -81,11 +99,16 @@ export function initAuthForm(mode, onSuccess) {
             return;
         }
 
+        if (mode === 'register' && password.length < 8) {
+            showMessage(messageEl, 'Пароль должен быть не короче 8 символов', 'error');
+            return;
+        }
+
         let payload;
         if (mode === 'register') {
             const displayName = formData.get('displayName')?.toString().trim() ?? '';
-            if (!displayName) {
-                showMessage(messageEl, 'Введите имя', 'error');
+            if (displayName.length < 3 || displayName.length > 30 || !DISPLAY_NAME_RE.test(displayName)) {
+                showMessage(messageEl, 'Имя: 3–30 символов, латиница, цифры и _', 'error');
                 return;
             }
             payload = { displayName, email, password };
@@ -99,9 +122,9 @@ export function initAuthForm(mode, onSuccess) {
         try {
             const fn = mode === 'register' ? registerUser : loginUser;
             const result = await fn(payload);
-            showMessage(messageEl, 'Успешно!', 'success');
             await onSuccess?.(result);
         } catch (error) {
+            // details приходит только у ошибок валидации (400), у 409 там имя поля.
             const fieldError = error?.status === 400
                 && error.details
                 && typeof error.details === 'object'

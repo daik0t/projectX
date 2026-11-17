@@ -54,7 +54,7 @@ export async function renderSettingsProfile(token) {
                 <button class="profile-action-btn" id="btn-change-password" type="button">
                     Сменить пароль
                 </button>
-                <div class="profile-section-message" id="profile-message" hidden></div>
+                <div class="profile-section-message" id="profile-message" role="alert" aria-live="polite" hidden></div>
             </div>
         </div>
     </div>

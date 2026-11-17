@@ -3,7 +3,7 @@ import { resetPassword } from "../api/auth";
 export function resetPasswordFormRender({ token }) {
     if (!token) {
         return `
-        <div class="auth-widget-message" data-type="error">
+        <div class="auth-widget-message" data-type="error" role="alert">
             Ссылка недействительна: отсутствует токен.
             <div><a href="/forgot-password" data-link>Запросить новую ссылку</a></div>
         </div>
@@ -11,16 +11,18 @@ export function resetPasswordFormRender({ token }) {
     }
 
     return `
-    <form id="reset-form" novalidate>
-        <p class="auth-widget-hint">Придумайте новый пароль (минимум 6 символов).</p>
+    <form id="reset-form">
+        <p class="auth-widget-hint">Придумайте новый пароль (минимум 8 символов).</p>
         <div class="auth-widget-group">
             <input
                 id="reset-password"
                 type="password"
                 name="newPassword"
                 placeholder="новый пароль"
+                aria-label="Новый пароль"
                 autocomplete="new-password"
-                minlength="6"
+                minlength="8"
+                maxlength="100"
                 required
             >
         </div>
@@ -30,12 +32,14 @@ export function resetPasswordFormRender({ token }) {
                 type="password"
                 name="confirm"
                 placeholder="повторите пароль"
+                aria-label="Повторите новый пароль"
                 autocomplete="new-password"
-                minlength="6"
+                minlength="8"
+                maxlength="100"
                 required
             >
         </div>
-        <div class="auth-widget-message" id="reset-message" hidden></div>
+        <div class="auth-widget-message" id="reset-message" role="alert" aria-live="polite" hidden></div>
         <div>
             <button class="auth-widget-submit" type="submit">Сохранить пароль</button>
         </div>
@@ -57,8 +61,8 @@ export function initResetPasswordForm({ token, onSuccess }) {
         const newPassword = fd.get("newPassword")?.toString() ?? "";
         const confirm = fd.get("confirm")?.toString() ?? "";
 
-        if (newPassword.length < 6) {
-            showMessage(messageEl, "Пароль должен быть не короче 6 символов", "error");
+        if (newPassword.length < 8) {
+            showMessage(messageEl, "Пароль должен быть не короче 8 символов", "error");
             return;
         }
         if (newPassword !== confirm) {

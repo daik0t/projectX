@@ -22,11 +22,11 @@ export async function renderPropertiesWindow(id) {
     const tags = escapeHtml(formatTags(data.tags));
 
     return `
-    <div class="properties-window-overlay" id="properties-window-overlay"></div>
-    <div class="properties-window" id="properties-window">
+    <div class="properties-window-overlay" id="properties-window-overlay" aria-hidden="true"></div>
+    <div class="properties-window" id="properties-window" role="dialog" aria-modal="true" aria-labelledby="properties-window-title" aria-hidden="true">
         <div class="title-add-window">
-            <div class="title-text">Свойства</div>
-            <button class="btn-close" id="btn-close-properties" type="button">
+            <div class="title-text" id="properties-window-title">Свойства</div>
+            <button class="btn-close" id="btn-close-properties" type="button" aria-label="Закрыть">
                 <img src="/assets/cross.svg" alt="">
             </button>
         </div>
@@ -44,7 +44,9 @@ export async function renderPropertiesWindow(id) {
             Тэги: ${tags}
         </div>
         <div class="link-properties" id="link-properties">
-            Ссылка: ${url}
+            Ссылка: ${data.url
+                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+                : "—"}
         </div>
     </div>
     `;

@@ -2,15 +2,33 @@
     visibility: hidden;
     position: fixed;
     display: flex;
-    opacity: 0;
     flex-direction: column;
+    opacity: 0;
     z-index: 1000;
+    min-width: 190px;
+    padding: 4px;
+    background: var(--surface);
+    border: 1px solid #111;
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
 }
 
 .action-window.show{
     opacity: 1;
     visibility: visible;
-    transform: scale(1);
+}
+
+.action-window button{
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    text-align: left;
+}
+
+.action-window button:hover,
+.action-window button:focus-visible{
+    background: #f0f0f0;
 }
 
 .action-window-overlay{
@@ -19,7 +37,7 @@
     z-index: 999;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.15s ease, visibility 0.15s ease;        
+    transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 
 .action-window-overlay.show {

@@ -1,12 +1,40 @@
 import { getMyVideos } from "../api/video";
-import { videoCardRender } from "../components/videoCard";
+import { videoCardRender, updateVideoCard } from "../components/videoCard";
 import { ensureVideosMetadata } from "./video-storage";
 import { escapeHtml } from "../lib/html";
+
+let renderGeneration = 0;
+
+function skeletonHtml(count = 6) {
+    return Array.from({ length: count }, () => `
+        <div class="video-card skeleton-card" aria-hidden="true">
+            <div class="skeleton skeleton-preview"></div>
+            <div class="skeleton skeleton-line"></div>
+        </div>
+    `).join("");
+}
+
+function announceRendered(container) {
+    container.dispatchEvent(new CustomEvent("video-list:rendered"));
+}
+
+function drawCards(container, videos) {
+    container.innerHTML = videos.map(videoCardRender).join("");
+    announceRendered(container);
+}
 
 export async function renderVideoList(container, token, tags = []) {
     if (!container) {
         console.warn("renderVideoList: контейнер не передан");
         return;
+    }
+
+    const requestId = ++renderGeneration;
+    container.setAttribute("aria-busy", "true");
+
+    // Скелетон только при первой загрузке, при фильтрации оставляем старые карточки.
+    if (!container.querySelector(".video-card")) {
+        container.innerHTML = skeletonHtml();
     }
 
     try {
@@ -15,21 +43,53 @@ export async function renderVideoList(container, token, tags = []) {
             ? await getMyVideos(token, tags)
             : await getMyVideos(token);
 
+        // Пока ждали ответ, пользователь мог уйти или применить другой фильтр.
+        if (requestId !== renderGeneration || !container.isConnected) return;
+
         if (!videos || videos.length === 0) {
             container.innerHTML = hasFilter
                 ? "<p>По выбранным тегам видео не найдены.</p>"
                 : "<p>У вас пока нет видео.</p>";
+            container.setAttribute("aria-busy", "false");
+            announceRendered(container);
             return;
         }
 
-        await ensureVideosMetadata(videos);
+        // Сразу рисуем карточки (с заглушками), метаданные догружаем фоном.
+        drawCards(container, videos);
+        container.setAttribute("aria-busy", "false");
 
-        container.innerHTML = (
-            await Promise.all(videos.map((video) => videoCardRender(video)))
-        ).join("");
+        ensureVideosMetadata(videos, {
+            concurrency: 4,
+            onEach: (video) => {
+                if (requestId !== renderGeneration || !container.isConnected) return;
+
+                const card = container.querySelector(
+                    `.video-card[data-video-id="${String(video.id)}"]`
+                );
+                if (!card) return;
+
+                updateVideoCard(card, video);
+                announceRendered(container);
+            },
+        }).catch((error) => {
+            console.warn("[render-video-list] metadata enrichment failed:", error);
+        });
     } catch (error) {
+        if (requestId !== renderGeneration || !container.isConnected) return;
+        // 401 уже обработан глобально — страницу сейчас сменит роутер.
         if (error?.status === 401) return;
 
-        container.innerHTML = `<p class="error">Ошибка загрузки: ${escapeHtml(error.message)}</p>`;
+        container.setAttribute("aria-busy", "false");
+        container.innerHTML = `
+            <div class="error-state" role="alert">
+                <p>Не удалось загрузить видео: ${escapeHtml(error.message)}</p>
+                <button type="button" class="retry-btn">Повторить</button>
+            </div>
+        `;
+
+        container.querySelector(".retry-btn")?.addEventListener("click", () => {
+            renderVideoList(container, token, tags);
+        }, { once: true });
     }
 }

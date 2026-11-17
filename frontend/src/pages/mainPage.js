@@ -1,7 +1,7 @@
 import { getTags } from "../api/video"
-import { actionWindowRender} from "../components/actionWindow"
+import { actionWindowRender } from "../components/actionWindow"
 import { getAuth } from "../services/auth-storage"
-import { initMainEvents} from "../services/init-events"
+import { initMainEvents } from "../services/init-events"
 import { renderAddWindow } from "../components/addWindow"
 import { renderDropdownFilter } from "../components/dropdownFilter"
 import { renderHomeBoard } from "../components/homeBoard"
@@ -21,51 +21,60 @@ export async function renderMain() {
     const displayName = escapeHtml(userH?.displayName ?? 'Гость')
 
     container.innerHTML = `
-    ${actionWindowRender()}
-    ${await renderAddWindow(token, tags)}
-    ${await renderDropdownFilter(token, tags)}
-    ${await renderHomeBoard()}
-    <div class="main-page">
-        <header class="top-main-page">
-            <button class="btn-add" id="btn-add">
-                <img src="/assets/plus.svg" alt="">
-                Добавить
-            </button>
-            <input class="raw-path" id="raw-path" readonly>
-            <input class="search-input" id="search-input" type="text" placeholder="Поиск">
-            <button class="btn-filter" id="btn-filter">
-                <img src="/assets/filter.svg" width="10px" height="10px" alt="">
-            </button>
-        </header>
-        <div class="center-main-page">
-            <aside class="sidebar-tags" id="sidebar-tags">
-                <div class="user-name" id="user-name">
-                    >${displayName}
+        ${actionWindowRender()}
+        ${await renderAddWindow(token, tags)}
+        ${await renderDropdownFilter(token, tags)}
+        ${await renderHomeBoard()}
+        <div class="main-page">
+            <header class="top-main-page">
+                <button class="btn-add" id="btn-add" type="button" aria-label="Добавить видео" aria-haspopup="dialog">
+                    <img src="/assets/plus.svg" alt="">
+                    Добавить
+                </button>
+                <input class="raw-path" id="raw-path" type="text" readonly
+                    aria-label="Текущий путь" title="">
+                <input class="search-input" id="search-input" type="search" placeholder="Поиск по названию"
+                    aria-label="Поиск по названию видео" autocomplete="off">
+                <button class="btn-filter" id="btn-filter" type="button"
+                    aria-label="Фильтр по тегам" aria-expanded="false" aria-controls="place-tags-filter">
+                    <img src="/assets/filter.svg" width="12" height="12" alt="">
+                </button>
+            </header>
+            <div class="center-main-page">
+                <aside class="sidebar-tags" id="sidebar-tags" aria-label="Теги">
+                    <div class="user-name" id="user-name">
+                        >${displayName}
+                    </div>
+                    <div class="title">>видео</div>
+                    <div class="tags-list" id="tags-list">
+                        <button class="video-tag" id="btn-all-tags" type="button" aria-pressed="false">>все</button>
+                        <br>${tags.map(t => `<button class="video-tag" type="button" data-tag-id="${escapeHtml(t.id)}" aria-pressed="false">>${escapeHtml(t.name)}</button>`).join(`<br>`)}
+                    </div>
+                </aside>
+                <div class="video-grid" id="video-grid" aria-live="polite" aria-busy="false">
                 </div>
-                <div class="title">>видео</div>
-                <div class="tags-list" id="tags-list">
-                    <button class="video-tag">>все</button>
-                    <br>${tags.map(t => `<button class="video-tag" data-tag-id="${escapeHtml(t.id)}" >>${escapeHtml(t.name)}</button>`).join(`<br>`)}
-                </div>
-            </aside>
-            <div class="video-grid" id="video-grid">
             </div>
-        </div>
 
-        <footer class="bottom-main-page">
-            <button class="btn-home" id="btn-home">
-                <img src="/assets/home.svg" alt="">
-            </button>
-            <button class="btn-explorer" id="btn-explorer">
-                <img src="/assets/mainfolder.svg" alt="">
-            </button>
-            <button class="btn-setting" id="btn-setting">
-                <img src="/assets/settings.svg" alt="">
-            </button>
-            <img src="/assets/trash.svg" id="trash" class="trash" alt="">
-        </footer>
-    </div>
+            <footer class="bottom-main-page">
+                <button class="btn-home" id="btn-home" type="button" aria-label="Меню"
+                    aria-expanded="false" aria-controls="home-board">
+                    <img src="/assets/home.svg" alt="">
+                </button>
+                <button class="btn-explorer" id="btn-explorer" type="button" aria-label="На главную">
+                    <img src="/assets/mainfolder.svg" alt="">
+                </button>
+                <button class="btn-setting" id="btn-setting" type="button" aria-label="Настройки">
+                    <img src="/assets/settings.svg" alt="">
+                </button>
+                <button class="trash" id="trash" type="button"
+                    aria-label="Удалить видео: перетащите карточку в корзину"
+                    title="Перетащите карточку сюда, чтобы удалить видео">
+                    <img src="/assets/trash.svg" alt="">
+                </button>
+            </footer>
+        </div>
     `
+
     initTagsList('add-window-form', {
         onCreateTag: (name) => createTag(token, { name }),
     });
@@ -74,6 +83,5 @@ export async function renderMain() {
         onCreateTag: (name) => createTag(token, { name }),
     });
 
-    await initMainEvents(auth)
-
+    await initMainEvents(auth, userH, tags)
 }

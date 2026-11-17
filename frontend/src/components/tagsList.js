@@ -26,8 +26,8 @@ export async function tagsListRender(token, data = {}, type = 0, tagsOverride = 
             <button class="tag-add-btn" type="button">+ Добавить тэг</button>
 
             <div class="tag-input-group hidden">
-                <input type="text" class="new-tag-input" placeholder="Новый тэг...">
-                <button class="tag-save-btn" type="button">✓</button>
+                <input type="text" class="new-tag-input" placeholder="Новый тэг..." aria-label="Новый тэг">
+                <button class="tag-save-btn" type="button" aria-label="Сохранить тэг">✓</button>
             </div>
         </div>
     `;

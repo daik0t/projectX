@@ -3,7 +3,8 @@ import { renderVideoList } from "./render-video-list";
 const state = {
     container: null,
     token: null,
-    selectedTags: new Set(),
+    selectedTags: new Set(), // выбранные в UI, ещё не применённые
+    appliedTags: new Set(),  // применённые к текущему списку
 };
 
 export function initFilter({ container, token }) {
@@ -14,6 +15,15 @@ export function initFilter({ container, token }) {
 
 export function getSelectedTagIds() {
     return Array.from(state.selectedTags);
+}
+
+export function getAppliedTagIds() {
+    return Array.from(state.appliedTags);
+}
+
+/** Зафиксировать текущий выбор как применённый фильтр (без рендера). */
+export function commitFilter() {
+    state.appliedTags = new Set(state.selectedTags);
 }
 
 export function isTagSelected(id) {
@@ -42,6 +52,7 @@ export function clearFilter() {
 
 export function resetFilter() {
     state.selectedTags.clear();
+    state.appliedTags.clear();
     state.container = null;
     state.token = null;
 }
@@ -50,16 +61,29 @@ export async function applyFilter() {
     if (!state.container || !state.token) return;
 
     const ids = getSelectedTagIds();
+    commitFilter();
+
     await renderVideoList(state.container, state.token, ids);
+    window.dispatchEvent(new CustomEvent('filter:applied'));
 }
 
 export function syncUI(root = document) {
     root.querySelectorAll('input.toggle-checkbox[name="tags"]').forEach((cb) => {
         cb.checked = state.selectedTags.has(String(cb.value));
     });
+
     root.querySelectorAll('.video-tag[data-tag-id]').forEach((btn) => {
-        btn.classList.toggle('active', state.selectedTags.has(String(btn.dataset.tagId)));
+        const active = state.selectedTags.has(String(btn.dataset.tagId));
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
     });
+
+    const allButton = root.querySelector('#btn-all-tags');
+    if (allButton) {
+        const active = state.selectedTags.size === 0;
+        allButton.classList.toggle('active', active);
+        allButton.setAttribute('aria-pressed', String(active));
+    }
 }
 
 export function bindSidePanelTags(root = document) {

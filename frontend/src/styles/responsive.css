@@ -1,0 +1,128 @@
+@media (max-width: 900px) {
+    .top-main-page {
+        flex-wrap: wrap;
+        padding: 8px;
+    }
+
+    .raw-path {
+        order: 2;
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .search-input {
+        order: 3;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .center-main-page {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-tags {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px 8px;
+        max-height: none;
+        padding: 8px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-tags .user-name,
+    .sidebar-tags .title {
+        width: 100%;
+        margin: 0;
+    }
+
+    .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .tags-list br {
+        display: none;
+    }
+
+    .video-tag {
+        margin-left: 0;
+    }
+
+    .video-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        padding: 8px;
+    }
+
+    .video-card {
+        max-width: none;
+    }
+
+    .title-settings-window {
+        padding: 8px;
+    }
+
+    .body-settings-page {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-settings {
+        flex-direction: row;
+        align-items: center;
+        overflow-x: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 8px;
+    }
+
+    .tab-list {
+        flex-direction: row;
+        margin: 0;
+        padding: 0;
+    }
+
+    .profile-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+    }
+
+    .auth-widget-card {
+        margin-top: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .add-window,
+    .edit-window,
+    .properties-window {
+        width: calc(100vw - 16px);
+        max-height: 90dvh;
+    }
+
+    .home-board {
+        width: calc(100vw - 16px);
+        height: auto;
+        max-height: 55dvh;
+        overflow-y: auto;
+    }
+
+    .auth-widget-card {
+        max-width: none;
+        margin: 12px;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .bottom-main-page > button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .profile-meta {
+        flex-direction: column;
+        gap: 2px;
+    }
+}

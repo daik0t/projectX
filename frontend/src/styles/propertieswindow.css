@@ -5,22 +5,23 @@
     position: fixed;
     opacity: 0;
     z-index: 1000;
-    width: min(400px, calc(100vw - 16px));
+    inset: 0;
+    margin: auto;
+    width: min(420px, calc(100vw - 32px));
     height: auto;
-    max-height: min(85vh, 560px);
-    background-color: white;
+    max-height: min(85dvh, 600px);
+    background-color: var(--surface);
     overflow-y: auto;
     box-sizing: border-box;
-    top: 10%;
-    left: 40%;
-    border: 1px solid black;
+    border: 1px solid #111;
+    border-radius: 8px;
+    padding-bottom: 12px;
     box-shadow: 0px 2px 30px rgb(215, 214, 214);
 }
 
 .properties-window.show{
     opacity: 1;
     visibility: visible;
-    transform: scale(1);
 }
 
 .properties-window-overlay{
@@ -40,4 +41,20 @@
 .img-properties{
     width: 200px;
     height: 150px;
+    object-fit: cover;
+    margin: 12px;
+    border-radius: 6px;
+}
+
+.title-video,
+.video-author,
+.video-provaider,
+.place-tags-properties,
+.link-properties {
+    padding: 4px 12px;
+    word-break: break-word;
+}
+
+.link-properties {
+    word-break: break-all;
 }

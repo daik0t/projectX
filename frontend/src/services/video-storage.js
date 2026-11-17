@@ -171,7 +171,9 @@ export async function ensureVideoMetadata(video) {
     }
 
     if (!result.meta) {
-        console.warn(`[video-storage] метаданные недоступны для ${url}: ${result.reason}`);
+        if (result.reason !== "unsupported") {
+            console.warn(`[video-storage] метаданные недоступны для ${url}: ${result.reason}`);
+        }
         return null;
     }
 
@@ -179,12 +181,14 @@ export async function ensureVideoMetadata(video) {
     return result.meta;
 }
 
-export async function ensureVideosMetadata(videos, { concurrency = 4 } = {}) {
+export async function ensureVideosMetadata(videos, { concurrency = 4, onEach } = {}) {
     if (!Array.isArray(videos) || videos.length === 0) return;
     const queue = videos.slice();
     const worker = async () => {
         while (queue.length) {
-            await ensureVideoMetadata(queue.shift());
+            const video = queue.shift();
+            const meta = await ensureVideoMetadata(video);
+            if (meta) onEach?.(video, meta);
         }
     };
     const workers = Array.from(
