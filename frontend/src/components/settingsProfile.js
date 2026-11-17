@@ -1,5 +1,6 @@
 import { getAuth } from "../services/auth-storage";
 import { me, forgotPassword } from "../api/auth";
+import { escapeHtml } from "../lib/html";
 
 export async function renderSettingsProfile(token) {
     let user = null;
@@ -23,7 +24,7 @@ export async function renderSettingsProfile(token) {
 
     const displayName = escapeHtml(user.displayName ?? "Без имени");
     const email       = escapeHtml(user.email ?? "—");
-    const initial     = (user.displayName ?? "?").trim().charAt(0).toUpperCase() || "?";
+    const initial     = escapeHtml((user.displayName ?? "?").trim().charAt(0).toUpperCase() || "?");
     const createdAt   = user.createdAt
         ? new Date(user.createdAt).toLocaleDateString("ru-RU", {
               day: "2-digit", month: "long", year: "numeric",
@@ -58,16 +59,6 @@ export async function renderSettingsProfile(token) {
         </div>
     </div>
     `;
-}
-
-function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, (c) => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-    }[c]));
 }
 
 export function initSettingsProfile(token) {

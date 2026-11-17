@@ -1,14 +1,16 @@
+import { getCurrentUserId } from "./session";
+import { OEMBED_PROXY_URL } from "../lib/config";
+
 const STORAGE_KEY = "yt_metadata";
 
-// Необязательный серверный прокси для oEmbed (YouTube/Vimeo/TikTok запрашиваются
-// из браузера напрямую). Пример: VITE_OEMBED_PROXY=http://localhost:8080/api/oembed
-const OEMBED_PROXY = import.meta.env.VITE_OEMBED_PROXY ?? "";
 
-// ---------- storage ----------
+function storageKey() {
+    return `${STORAGE_KEY}:${getCurrentUserId() ?? "anon"}`;
+}
 
 function loadCache() {
     try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        return JSON.parse(localStorage.getItem(storageKey())) || {};
     } catch {
         return {};
     }
@@ -16,7 +18,7 @@ function loadCache() {
 
 function saveCache(cache) {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
+        localStorage.setItem(storageKey(), JSON.stringify(cache));
     } catch (e) {
         console.error("localStorage save failed", e);
     }
@@ -48,13 +50,13 @@ export function removeMetadata(videoId) {
 
 export async function clearAllMetadata() {
     try {
-        localStorage.removeItem(STORAGE_KEY);
+        Object.keys(localStorage)
+            .filter((key) => key === STORAGE_KEY || key.startsWith(`${STORAGE_KEY}:`))
+            .forEach((key) => localStorage.removeItem(key));
     } catch (e) {
         console.error("localStorage clear failed", e);
     }
 }
-
-// ---------- URL parsing ----------
 
 export function parseVideoUrl(rawUrl) {
     if (typeof rawUrl !== "string" || rawUrl.trim() === "") return null;
@@ -99,7 +101,6 @@ export function parseVideoUrl(rawUrl) {
     return { platform: "unknown", id: null, canonical: u.toString() };
 }
 
-// ---------- oEmbed (frontend-only) ----------
 
 async function fetchWithTimeout(url, { timeoutMs = 8000 } = {}) {
     const ctrl = new AbortController();
@@ -121,18 +122,11 @@ const OEMBED_PROVIDERS = {
 };
 
 function buildProxyUrl(parsed) {
-    if (!OEMBED_PROXY) return null;
+    if (!OEMBED_PROXY_URL) return null;
     const params = new URLSearchParams({ url: parsed.canonical });
-    return `${OEMBED_PROXY}?${params.toString()}`;
+    return `${OEMBED_PROXY_URL}?${params.toString()}`;
 }
 
-/**
- * Пытается получить метаданные видео.
- * Из-за сети/провайдера НЕ бросает: возвращает { meta: null, parsed, reason },
- * чтобы добавление видео не зависело от доступности oEmbed.
- * Бросает только при синтаксически некорректной ссылке.
- * @returns {Promise<{ meta: object|null, parsed: object, reason?: string }>}
- */
 export async function fetchVideoMetadata(rawUrl) {
     const parsed = parseVideoUrl(rawUrl);
     if (!parsed) {
@@ -143,7 +137,6 @@ export async function fetchVideoMetadata(rawUrl) {
     const endpoint = build ? build(parsed) : buildProxyUrl(parsed);
 
     if (!endpoint) {
-        // Платформа без прямого oEmbed и без настроенного прокси.
         return { meta: null, parsed, reason: "unsupported" };
     }
 
@@ -163,12 +156,6 @@ export async function fetchVideoMetadata(rawUrl) {
     }
 }
 
-// ---------- ensure (мягкий, для рендера) ----------
-
-/**
- * Мягкая версия: никогда не бросает.
- * Если метаданных нет — карточка рендерится с заглушкой, список не ломается.
- */
 export async function ensureVideoMetadata(video) {
     const { id, url, tags = [] } = video;
 

@@ -1,6 +1,7 @@
 import { getMyVideos } from "../api/video";
 import { videoCardRender } from "../components/videoCard";
-import { ensureVideosMetadata } from "./video-storage";   // ← уже существующий модуль
+import { ensureVideosMetadata } from "./video-storage";
+import { escapeHtml } from "../lib/html";
 
 export async function renderVideoList(container, token, tags = []) {
     if (!container) {
@@ -27,6 +28,8 @@ export async function renderVideoList(container, token, tags = []) {
             await Promise.all(videos.map((video) => videoCardRender(video)))
         ).join("");
     } catch (error) {
-        container.innerHTML = `<p class="error">Ошибка загрузки: ${error.message}</p>`;
+        if (error?.status === 401) return;
+
+        container.innerHTML = `<p class="error">Ошибка загрузки: ${escapeHtml(error.message)}</p>`;
     }
 }

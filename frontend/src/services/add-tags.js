@@ -1,3 +1,7 @@
+import { deleteTag } from "../api/video";
+import { escapeHtml } from "../lib/html";
+import { showToast } from "../lib/ui";
+
 export function initTagsList(root, { onCreateTag, onChange } = {}) {
     const container =
         typeof root === "string" ? document.getElementById(root) : root;
@@ -12,14 +16,17 @@ export function initTagsList(root, { onCreateTag, onChange } = {}) {
     if (!tagsContainer || !addBtn || !inputGroup || !input || !saveBtn) return null;
 
     function appendTag(tag, checked = true) {
-        if (tagsContainer.querySelector(`input[name="tags"][value="${tag.id}"]`)) return;
+        const id = String(tag.id);
+        const alreadyExists = [...tagsContainer.querySelectorAll('input[name="tags"]')]
+            .some((cb) => cb.value === id);
+        if (alreadyExists) return;
 
         const label = document.createElement("label");
         label.className = "tag-item";
         label.innerHTML = `
-            <input type="checkbox" name="tags" value="${tag.id}" class="toggle-checkbox"
+            <input type="checkbox" name="tags" value="${escapeHtml(id)}" class="toggle-checkbox"
                 ${checked ? "checked" : ""}>
-            <span class="tag-button">${tag.name}</span>
+            <span class="tag-button">${escapeHtml(tag.name)}</span>
         `;
         tagsContainer.appendChild(label);
 
@@ -62,7 +69,7 @@ export function initTagsList(root, { onCreateTag, onChange } = {}) {
             hideInput();
         } catch (err) {
             console.error("createTag failed:", err);
-            alert("Ошибка при создании тега: " + err.message);
+            showToast("Ошибка при создании тега: " + err.message, "error");
         } finally {
             saveBtn.disabled = false;
             saveBtn.textContent = originalText;
@@ -71,7 +78,7 @@ export function initTagsList(root, { onCreateTag, onChange } = {}) {
 
     addBtn.addEventListener("click", showInput);
     saveBtn.addEventListener("click", save);
-    input.addEventListener("keypress", (e) => {
+    input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
             save();
@@ -85,24 +92,21 @@ export function initTagsList(root, { onCreateTag, onChange } = {}) {
     return { getSelected, appendTag, showInput, hideInput };
 }
 
-import { deleteTag } from "../api/video";
-
 export function initSettingsTagsDelete(token) {
     const deleteBtn = document.getElementById('delete-tags');
     if (!deleteBtn) return;
 
     deleteBtn.addEventListener('click', async () => {
         const container = document.getElementById('place-tags-settings');
-        const checkedBoxes = container.querySelectorAll('input[name="tags"]:checked');
-        
+        if (!container) return;
+
+        const checkedBoxes = [...container.querySelectorAll('input[name="tags"]:checked')];
         if (checkedBoxes.length === 0) {
-            alert('Выберите тэги для удаления');
+            showToast('Выберите тэги для удаления', 'error');
             return;
         }
 
-        const tagIds = Array.from(checkedBoxes).map(cb => cb.value);
-        
-        if (!confirm(`Удалить выбранные тэги (${tagIds.length} шт.)?`)) {
+        if (!confirm(`Удалить выбранные тэги (${checkedBoxes.length} шт.)?`)) {
             return;
         }
 
@@ -111,19 +115,24 @@ export function initSettingsTagsDelete(token) {
         deleteBtn.disabled = true;
 
         try {
-           
-            for (const id of tagIds) {
-                await deleteTag(token, id);
-            }
+            const ids = checkedBoxes.map(cb => cb.value);
+            const results = await Promise.allSettled(ids.map(id => deleteTag(token, id)));
 
-            checkedBoxes.forEach(cb => {
-                const label = cb.closest('.tag-item');
-                if (label) label.remove();
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    checkedBoxes[index]?.closest('.tag-item')?.remove();
+                }
             });
-            
+
+            const failed = results.filter(r => r.status === 'rejected').length;
+            if (failed > 0) {
+                showToast(`Не удалось удалить тэгов: ${failed}`, 'error');
+            } else {
+                showToast('Тэги удалены', 'success');
+            }
         } catch (err) {
             console.error(err);
-            alert('Ошибка при удалении: ' + err.message);
+            showToast('Ошибка при удалении: ' + err.message, 'error');
         } finally {
             deleteBtn.textContent = originalText;
             deleteBtn.disabled = false;

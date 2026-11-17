@@ -1,18 +1,18 @@
 import { tagsListRender } from "./tagsList";
-import { setupAddVideo } from "../services/add-video";
 
-    export async function renderAddWindow(token){
 
-        let tagsHtml = await tagsListRender(token, {}, 1)
+export async function renderAddWindow(token, tags = null) {
 
-        return `
+    const tagsHtml = await tagsListRender(token, {}, 1, tags)
+
+    return `
         <div class="add-window-overlay" id="add-window-overlay"></div>
         <div class="add-window" id="add-window">
             <form class="add-window-form" id="add-window-form">
                 <div class="title-add-window">
                     <div class="title-text">Окно добавления</div>
                     <button class="btn-close" id="btn-close" type="button">
-                        <img src="/assets/cross.svg">
+                        <img src="/assets/cross.svg" alt="">
                     </button>
                 </div>
                 <div class="body-add-window">
@@ -28,4 +28,4 @@ import { setupAddVideo } from "../services/add-video";
             </form>
         </div>
         `
-    }
+}

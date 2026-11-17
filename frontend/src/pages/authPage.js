@@ -3,8 +3,9 @@ import { mountSocialAuth, socialAuthRender } from "../components/socialAuth";
 import { navigate } from "../routers";
 import { saveAuth } from "../services/auth-storage";
 import { startSocialAuth } from "../services/auth-social";
+import { showToast } from "../lib/ui";
 
-export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, linkPrompt }) {
+export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, linkPrompt, message = null }) {
     const container = document.getElementById('app');
 
     container.innerHTML = `
@@ -21,20 +22,33 @@ export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, l
         </div>
     `;
 
-    initAuthForm(mode, (data) => {
-        if (mode != 'register'){
-            saveAuth(data)
-            navigate('/');
+    if (message) {
+        const messageEl = document.getElementById('auth-message');
+        if (messageEl) {
+            messageEl.hidden = false;
+            messageEl.textContent = message;
+            messageEl.dataset.type = 'error';
         }
-        else{
-            navigate('/login')
+    }
+
+    initAuthForm(mode, async (data) => {
+        if (mode === 'register') {
+            navigate('/login');
+            return;
+        }
+
+        try {
+            await saveAuth(data);
+            navigate('/');
+        } catch (err) {
+            showToast(err.message, 'error');
         }
     });
 
-    const socialContainer = app.querySelector('.auth-widget-socials');
+    const socialContainer = container.querySelector('.auth-widget-socials');
 
     mountSocialAuth(socialContainer, {
-    onError: (err) => showToast(err.message),
+        onError: (err) => showToast(err.message, 'error'),
     }, {
         google: (container, handlers) => startSocialAuth('google', container, handlers),
         github: (container, handlers) => startSocialAuth('github', container, handlers),

@@ -100,9 +100,15 @@ export function initAuthForm(mode, onSuccess) {
             const fn = mode === 'register' ? registerUser : loginUser;
             const result = await fn(payload);
             showMessage(messageEl, 'Успешно!', 'success');
-            onSuccess?.(result);
+            await onSuccess?.(result);
         } catch (error) {
-            showMessage(messageEl, error.message, 'error');
+            const fieldError = error?.status === 400
+                && error.details
+                && typeof error.details === 'object'
+                ? Object.values(error.details)[0]
+                : null;
+
+            showMessage(messageEl, fieldError || error.message, 'error');
         } finally {
             setLoading(submitBtn, false);
         }

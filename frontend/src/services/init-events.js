@@ -1,19 +1,21 @@
 import { getContainer } from "./dom";
 import { initActiveWindow, initBtnWindow, initDropdown , initBoard} from "./init-windows";
-import {renderVideoList} from "./render-video-list"
-import { clearAuth, getAuth } from "../services/auth-storage"
+import { renderVideoList } from "./render-video-list"
+import { getAuth } from "../services/auth-storage"
+import { logout } from "../services/auth-actions"
 import { setupAddVideo } from "./add-video";
 import { clearAllMetadata } from "./video-storage";
-import { openPage} from "./open-page";
+import { openPage } from "./open-page";
 import { renderSettingsTags } from "../components/settingsTags";
 import { initSettingsTagsDelete, initTagsList } from "./add-tags";
 import { createTag } from "../api/video";
 import { initFilter, bindSidePanelTags } from "./filter";
 import { bindDropdownFilter } from "../components/dropdownFilter";
 import { renderSettingsProfile, initSettingsProfile } from "../components/settingsProfile";
+import { escapeHtml } from "../lib/html";
 
 export async function initMainEvents(user) {
-    
+
     const videoList = getContainer('video-grid');
     if (videoList) {
         await renderVideoList(videoList, user.accessToken);
@@ -25,7 +27,7 @@ export async function initMainEvents(user) {
     initBoard("btn-home", "home-board", "home-board-overlay")
 
     const btn = getContainer("btn-exit")
-    btn?.addEventListener('click', clearAuth)
+    btn?.addEventListener('click', logout)
 
     await setupAddVideo({
     token: user.accessToken,
@@ -46,7 +48,7 @@ export async function initMainEvents(user) {
     }
 
     await openPage("btn-setting", "/settings")
-}   
+}
 
 export async function initSettingEvents() {
     const user = await getAuth();
@@ -95,7 +97,7 @@ async function onSettingsTabClick(e) {
         }
     } catch (err) {
         console.error("[settings] tab render failed:", err);
-        infoPlace.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;
+        infoPlace.innerHTML = `<p class="error">Ошибка: ${escapeHtml(err.message)}</p>`;
     }
 }
 
@@ -112,6 +114,6 @@ async function openDefaultSettingsTab(token) {
         initSettingsProfile(token);
     } catch (err) {
         console.error("[settings] profile render failed:", err);
-        infoPlace.innerHTML = `<p class="error">Ошибка: ${err.message}</p>`;
+        infoPlace.innerHTML = `<p class="error">Ошибка: ${escapeHtml(err.message)}</p>`;
     }
 }

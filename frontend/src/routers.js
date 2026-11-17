@@ -3,9 +3,10 @@ import { renderRegister } from "./pages/registerPage";
 import { renderLogin }    from "./pages/loginPage";
 import { renderMain }     from "./pages/mainPage";
 import { renderSettingsPage } from "./pages/settingsPage";
-import { getAuth, clearAuth } from "./services/auth-storage";   // ← добавь clearAuth
+import { getSession, isSessionExpired, clearSession } from "./services/session";
 import { resetPage } from "./lib/page-lifecycle";
-import { isAuthCallback, handleAuthCallback } from "./api/api";
+import { escapeHtml } from "./lib/html";
+import { isAuthCallback, handleAuthCallback } from "./services/oauth";
 import { renderForgotPassword } from "./pages/forgotPasswordPage";
 import { renderResetPassword } from "./pages/resetPasswordPage";
 
@@ -20,53 +21,32 @@ const routes = {
 
 const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 
-function isAuthError(error) {
-    if (!error) return false;
-    if (error.status === 401 || error.statusCode === 401) return true;
-    const msg = String(error.message || '').toLowerCase();
-    return (
-        msg.includes('аутентификац') ||
-        msg.includes('authenticat')  ||
-        msg.includes('unauthorized') ||
-        msg.includes('401')
-    );
-}
-
-function normalizeExpiresAt(v) {
-    if (!v) return null;
-    if (typeof v === 'number') return v < 1e12 ? v * 1000 : v; // секунды → мс
-    if (typeof v === 'string') {
-        const n = Number(v);
-        if (!Number.isNaN(n)) return n < 1e12 ? n * 1000 : n;
-        const parsed = Date.parse(v);
-        return Number.isNaN(parsed) ? null : parsed;
-    }
-    return null;
-}
-
 export async function router() {
-
     const app = resetPage();
+
+    let path = window.location.pathname;
 
     if (isAuthCallback()) {
         try {
             await handleAuthCallback();
-            window.location.replace('/');
+            history.replaceState({}, '', '/');
+            path = '/';
         } catch (err) {
-            window.location.replace('/login?error=' + encodeURIComponent(err.message));
+            history.replaceState(
+                {},
+                '',
+                '/login?error=' + encodeURIComponent(err.message || 'Не удалось войти')
+            );
+            path = '/login';
         }
-        return;
     }
 
-    let path = window.location.pathname;
-
-    // 2. Проверка токена
-    const auth = getAuth();
-    const expiresAt = normalizeExpiresAt(auth?.expiresAt);
-    const tokenValid =
-        !!auth?.accessToken &&
-        (expiresAt === null || expiresAt > Date.now());
-
+    let session = getSession();
+    if (session.accessToken && isSessionExpired()) {
+        clearSession();
+        session = getSession();
+    }
+    const tokenValid = Boolean(session.accessToken);
     const isPublic = PUBLIC_ROUTES.includes(path);
 
     if (!tokenValid && !isPublic) {
@@ -103,14 +83,10 @@ export async function router() {
         try {
             await matchedRoute(params);
         } catch (error) {
-            if (isAuthError(error)) {
-                try { clearAuth(); } catch (_) {}
-                history.replaceState({}, '', '/login');
-                await renderLogin(error.message);
-                return;
-            }
+            if (error?.status === 401) return;
+
             app.innerHTML =
-                `<div class="alert alert-danger">Ошибка: ${error.message}</div>`;
+                `<div class="alert alert-danger">Ошибка: ${escapeHtml(error?.message ?? 'Неизвестная ошибка')}</div>`;
         }
     } else {
         app.innerHTML = '<h1>404 - Страница не найдена</h1>';

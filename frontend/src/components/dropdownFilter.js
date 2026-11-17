@@ -1,11 +1,11 @@
 import { tagsListRender } from "./tagsList"
 import { setTag, applyFilter, clearFilter, syncUI } from "../services/filter";
 
-export async function renderDropdownFilter(token) {
+export async function renderDropdownFilter(token, tags = null) {
     return `
     <div class="place-tags-filter-overlay" id="place-tags-filter-overlay"></div>
     <form class="place-tags-filter" id="place-tags-filter">
-        ${await tagsListRender(token, {}, 1)}
+        ${await tagsListRender(token, {}, 1, tags)}
         <div class="place-tags-filter-actions">
             <button type="button" class="tag-apply-btn" id="tag-apply-btn">Применить</button>
             <button type="button" class="tag-reset-btn" id="tag-reset-btn">Сбросить</button>
@@ -30,9 +30,10 @@ export function bindDropdownFilter() {
         await applyFilter();
     });
 
-    form.querySelector("#tag-reset-btn")?.addEventListener("click", (e) => {
+    form.querySelector("#tag-reset-btn")?.addEventListener("click", async (e) => {
         e.preventDefault();
         clearFilter();
+        await applyFilter();
     });
 
     syncUI(form);

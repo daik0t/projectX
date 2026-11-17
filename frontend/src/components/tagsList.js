@@ -1,24 +1,25 @@
 import { getTags } from "../api/video"
+import { escapeHtml } from "../lib/html"
 
-export async function tagsListRender(token, data = {}, type = 0) {
+export async function tagsListRender(token, data = {}, type = 0, tagsOverride = null) {
 
-const tags = await getTags(token)
+    const tags = Array.isArray(tagsOverride) ? tagsOverride : await getTags(token)
 
-const selectedIds = new Set(
-    (data?.tags ?? []).map(t =>
-        String(typeof t === "object" && t !== null ? t.id : t)
-    )
-);
+    const selectedIds = new Set(
+        (data?.tags ?? []).map(t =>
+            String(typeof t === "object" && t !== null ? t.id : t)
+        )
+    );
 
-const tagsHtml = `${tags.map(t => `
+    const tagsHtml = `${tags.map(t => `
     <label class="tag-item">
-        <input type="checkbox" name="tags" value="${t.id}" class="toggle-checkbox" ${selectedIds.has(String(t.id)) ? "checked" : ""}>
-        <span class="tag-button">${t.name}</span>
+        <input type="checkbox" name="tags" value="${escapeHtml(t.id)}" class="toggle-checkbox" ${selectedIds.has(String(t.id)) ? "checked" : ""}>
+        <span class="tag-button">${escapeHtml(t.name)}</span>
     </label>
 `).join(' ')}`
 
-if (type!= 0 ){
-    return `
+    if (type != 0) {
+        return `
         <div class="tags-list-wrapper">
             <div class="tags-container" data-tags-container>${tagsHtml}</div>
 
@@ -30,8 +31,7 @@ if (type!= 0 ){
             </div>
         </div>
     `;
-}
-else{
+    }
+
     return tagsHtml
-}
 }
