@@ -6,7 +6,17 @@
 .delete-tags{
     margin-top: 20px;
     margin-left: 10px;
-    width: 80px;
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+}
+
+.delete-tags:hover{
+    background: #fde7e9;
+    border-color: var(--danger);
+    color: var(--danger);
 }
 
 .place-tags-settings{

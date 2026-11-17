@@ -14,17 +14,22 @@
     box-sizing: border-box;
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 2px 30px rgb(215 214 214);
     background: var(--surface);
 }
 
 .title-text-settings {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .title-settings-window .btn-close {
     margin-left: auto;
+    border-radius: var(--radius);
+}
+
+.title-settings-window .btn-close:hover {
+    background: #fde7e9;
+    color: var(--danger);
 }
 
 .body-settings-page {
@@ -38,37 +43,38 @@
     flex-direction: column;
     overflow-y: auto;
     border-right: 1px solid var(--border);
-    box-shadow: 0 2px 30px rgb(215 214 214);
-    padding: 12px 8px;
+    background: var(--sidebar-bg);
+    padding: 8px;
 }
 
 .tab-list {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 2px;
     margin: 0;
 }
 
 .tab {
-    padding: 8px 10px;
+    padding: 7px 10px;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--radius);
     background: transparent;
     text-align: left;
 }
 
 .tab:hover {
-    background: #f0f0f0;
+    background: var(--accent-soft);
 }
 
 .sidebar-settings .tab.active,
 .sidebar-settings .tab[aria-selected="true"] {
-    background: #111;
+    background: var(--accent);
     color: #fff;
-    border-color: #111;
+    border-color: var(--accent);
 }
 
 .information-place-settings {
     min-height: 0;
     overflow-y: auto;
+    background: var(--surface);
 }

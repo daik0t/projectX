@@ -3,13 +3,13 @@ box-sizing: border-box;
 }
 
 .auth-widget-card {
-background: #ffffff;
-border: 1px solid #e2e8f0;
-border-radius: 16px;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 8px;
 padding: 30px;
 max-width: 360px;
 width: 100%;
-box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+box-shadow: var(--shadow);
 box-sizing: border-box;
 margin: auto;
 margin-top: 50px;
@@ -18,10 +18,10 @@ margin-top: 50px;
 
 .auth-widget-title {
 margin: auto;
-font-size: 22px;
-color: #000000;
+font-size: 20px;
+color: var(--text);
 text-align: center;
-font-weight: 700;
+font-weight: 600;
 margin-bottom: 16px;
 }
 
@@ -31,26 +31,32 @@ margin-bottom: 16px;
 
 .auth-widget-group input {
 width: 100%;
-padding: 10px 14px;
-border: 1px solid #cbd5e1;
-border-radius: 8px;
-font-size: 15px;
+padding: 9px 12px;
+border: 1px solid var(--border);
+border-radius: var(--radius);
+font-size: 14px;
 outline: none;
 }
 
+.auth-widget-group input:hover {
+border-color: #c7c7c7;
+}
+
 .auth-widget-group input:focus {
-border-color: #000000;
+border-color: var(--accent);
+outline: 1px solid var(--accent);
+outline-offset: 0;
 }
 
 .auth-widget-submit {
 width: 100%;
-padding: 10px;
-background: #000000;
+padding: 9px;
+background: var(--accent);
 color: white;
-border: none;
-border-radius: 8px;
-font-size: 15px;
-font-weight: 100;
+border: 1px solid var(--accent);
+border-radius: var(--radius);
+font-size: 14px;
+font-weight: 400;
 cursor: pointer;
 transition: background 0.2s;
 margin-top: 8px;
@@ -59,7 +65,7 @@ margin: auto;
 }
 
 .auth-widget-submit:hover {
-background: #2a2a2a;
+background: var(--accent-hover);
 }
 
 .auth-widget-submit:disabled {
@@ -102,11 +108,11 @@ margin-top: 10px;
 
 
 .auth-away-link{
-color: #000000;
+color: var(--accent);
 }
 
 .auth-away-link:hover{
-background: #c8cccc;
-color: #000000;
+background: var(--accent-soft);
+color: var(--accent);
 border-radius: 3px;
 }

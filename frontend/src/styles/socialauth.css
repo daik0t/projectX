@@ -37,7 +37,7 @@ background-color: #f8fafc;
 
 
 .btn-social:hover {
-background: #c8cccc;
-border-color: #0f172a;
-color: #ffffff;
+background: var(--accent-soft);
+border-color: var(--accent);
+color: var(--text);
 }

@@ -134,20 +134,35 @@ export async function initActiveWindow(user) {
     };
 
     const openActionWindow = (card, x, y) => {
-        const videoId = card?.dataset.videoId;
-        if (!videoId) return;
+        const videoId = card?.dataset.videoId ?? null;
+        if (card && !videoId) return;
 
+        const hasCard = Boolean(videoId);
         currentVideoId = videoId;
-        lastTrigger = card;
+        lastTrigger = card ?? null;
+
+        const addButton = getContainer('btn-action-add');
+        if (addButton) addButton.disabled = hasCard;
+
+        ['btn-edit', 'btn-properties', 'btn-share', 'btn-del'].forEach((id) => {
+            const button = getContainer(id);
+            if (button) button.disabled = !hasCard;
+        });
 
         setPopoverVisible(null, actionWindow, actionWindowOverlay, true);
         positionPopover(actionWindow, x + 5, y + 5);
-        actionWindow.querySelector('button')?.focus({ preventScroll: true });
+        actionWindow.querySelector('button:not([disabled])')?.focus({ preventScroll: true });
     };
+
+    const isInteractiveTarget = (target) => Boolean(target.closest(
+        'button, input, textarea, select, a, form, .action-window, .home-board, ' +
+        '.place-tags-filter, .add-window, .edit-window, .properties-window, .toast-host'
+    ));
 
     let pressTimer = null;
     let pressOrigin = null;
     let pressCard = null;
+    let pressActive = false;
     let longPressFired = false;
     let longPressResetTimer = null;
     let suppressClick = false;
@@ -159,6 +174,7 @@ export async function initActiveWindow(user) {
         }
         pressOrigin = null;
         pressCard = null;
+        pressActive = false;
     };
 
     const scheduleClickGuardReset = () => {
@@ -169,10 +185,11 @@ export async function initActiveWindow(user) {
         }, 900);
     };
 
-    // Правая кнопка мыши: подавляем контекстное меню браузера.
+    // Правая кнопка мыши: на карточке — действия с видео, на пустом месте — только «Добавить».
     area.addEventListener('contextmenu', (event) => {
-        const card = event.target.closest('.video-card');
-        if (!card) return;
+        const card = event.target.closest('.video-card:not(.skeleton-card)');
+
+        if (!card && isInteractiveTarget(event.target)) return;
 
         event.preventDefault();
         cancelLongPress();
@@ -182,26 +199,27 @@ export async function initActiveWindow(user) {
             return;
         }
 
-        suppressClick = true;
-        scheduleClickGuardReset();
+        suppressClick = event.pointerType === 'touch' || event.pointerType === 'pen';
+        if (suppressClick) scheduleClickGuardReset();
         openActionWindow(card, event.clientX, event.clientY);
     }, { signal });
 
-    // Удержание (touch/pen) — замена двойному клику.
+    // Удержание (touch/pen/мышь) — замена двойному клику.
     area.addEventListener('pointerdown', (event) => {
         if (event.button !== 0) return;
 
-        const card = event.target.closest('.video-card');
-        if (!card) return;
+        const card = event.target.closest('.video-card:not(.skeleton-card)');
+        if (!card && isInteractiveTarget(event.target)) return;
 
         cancelLongPress();
         longPressFired = false;
+        pressActive = true;
         pressCard = card;
         pressOrigin = { x: event.clientX, y: event.clientY };
 
         pressTimer = setTimeout(() => {
             pressTimer = null;
-            if (!pressCard || !pressCard.isConnected || !pressOrigin) return;
+            if (!pressActive || !pressOrigin) return;
 
             longPressFired = true;
             suppressClick = true;
@@ -237,7 +255,7 @@ export async function initActiveWindow(user) {
     area.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' && event.key !== ' ') return;
 
-        const card = event.target.closest('.video-card');
+        const card = event.target.closest('.video-card:not(.skeleton-card)');
         if (!card) return;
 
         event.preventDefault();
@@ -248,8 +266,8 @@ export async function initActiveWindow(user) {
     window.addEventListener('click', (event) => {
         if (suppressClick) {
             suppressClick = false;
-            // Синтетический click после long-press не должен закрывать меню.
-            if (event.target.closest('.video-card')) return;
+            // Синтетический click после long-press/ПКМ не должен закрывать меню.
+            return;
         }
         if (actionWindow.contains(event.target)) return;
         hideActionWindow();

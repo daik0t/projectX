@@ -1,37 +1,58 @@
-.action-window{
+.action-window {
     visibility: hidden;
     position: fixed;
     display: flex;
     flex-direction: column;
     opacity: 0;
     z-index: 1000;
-    min-width: 190px;
+    min-width: 200px;
     padding: 4px;
     background: var(--surface);
-    border: 1px solid #111;
+    border: 1px solid var(--border);
     border-radius: 8px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
 }
 
-.action-window.show{
+.action-window.show {
     opacity: 1;
     visibility: visible;
 }
 
-.action-window button{
-    padding: 8px 10px;
+.action-window button {
+    padding: 8px 12px;
     border: 0;
-    border-radius: 6px;
+    border-radius: var(--radius);
     background: transparent;
     text-align: left;
 }
 
-.action-window button:hover,
-.action-window button:focus-visible{
-    background: #f0f0f0;
+.action-window button:not(:disabled):hover,
+.action-window button:not(:disabled):focus-visible {
+    background: var(--accent-soft);
 }
 
-.action-window-overlay{
+.action-window button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.action-window #btn-action-add {
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.action-window #btn-action-add:not(:disabled) {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.action-window #btn-del:not(:disabled):hover {
+    background: #fde7e9;
+    color: #a4262c;
+}
+
+.action-window-overlay {
     position: fixed;
     inset: 0;
     z-index: 999;
