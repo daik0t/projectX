@@ -1,13 +1,15 @@
 .edit-window{
     visibility: hidden;
     position: fixed;
+    display: flex;
+    flex-direction: column;
     opacity: 0;
     z-index: 1000;
     inset: 0;
     margin: auto;
     width: min(420px, calc(100vw - 32px));
     height: auto;
-    max-height: min(80dvh, 560px);
+    max-height: min(80dvh, 400px);
     background-color: var(--surface);
     overflow: hidden;
     box-sizing: border-box;
@@ -17,17 +19,29 @@
 }
 
 .edit-window-form{
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     width: 100%;
     height: auto;
-    max-height: min(80dvh, 560px);
+    max-height: min(80dvh, 400px);
 }
 
 .body-edit-window{
     flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;  
+    overflow: hidden;
+    flex: 1 1 auto;
     overflow-y: auto;
     padding: 12px;
+}
+.title-video-edit,
+.url-video{
+    padding: 4px 12px;
+    word-break: break-word;
 }
 
 .edit-window.show{
@@ -81,6 +95,7 @@
 }
 
 .title-edit-window{
+    flex: 0 0 auto;
     align-items: center;
     padding: 8px 12px;
     border-bottom: 1px solid var(--border);
@@ -88,7 +103,10 @@
     flex-direction: row;
 }
 
-
 .place-tags-edit{
+    flex: 1 1 auto;
+    min-height: 0;
     margin-top: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

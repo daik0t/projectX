@@ -32,19 +32,19 @@ export async function renderPropertiesWindow(id) {
         </div>
         ${thumbnail ? `<img src="${thumbnail}" class="img-properties" alt="${title}">` : ""}
         <div class="title-video" id="title-video">
-            Название: ${title}
+            <b>Название:</b> ${title}
         </div>
         <div class="video-author" id="video-author">
-            Автор: ${author}
+            <b>Автор:</b> ${author}
         </div>
         <div class="video-provaider" id="video-provaider">
-            Откуда: ${provider}
+            <b>Откуда:</b> ${provider}
         </div>
         <div class="place-tags-properties" id="place-tags-properties">
-            Тэги: ${tags}
+            <b>Тэги:</b> ${tags}
         </div>
         <div class="link-properties" id="link-properties">
-            Ссылка: ${data.url
+            <b>Ссылка:</b> ${data.url
                 ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
                 : "—"}
         </div>

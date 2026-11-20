@@ -9,7 +9,7 @@
     margin: auto;
     width: min(420px, calc(100vw - 32px));
     height: auto;
-    max-height: min(85dvh, 600px);
+    max-height: min(85dvh, 460px);
     background-color: var(--surface);
     overflow-y: auto;
     box-sizing: border-box;
@@ -40,10 +40,12 @@
 }
 
 .img-properties{
+    margin-inline: auto;
     width: 200px;
     height: 150px;
     object-fit: cover;
-    margin: 12px;
+    margin-top: 6px;
+    margin-bottom: 6px;
     border-radius: 6px;
 }
 

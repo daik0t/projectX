@@ -5,6 +5,10 @@ import { escapeHtml } from "../lib/html";
 export async function renderEditWindow(token, id) {
     const data = getMetadata(id) ?? {};
 
+    const title = escapeHtml(data.title ?? "Без названия");
+    const url = escapeHtml(data.url ?? "—");
+  
+
     return `
     <div class="edit-window-overlay" id="edit-window-overlay" aria-hidden="true"></div>
     <div class="edit-window" id="edit-window" role="dialog" aria-modal="true" aria-labelledby="edit-window-title" aria-hidden="true">
@@ -16,11 +20,13 @@ export async function renderEditWindow(token, id) {
                 </button>
             </div>
             <div class="body-edit-window">
-                <div class="title-video" id="title-video">
-                    ${escapeHtml(data.title ?? "Без названия")}
+                <div class="title-video-edit" id="title-video">
+                    <b>Название:</b> ${title}
                 </div>
                 <div class="url-video" id="url-video">
-                    ${escapeHtml(data.url ?? "—")}
+                    <b>Ссылка:</b> ${data.url
+                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+                : "—"}
                 </div>
                 <div class="place-tags-edit">
                     ${await tagsListRender(token, data, 1)}
