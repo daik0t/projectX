@@ -4,7 +4,6 @@ import { navigate } from "../routers";
 export async function renderResetPassword({ query } = {}) {
     const container = document.getElementById("app");
 
-    // query приходит из роутера; если у тебя поиск по location — используй его
     const token =
         query?.token ??
         new URLSearchParams(location.search).get("token") ??

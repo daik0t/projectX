@@ -22,7 +22,6 @@ import { buildBreadcrumb } from "../lib/breadcrumb";
 import { showToast } from "../lib/ui";
 import { pageSignal } from "../lib/page-lifecycle";
 
-/** Поиск по уже отрисованным карточкам (по названию из кэша метаданных). */
 /*function setupSearch() {
     const input = getContainer('search-input');
     const grid = getContainer('video-grid');
@@ -59,10 +58,6 @@ import { pageSignal } from "../lib/page-lifecycle";
     apply();
 }*/
 
-/**
- * Хлебные крошки в raw-path:
- * Имя_пользователя>видео>тег1_тег2>поисковой_запрос
- */
 function setupBreadcrumb(profile, tags) {
     const input = getContainer('raw-path');
     if (!input) return;
@@ -84,7 +79,6 @@ function setupBreadcrumb(profile, tags) {
     update();
 }
 
-/** Перетаскивание карточки на корзину удаляет видео. */
 function setupDragDelete(user) {
     const grid = getContainer('video-grid');
     const trash = getContainer('trash');

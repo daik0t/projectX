@@ -1,10 +1,5 @@
 let toastTimer = null;
 
-/**
- * Короткое уведомление внизу экрана.
- * @param {string} message
- * @param {'info'|'success'|'error'} type
- */
 export function showToast(message, type = 'info') {
     let host = document.getElementById('toast-host');
 

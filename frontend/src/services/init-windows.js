@@ -185,7 +185,6 @@ export async function initActiveWindow(user) {
         }, 900);
     };
 
-    // Правая кнопка мыши: на карточке — действия с видео, на пустом месте — только «Добавить».
     area.addEventListener('contextmenu', (event) => {
         const card = event.target.closest('.video-card:not(.skeleton-card)');
 
@@ -204,7 +203,6 @@ export async function initActiveWindow(user) {
         openActionWindow(card, event.clientX, event.clientY);
     }, { signal });
 
-    // Удержание (touch/pen/мышь) — замена двойному клику.
     area.addEventListener('pointerdown', (event) => {
         if (event.button !== 0) return;
 
@@ -243,7 +241,6 @@ export async function initActiveWindow(user) {
         area.addEventListener(type, cancelLongPress, { signal });
     });
 
-    // Начался drag&drop — удержание больше не нужно.
     area.addEventListener('dragstart', cancelLongPress, { signal });
 
     signal.addEventListener('abort', () => {
@@ -251,7 +248,6 @@ export async function initActiveWindow(user) {
         clearTimeout(longPressResetTimer);
     });
 
-    // Клавиатурный доступ к меню действий.
     area.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' && event.key !== ' ') return;
 
@@ -266,7 +262,6 @@ export async function initActiveWindow(user) {
     window.addEventListener('click', (event) => {
         if (suppressClick) {
             suppressClick = false;
-            // Синтетический click после long-press/ПКМ не должен закрывать меню.
             return;
         }
         if (actionWindow.contains(event.target)) return;

@@ -44,7 +44,6 @@ export default ({ mode }) => {
         {}
     );
 
-    // Переменные окружения процесса важнее файлов.
     const env = { ...fileEnv, ...process.env };
     const target = env.VITE_API_PROXY || 'http://localhost:8080';
 
@@ -56,7 +55,6 @@ export default ({ mode }) => {
 
     return {
         server: {
-            // Фиксированный порт: OAuth-редирект и CORS настроены на 5173.
             port: 5173,
             strictPort: true,
             proxy,

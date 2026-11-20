@@ -2,9 +2,6 @@ function toPathSegment(value) {
     return String(value ?? '').trim().replace(/\s+/g, '_');
 }
 
-/**
- * Путь в стиле проводника: Пользователь>видео>тег1_тег2>поисковой_запрос
- */
 export function buildBreadcrumb({ displayName, tags = [], appliedTagIds = [], query = '' } = {}) {
     const parts = [toPathSegment(displayName) || 'Гость', 'видео'];
     const tagNames = new Map((tags ?? []).map((tag) => [String(tag.id), tag.name]));

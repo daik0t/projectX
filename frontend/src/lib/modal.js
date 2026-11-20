@@ -1,5 +1,3 @@
-// Единое поведение модальных окон: role=dialog, focus trap, Esc,
-// возврат фокуса на элемент, который открыл окно.
 
 const FOCUSABLE_SELECTOR = [
     'a[href]',
@@ -95,7 +93,6 @@ export function closeModal(windowEl) {
     previousFocus?.focus?.();
 }
 
-/** Закрыть всё открытое (например, при смене страницы). */
 export function closeAllModals() {
     if (!active) return;
 

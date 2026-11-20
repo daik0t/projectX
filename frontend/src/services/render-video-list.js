@@ -32,7 +32,6 @@ export async function renderVideoList(container, token, tags = []) {
     const requestId = ++renderGeneration;
     container.setAttribute("aria-busy", "true");
 
-    // Скелетон только при первой загрузке, при фильтрации оставляем старые карточки.
     if (!container.querySelector(".video-card")) {
         container.innerHTML = skeletonHtml();
     }
@@ -43,7 +42,6 @@ export async function renderVideoList(container, token, tags = []) {
             ? await getMyVideos(token, tags)
             : await getMyVideos(token);
 
-        // Пока ждали ответ, пользователь мог уйти или применить другой фильтр.
         if (requestId !== renderGeneration || !container.isConnected) return;
 
         if (!videos || videos.length === 0) {
@@ -55,7 +53,6 @@ export async function renderVideoList(container, token, tags = []) {
             return;
         }
 
-        // Сразу рисуем карточки (с заглушками), метаданные догружаем фоном.
         drawCards(container, videos);
         container.setAttribute("aria-busy", "false");
 
@@ -77,7 +74,6 @@ export async function renderVideoList(container, token, tags = []) {
         });
     } catch (error) {
         if (requestId !== renderGeneration || !container.isConnected) return;
-        // 401 уже обработан глобально — страницу сейчас сменит роутер.
         if (error?.status === 401) return;
 
         container.setAttribute("aria-busy", "false");
