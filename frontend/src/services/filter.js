@@ -3,8 +3,10 @@ import { renderVideoList } from "./render-video-list";
 const state = {
     container: null,
     token: null,
-    selectedTags: new Set(), // выбранные в UI, ещё не применённые
-    appliedTags: new Set(),  // применённые к текущему списку
+    selectedTags: new Set(),
+    appliedTags: new Set(),
+    sidebarTagId: null,
+    activeSource: "dropdown",
 };
 
 export function initFilter({ container, token }) {
@@ -18,12 +20,21 @@ export function getSelectedTagIds() {
 }
 
 export function getAppliedTagIds() {
+    if (state.activeSource === "sidebar") {
+        return state.sidebarTagId ? [state.sidebarTagId] : [];
+    }
     return Array.from(state.appliedTags);
 }
 
-/** Зафиксировать текущий выбор как применённый фильтр (без рендера). */
+export function getSidebarTagId() {
+    return state.sidebarTagId;
+}
+
 export function commitFilter() {
     state.appliedTags = new Set(state.selectedTags);
+    state.activeSource = "dropdown";
+    state.sidebarTagId = null;
+    syncUI();
 }
 
 export function isTagSelected(id) {
@@ -53,6 +64,8 @@ export function clearFilter() {
 export function resetFilter() {
     state.selectedTags.clear();
     state.appliedTags.clear();
+    state.sidebarTagId = null;
+    state.activeSource = "dropdown";
     state.container = null;
     state.token = null;
 }
@@ -64,7 +77,19 @@ export async function applyFilter() {
     commitFilter();
 
     await renderVideoList(state.container, state.token, ids);
-    window.dispatchEvent(new CustomEvent('filter:applied'));
+    window.dispatchEvent(new CustomEvent("filter:applied"));
+}
+
+export async function applySidebarTag(tagId) {
+    if (!state.container || !state.token) return;
+
+    state.sidebarTagId = tagId ? String(tagId) : null;
+    state.activeSource = "sidebar";
+
+    syncUI();
+
+    await renderVideoList(state.container, state.token, getAppliedTagIds());
+    window.dispatchEvent(new CustomEvent("filter:applied"));
 }
 
 export function syncUI(root = document) {
@@ -72,28 +97,29 @@ export function syncUI(root = document) {
         cb.checked = state.selectedTags.has(String(cb.value));
     });
 
-    root.querySelectorAll('.video-tag[data-tag-id]').forEach((btn) => {
-        const active = state.selectedTags.has(String(btn.dataset.tagId));
-        btn.classList.toggle('active', active);
-        btn.setAttribute('aria-pressed', String(active));
+    root.querySelectorAll(".video-tag[data-tag-id]").forEach((btn) => {
+        const active = String(btn.dataset.tagId) === state.sidebarTagId;
+        btn.classList.toggle("active", active);
+        btn.setAttribute("aria-pressed", String(active));
     });
 
-    const allButton = root.querySelector('#btn-all-tags');
+    const allButton = root.querySelector("#btn-all-tags");
     if (allButton) {
-        const active = state.selectedTags.size === 0;
-        allButton.classList.toggle('active', active);
-        allButton.setAttribute('aria-pressed', String(active));
+        const active = !state.sidebarTagId;
+        allButton.classList.toggle("active", active);
+        allButton.setAttribute("aria-pressed", String(active));
     }
 }
 
 export function bindSidePanelTags(root = document) {
-    root.querySelectorAll('.video-tag[data-tag-id]').forEach((btn) => {
+    root.querySelectorAll(".video-tag[data-tag-id]").forEach((btn) => {
         if (btn.dataset.boundFilter) return;
         btn.dataset.boundFilter = "1";
         btn.addEventListener("click", async (e) => {
             e.preventDefault();
-            toggleTag(btn.dataset.tagId);
-            await applyFilter();
+            const id = String(btn.dataset.tagId);
+            const next = state.sidebarTagId === id ? null : id;
+            await applySidebarTag(next);
         });
     });
 }

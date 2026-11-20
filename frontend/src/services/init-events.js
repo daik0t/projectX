@@ -11,8 +11,7 @@ import { createTag } from "../api/video";
 import {
     initFilter,
     bindSidePanelTags,
-    clearFilter,
-    applyFilter,
+    applySidebarTag,
     getAppliedTagIds,
 } from "./filter";
 import { bindDropdownFilter } from "../components/dropdownFilter";
@@ -24,7 +23,7 @@ import { showToast } from "../lib/ui";
 import { pageSignal } from "../lib/page-lifecycle";
 
 /** Поиск по уже отрисованным карточкам (по названию из кэша метаданных). */
-function setupSearch() {
+/*function setupSearch() {
     const input = getContainer('search-input');
     const grid = getContainer('video-grid');
     if (!input || !grid) return;
@@ -58,7 +57,7 @@ function setupSearch() {
     input.addEventListener('input', apply, { signal: pageSignal() });
     grid.addEventListener('video-list:rendered', apply, { signal: pageSignal() });
     apply();
-}
+}*/
 
 /**
  * Хлебные крошки в raw-path:
@@ -186,15 +185,13 @@ export async function initMainEvents(user, profile = null, tags = []) {
     const videosContainer = getContainer("video-grid");
     initFilter({ container: videosContainer, token: user.accessToken });
     bindSidePanelTags();
-    setupSearch();
+    //setupSearch();
 
     const allTagsBtn = getContainer("btn-all-tags");
     allTagsBtn?.addEventListener('click', async () => {
-        clearFilter();
-        await applyFilter();
+        await applySidebarTag(null);
     }, { signal: pageSignal() })
 
-    // Dropdown уже отрендерен вместе со страницей — только навешиваем обработчики.
     if (getContainer("place-tags-filter")) {
         bindDropdownFilter();
     }

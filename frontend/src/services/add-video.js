@@ -2,6 +2,7 @@ import { createVideo } from "../api/video";
 import { getContainer } from "./dom";
 import { fetchVideoMetadata, parseVideoUrl, saveMetadata } from "./video-storage";
 import { showToast } from "../lib/ui";
+import { closeModal } from "../lib/modal";
 
 export async function setupAddVideo({ token, onSuccess }) {
     const form = getContainer("add-window-form");
@@ -57,8 +58,8 @@ export async function setupAddVideo({ token, onSuccess }) {
 
             form.reset();
             if (onSuccess) await onSuccess();
-            getContainer("add-window")?.classList.remove("show");
-            getContainer("add-window-overlay")?.classList.remove("show");
+            const addWindow = getContainer("add-window");
+            if (addWindow) closeModal(addWindow);
         } catch (err) {
             console.error("[add-video] createVideo упал:", err);
             showToast("Ошибка при добавлении: " + err.message, "error");

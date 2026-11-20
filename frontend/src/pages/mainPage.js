@@ -33,8 +33,8 @@ export async function renderMain() {
                 </button>
                 <input class="raw-path" id="raw-path" type="text" readonly
                     aria-label="Текущий путь" title="">
-                <input class="search-input" id="search-input" type="search" placeholder="Поиск по названию"
-                    aria-label="Поиск по названию видео" autocomplete="off">
+                <input class="search-input" id="search-input" type="search" placeholder="Поиск"
+                    aria-label="Поиск видео" autocomplete="off">
                 <button class="btn-filter" id="btn-filter" type="button"
                     aria-label="Фильтр по тегам" aria-expanded="false" aria-controls="place-tags-filter">
                     <img src="/assets/filter.svg" width="12" height="12" alt="">

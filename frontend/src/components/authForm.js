@@ -3,6 +3,7 @@ import { registerUser, loginUser } from '../api/auth.js';
 const DISPLAY_NAME_RE = /^[a-zA-Z0-9_]+$/;
 
 export function authFormRender(mode) {
+        
     const displayNameField = mode === 'register'
         ? `
             <div class="auth-widget-group">
@@ -23,9 +24,7 @@ export function authFormRender(mode) {
         `
         : '';
 
-    const hint = mode === 'register'
-        ? `<p class="auth-widget-hint">Имя: 3–30 символов (латиница, цифры, _). Пароль: от 8 символов.</p>`
-        : '';
+
 
     const forgotLink = mode === 'login'
         ? `
@@ -41,7 +40,6 @@ export function authFormRender(mode) {
     return `
         <form id="auth-widget-form">
             ${displayNameField}
-            ${hint}
             <div class="auth-widget-group">
                 <input
                     id="email"
@@ -124,7 +122,6 @@ export function initAuthForm(mode, onSuccess) {
             const result = await fn(payload);
             await onSuccess?.(result);
         } catch (error) {
-            // details приходит только у ошибок валидации (400), у 409 там имя поля.
             const fieldError = error?.status === 400
                 && error.details
                 && typeof error.details === 'object'
