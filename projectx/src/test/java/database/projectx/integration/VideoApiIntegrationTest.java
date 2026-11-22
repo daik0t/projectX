@@ -248,7 +248,6 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
      *
      * <p>BUG: после PUT повторный GET отдаёт старый url. Когда баг исправят,
      * этот тест должен упасть и его нужно будет заменить на проверку сохранения.</p>
-     * TODO: Исправить тест после исправления обновления видео
      */
     @Test
     void updateVideo_currentImplementationDoesNotPersistNewUrl() throws Exception {
@@ -261,10 +260,10 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(getJson("/api/videos/" + video.getId())
                         .header("Authorization", bearer(aliceToken)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.url").value("https://youtube.com/old"));
+                .andExpect(jsonPath("$.url").value("https://youtube.com/new"));
 
         assertThat(videosRepository.findById(video.getId()).orElseThrow().getUrl())
-                .isEqualTo("https://youtube.com/old");
+                .isEqualTo("https://youtube.com/new");
     }
 
     @Test
