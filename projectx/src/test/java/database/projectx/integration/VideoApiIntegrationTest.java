@@ -388,8 +388,8 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
      * возвращает нарушение внешнего ключа и клиент получает 500.
      *
      * <p>BUG: удаление видео с тегами должно работать (204), сейчас — 500.</p>
-     * TODO: понять в чем ошибка почему H2 не удаляет каскадом теги
      */
+    //TODO: понять в чем ошибка почему H2 не удаляет каскадом теги
     @Test
     void deleteVideo_withTags_currentImplementationReturnsServerError() throws Exception {
         Videos video = seedVideo(alice, "https://youtube.com/delete-tagged", aliceTag);
