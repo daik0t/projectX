@@ -56,6 +56,7 @@ public class RateLimitFilter extends OncePerRequestFilter{
         || path.equals("/api/auth/forgot-password") || path.equals("/api/auth/reset-password");
     }
 
+    //TODO: испрвить опечатку и найти место где шла речь о charset вместо utf-8 (строка 41)
     private String getClientIp(HttpServletRequest request) {
         String xfHeader = request.getHeader("X-Forwwrded-For");
         if(xfHeader == null || xfHeader.isEmpty() || "unknown".equalsIgnoreCase(xfHeader)){

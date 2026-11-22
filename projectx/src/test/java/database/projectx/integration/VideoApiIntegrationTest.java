@@ -248,6 +248,7 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
      *
      * <p>BUG: после PUT повторный GET отдаёт старый url. Когда баг исправят,
      * этот тест должен упасть и его нужно будет заменить на проверку сохранения.</p>
+     * TODO: Исправить тест после исправления обновления видео
      */
     @Test
     void updateVideo_currentImplementationDoesNotPersistNewUrl() throws Exception {
@@ -388,6 +389,7 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
      * возвращает нарушение внешнего ключа и клиент получает 500.
      *
      * <p>BUG: удаление видео с тегами должно работать (204), сейчас — 500.</p>
+     * TODO: понять в чем ошибка почему H2 не удаляет каскадом теги
      */
     @Test
     void deleteVideo_withTags_currentImplementationReturnsServerError() throws Exception {
@@ -434,6 +436,7 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("$.size()").value(1));
 
         // Снимаем тег, иначе удаление видео упрётся в известный баг с video_tags.
+        //TODO: посмотреть что будет когда баг с удалением испрвится
         mockMvc.perform(jsonPut("/api/videos/" + videoId + "/tags", Map.of("tagIds", List.of()))
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk());

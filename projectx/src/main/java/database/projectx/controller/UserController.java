@@ -29,17 +29,4 @@ public class UserController {
         UserResponse userResponse = userService.getMe(authentication);
         return ResponseEntity.ok(userResponse);
     }
-    
-
-    @GetMapping
-    public List<User> getAllUsers(){
-        return userService.getAllUsers();
-    }
-    
-    @PostMapping 
-    public User createUser(@RequestBody User user){
-        return userService.createUser(user);
-    }
-
-
 }

@@ -25,6 +25,7 @@ public class TagService {
         return tagsRepository.findUserAndGlobalTags(userId).stream().map(TagDto::from).toList();
     }
 
+    //TODO: транзакция добавить 
     public TagResult createOrGetTag(Long userId, String rawName) {
         String name = rawName.trim();
 
