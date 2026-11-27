@@ -71,6 +71,12 @@ export function initActiveWindow(root = document) {
             lastTrigger.focus({ preventScroll: true });
         }
         lastTrigger = null;
+
+        // После закрытия меню следующий ПКМ не должен попадать
+        // под защиту от синтетического contextmenu после long-press.
+        longPressFired = false;
+        suppressClick = false;
+        clearTimeout(longPressResetTimer);
     };
 
     const openActionWindow = (card, x, y) => {

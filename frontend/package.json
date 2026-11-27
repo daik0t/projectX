@@ -6,9 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:integration": "vitest run --config vitest.config.js",
+    "test:integration:watch": "vitest --config vitest.config.js",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "vite": "^8.3.5"
+    "@playwright/test": "^1.65.1",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/user-event": "^14.6.13",
+    "jsdom": "^29.1.1",
+    "msw": "^3.0.8",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.2"
   }
 }
