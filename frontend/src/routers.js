@@ -11,12 +11,12 @@ import { renderForgotPassword } from "./pages/forgotPasswordPage";
 import { renderResetPassword } from "./pages/resetPasswordPage";
 
 const routes = {
-    '/login':    () => renderLogin(),
-    '/register': () => renderRegister(),
-    '/':         () => renderMain(),
-    '/settings': () => renderSettingsPage(),
-    '/forgot-password': () => renderForgotPassword(),
-    '/reset-password': () => renderResetPassword()
+    '/login':    (context) => renderLogin(context),
+    '/register': (context) => renderRegister(context),
+    '/':         (context) => renderMain(context),
+    '/settings': (context) => renderSettingsPage(context),
+    '/forgot-password': (context) => renderForgotPassword(context),
+    '/reset-password': (context) => renderResetPassword(context)
 };
 
 const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
@@ -24,7 +24,8 @@ const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-passwo
 let routeGeneration = 0;
 
 export async function router() {
-    const generation = ++routeGeneration;    const app = resetPage();
+    const generation = ++routeGeneration;
+    const app = resetPage();
 
     // Не оставляем прокрутку предыдущей страницы.
     window.scrollTo(0, 0);
@@ -90,7 +91,7 @@ export async function router() {
         app.innerHTML = '<div class="page-loading" role="status">Загрузка…</div>';
 
         try {
-            await matchedRoute(params);
+            await matchedRoute({ root: app, params });
         } catch (error) {
             if (generation !== routeGeneration) return;
             if (error?.status === 401) return;

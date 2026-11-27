@@ -27,9 +27,9 @@ export function forgotPasswordFormRender() {
     `;
 }
 
-export function initForgotPasswordForm() {
-    const form = document.getElementById("forgot-form");
-    const messageEl = document.getElementById("forgot-message");
+export function initForgotPasswordForm(root = document) {
+    const form = root.querySelector("#forgot-form");
+    const messageEl = root.querySelector("#forgot-message");
     const btn = form?.querySelector(".auth-widget-submit");
     if (!form) return;
 

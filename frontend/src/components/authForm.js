@@ -79,9 +79,9 @@ export function authFormRender(mode) {
 }
 
 
-export function initAuthForm(mode, onSuccess) {
-    const form = document.getElementById('auth-widget-form');
-    const messageEl = document.getElementById('auth-message');
+export function initAuthForm(mode, onSuccess, root = document) {
+    const form = root.querySelector('#auth-widget-form');
+    const messageEl = root.querySelector('#auth-message');
     if (!form) return;
 
     const submitBtn = form.querySelector('.auth-widget-submit');

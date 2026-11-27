@@ -92,12 +92,12 @@ export function initTagsList(root, { onCreateTag, onChange } = {}) {
     return { getSelected, appendTag, showInput, hideInput };
 }
 
-export function initSettingsTagsDelete() {
-    const deleteBtn = document.getElementById('delete-tags');
+export function initSettingsTagsDelete(root = document) {
+    const deleteBtn = root.querySelector('#delete-tags');
     if (!deleteBtn) return;
 
     deleteBtn.addEventListener('click', async () => {
-        const container = document.getElementById('place-tags-settings');
+        const container = root.querySelector('#place-tags-settings');
         if (!container) return;
 
         const checkedBoxes = [...container.querySelectorAll('input[name="tags"]:checked')];

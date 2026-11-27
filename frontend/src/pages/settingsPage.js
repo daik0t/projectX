@@ -1,9 +1,10 @@
 import { renderHomeBoard } from "../components/homeBoard"
 import { initSettingEvents } from "../services/settings-events"
 
-export async function renderSettingsPage() {
+export async function renderSettingsPage({ root = document.getElementById('app') } = {}) {
 
-    const container = document.getElementById('app')
+    const container = root
+    if (!container) return
 
     container.innerHTML = `
         ${renderHomeBoard()}
@@ -44,5 +45,5 @@ export async function renderSettingsPage() {
         </div>
     `
 
-    await initSettingEvents()
+    await initSettingEvents(container)
 }

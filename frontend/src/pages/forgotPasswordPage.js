@@ -1,9 +1,9 @@
 import { forgotPasswordFormRender, initForgotPasswordForm } from "../components/forgotPasswordForm";
 
-export function renderForgotPassword() {
-    const container = document.getElementById("app");
+export function renderForgotPassword({ root = document.getElementById("app") } = {}) {
+    if (!root) return;
 
-    container.innerHTML = `
+    root.innerHTML = `
         <div class="auth-widget-card">
             <div class="auth-widget-title">Восстановление пароля</div>
             ${forgotPasswordFormRender()}
@@ -14,5 +14,5 @@ export function renderForgotPassword() {
         </div>
     `;
 
-    initForgotPasswordForm();
+    initForgotPasswordForm(root);
 }

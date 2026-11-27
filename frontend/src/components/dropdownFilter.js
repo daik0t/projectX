@@ -16,8 +16,8 @@ export async function renderDropdownFilter(tags = null) {
 }
 
 
-export function bindDropdownFilter() {
-    const form = document.getElementById("place-tags-filter");
+export function bindDropdownFilter(root = document) {
+    const form = root.querySelector("#place-tags-filter");
     if (!form) return;
 
     form.addEventListener("change", (e) => {

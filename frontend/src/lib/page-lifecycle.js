@@ -1,5 +1,9 @@
 import { closeAllModals } from './modal';
 
+/**
+ * Контракт страниц: renderPage({ root, params }).
+ * Страница не должна искать #app самостоятельно — корень приходит из роутера.
+ */
 let controller = new AbortController();
 
 export function pageSignal() {

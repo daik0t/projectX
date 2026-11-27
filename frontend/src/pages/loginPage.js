@@ -1,9 +1,10 @@
 import { renderAuthPage } from "./authPage";
 
-export function renderLogin() {
+export function renderLogin({ root = document.getElementById('app') } = {}) {
     const error = new URLSearchParams(window.location.search).get("error");
 
     renderAuthPage({
+        root,
         mode: "login",
         title: "Авторизация",
         dividerText: "Авторизация с помощью",

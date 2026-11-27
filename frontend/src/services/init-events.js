@@ -24,8 +24,8 @@ import { buildBreadcrumb } from "../lib/breadcrumb";
 import { showToast } from "../lib/ui";
 import { pageSignal } from "../lib/page-lifecycle";
 
-function setupBreadcrumb(profile, tags) {
-    const input = getContainer('raw-path');
+function setupBreadcrumb(profile, tags, root = document) {
+    const input = getContainer('raw-path', root);
     if (!input) return;
 
     const update = () => {
@@ -43,8 +43,8 @@ function setupBreadcrumb(profile, tags) {
     update();
 }
 
-function renderSidebarTags(tags, videos) {
-    const tagsRoot = getContainer('tags-list');
+function renderSidebarTags(tags, videos, root = document) {
+    const tagsRoot = getContainer('tags-list', root);
     const allButton = tagsRoot?.querySelector('#btn-all-tags');
     if (!tagsRoot || !allButton) return;
 
@@ -117,9 +117,9 @@ function renderSidebarTags(tags, videos) {
     }
 }
 
-function setupDragDelete() {
-    const grid = getContainer('video-grid');
-    const trash = getContainer('trash');
+function setupDragDelete(root = document) {
+    const grid = getContainer('video-grid', root);
+    const trash = getContainer('trash', root);
     if (!grid || !trash) return;
 
     const signal = pageSignal();
@@ -187,19 +187,19 @@ function setupDragDelete() {
     }, { signal });
 }
 
-export async function initMainEvents(profile = null, tags = []) {
+export async function initMainEvents(profile = null, tags = [], root = document) {
 
-    const videoList = getContainer('video-grid');
+    const videoList = getContainer('video-grid', root);
     const signal = pageSignal();
 
-    setupBreadcrumb(profile, tags);
-    setupDragDelete();
+    setupBreadcrumb(profile, tags, root);
+    setupDragDelete(root);
 
     if (videoList) {
         initFilter({ container: videoList });
 
         videoList.addEventListener('video-list:loaded', (event) => {
-            renderSidebarTags(tags, event.detail?.videos ?? []);
+            renderSidebarTags(tags, event.detail?.videos ?? [], root);
         }, { signal });
 
         await renderVideoList(videoList, getFilterState());
@@ -207,17 +207,18 @@ export async function initMainEvents(profile = null, tags = []) {
 
     if (signal.aborted) return;
 
-    initActiveWindow()
-    initBtnWindow(["btn-add","btn-action-add"], "add-window", "add-window-overlay", ["btn-cancel", "btn-close"])
-    initDropdown("btn-filter", "place-tags-filter", "place-tags-filter-overlay")
-    initBoard("btn-home", "home-board", "home-board-overlay")
+    initActiveWindow(root)
+    initBtnWindow(["btn-add","btn-action-add"], "add-window", "add-window-overlay", ["btn-cancel", "btn-close"], root)
+    initDropdown("btn-filter", "place-tags-filter", "place-tags-filter-overlay", root)
+    initBoard("btn-home", "home-board", "home-board-overlay", root)
 
     if (signal.aborted) return;
 
-    const btn = getContainer("btn-exit")
+    const btn = getContainer("btn-exit", root)
     btn?.addEventListener('click', logout)
 
     setupAddVideo({
+    root,
     onSuccess: async () => {
         if (videoList) await renderVideoList(videoList, getFilterState());
     }
@@ -225,17 +226,17 @@ export async function initMainEvents(profile = null, tags = []) {
 
     if (signal.aborted) return;
 
-    const allTagsBtn = getContainer("btn-all-tags");
+    const allTagsBtn = getContainer("btn-all-tags", root);
     allTagsBtn?.addEventListener('click', async () => {
         await applySidebarTag(null);
     }, { signal })
 
-    if (getContainer("place-tags-filter")) {
-        bindDropdownFilter();
+    if (getContainer("place-tags-filter", root)) {
+        bindDropdownFilter(root);
     }
 
-    openPage("btn-explorer", "/")
-    openPage("btn-setting", "/settings")
+    openPage("btn-explorer", "/", root)
+    openPage("btn-setting", "/settings", root)
 }
 
 

@@ -68,9 +68,9 @@ export async function renderSettingsProfile() {
     };
 }
 
-export function initSettingsProfile(profile = null) {
-    const btn = document.getElementById("btn-change-password");
-    const msg = document.getElementById("profile-message");
+export function initSettingsProfile(profile = null, root = document) {
+    const btn = root.querySelector("#btn-change-password");
+    const msg = root.querySelector("#profile-message");
     if (!btn) return;
 
     btn.addEventListener("click", async () => {

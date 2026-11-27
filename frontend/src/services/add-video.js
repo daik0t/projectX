@@ -6,13 +6,13 @@ import { closeModal } from "../lib/modal";
 import { updateVideoCard } from "../components/videoCard";
 import { collectSelectedTags } from "../lib/tags";
 
-async function hydrateMetadata(video, url, tags) {
+async function hydrateMetadata(video, url, tags, root = document) {
     try {
         const { meta } = await fetchVideoMetadata(url);
         if (meta) {
             saveMetadata(video.id, meta, url, tags);
 
-            const card = document.querySelector(
+            const card = root.querySelector(
                 `.video-card[data-video-id="${String(video.id)}"]`
             );
             if (card) updateVideoCard(card, video);
@@ -24,9 +24,9 @@ async function hydrateMetadata(video, url, tags) {
     }
 }
 
-export function setupAddVideo({ onSuccess } = {}) {
-    const form = getContainer("add-window-form");
-    const tagsList = getContainer("place-tags");
+export function setupAddVideo({ onSuccess, root = document } = {}) {
+    const form = getContainer("add-window-form", root);
+    const tagsList = getContainer("place-tags", root);
 
     if (!form || !tagsList) {
         console.warn("setupAddVideo: форма или список тегов не найдены");
@@ -73,11 +73,11 @@ export function setupAddVideo({ onSuccess } = {}) {
         }
 
         form.reset();
-        const addWindow = getContainer("add-window");
+        const addWindow = getContainer("add-window", root);
         if (addWindow) closeModal(addWindow);
 
         // Метаданные догружаем в фоне: окно уже закрыто, список обновляется отдельно.
-        void hydrateMetadata(created, url, selectedTags);
+        void hydrateMetadata(created, url, selectedTags, root);
 
         try {
             await onSuccess?.();

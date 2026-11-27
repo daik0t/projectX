@@ -7,8 +7,8 @@ import { getFilterState } from "./filter";
 import { closeModal } from "../lib/modal";
 import { collectSelectedTags } from "../lib/tags";
 
-export async function editVideo(currentVideoId) {
-    const form = getContainer("edit-window-form");
+export async function editVideo(currentVideoId, root = document) {
+    const form = getContainer("edit-window-form", root);
     if (!form) return;
 
     form.addEventListener('submit', async (e) => {
@@ -37,10 +37,10 @@ export async function editVideo(currentVideoId) {
                 );
             }
 
-            const editWindow = getContainer('edit-window');
+            const editWindow = getContainer('edit-window', root);
             if (editWindow) closeModal(editWindow);
 
-            const grid = getContainer('video-grid');
+            const grid = getContainer('video-grid', root);
             if (grid) await renderVideoList(grid, getFilterState());
         } catch (err) {
             console.error(err);

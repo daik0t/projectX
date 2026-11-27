@@ -1,8 +1,9 @@
 import { renderAuthPage } from "./authPage";
 
-export function renderRegister(){
+export function renderRegister({ root = document.getElementById('app') } = {}){
 
     renderAuthPage({
+        root,
         mode: "register",
         title: "Регистрация",
         dividerText: "Регистрация с помощью",

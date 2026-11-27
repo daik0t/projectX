@@ -1,4 +1,3 @@
-import { getContainer } from "./dom";
 import { initBoard } from "./init-windows";
 import { openPage } from "./open-page";
 import { logout } from "./auth-actions";
@@ -9,20 +8,20 @@ import { createTag } from "../api/video";
 import { escapeHtml } from "../lib/html";
 import { pageSignal } from "../lib/page-lifecycle";
 
-export async function initSettingEvents() {
+export async function initSettingEvents(root = document) {
     const signal = pageSignal();
 
-    openPage("btn-close-settings", "/");
-    openPage("btn-explorer", "/");
+    openPage("btn-close-settings", "/", root);
+    openPage("btn-explorer", "/", root);
 
     if (signal.aborted) return;
 
-    initBoard("btn-home", "home-board", "home-board-overlay");
+    initBoard("btn-home", "home-board", "home-board-overlay", root);
 
-    getContainer("btn-exit")?.addEventListener("click", logout);
+    root.querySelector("#btn-exit")?.addEventListener("click", logout);
 
-    const tabList = document.getElementById("tab-list");
-    tabList?.addEventListener("click", onSettingsTabClick, { signal });
+    const tabList = root.querySelector("#tab-list");
+    tabList?.addEventListener("click", (event) => onSettingsTabClick(event, root), { signal });
     tabList?.addEventListener("keydown", (event) => {
         if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
 
@@ -37,14 +36,14 @@ export async function initSettingEvents() {
         next.click();
     }, { signal });
 
-    await openDefaultSettingsTab();
+    await openDefaultSettingsTab(root);
 }
 
-async function activateSettingsTab(tab) {
-    const infoPlace = document.getElementById("information-place-settings");
+async function activateSettingsTab(tab, root = document) {
+    const infoPlace = root.querySelector("#information-place-settings");
     if (!infoPlace) return;
 
-    document.querySelectorAll("#tab-list .tab").forEach((button) => {
+    root.querySelectorAll("#tab-list .tab").forEach((button) => {
         const isActive = button === tab;
         button.classList.toggle("active", isActive);
         button.setAttribute("aria-selected", String(isActive));
@@ -56,18 +55,18 @@ async function activateSettingsTab(tab) {
             if (!infoPlace.isConnected) return;
             infoPlace.innerHTML = html;
 
-            const placeTags = document.getElementById("place-tags-settings");
+            const placeTags = root.querySelector("#place-tags-settings");
             if (placeTags) {
                 initTagsList(placeTags, {
                     onCreateTag: (name) => createTag({ name }),
                 });
-                initSettingsTagsDelete();
+                initSettingsTagsDelete(root);
             }
         } else if (tab.id === "tab-profile") {
             const data = await renderSettingsProfile();
             if (!infoPlace.isConnected) return;
             infoPlace.innerHTML = data.html;
-            initSettingsProfile(data.profile);
+            initSettingsProfile(data.profile, root);
         }
     } catch (err) {
         if (!infoPlace.isConnected) return;
@@ -76,18 +75,18 @@ async function activateSettingsTab(tab) {
     }
 }
 
-async function onSettingsTabClick(e) {
-    const tab = e.target.closest("#tab-list .tab");
+async function onSettingsTabClick(event, root) {
+    const tab = event.target.closest("#tab-list .tab");
     if (!tab) return;
 
-    e.preventDefault();
-    await activateSettingsTab(tab);
+    event.preventDefault();
+    await activateSettingsTab(tab, root);
 }
 
-async function openDefaultSettingsTab() {
-    const tabList = document.getElementById("tab-list");
+async function openDefaultSettingsTab(root) {
+    const tabList = root.querySelector("#tab-list");
     if (!tabList) return;
 
     const profileTab = tabList.querySelector("#tab-profile");
-    if (profileTab) await activateSettingsTab(profileTab);
+    if (profileTab) await activateSettingsTab(profileTab, root);
 }

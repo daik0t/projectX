@@ -48,11 +48,11 @@ export function resetPasswordFormRender({ token }) {
     `;
 }
 
-export function initResetPasswordForm({ token, onSuccess }) {
-    const form = document.getElementById("reset-form");
+export function initResetPasswordForm({ token, onSuccess, root = document } = {}) {
+    const form = root.querySelector("#reset-form");
     if (!form) return; // нет токена — рендер уже показал ошибку
 
-    const messageEl = document.getElementById("reset-message");
+    const messageEl = root.querySelector("#reset-message");
     const btn = form.querySelector(".auth-widget-submit");
 
     form.addEventListener("submit", async (e) => {

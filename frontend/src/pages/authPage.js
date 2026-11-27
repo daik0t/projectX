@@ -5,10 +5,19 @@ import { saveAuth } from "../services/auth-storage";
 import { startSocialAuth } from "../services/auth-social";
 import { showToast } from "../lib/ui";
 
-export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, linkPrompt, message = null }) {
-    const container = document.getElementById('app');
+export function renderAuthPage({
+    mode,
+    title,
+    dividerText,
+    linkText,
+    linkHref,
+    linkPrompt,
+    message = null,
+    root = document.getElementById('app'),
+}) {
+    if (!root) return;
 
-    container.innerHTML = `
+    root.innerHTML = `
         <div class="auth-widget-card">
             <div class="auth-widget-title">${title}</div>
             ${authFormRender(mode)}
@@ -23,7 +32,7 @@ export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, l
     `;
 
     if (message) {
-        const messageEl = document.getElementById('auth-message');
+        const messageEl = root.querySelector('#auth-message');
         if (messageEl) {
             messageEl.hidden = false;
             messageEl.textContent = message;
@@ -43,9 +52,9 @@ export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, l
         } catch (err) {
             showToast(err.message, 'error');
         }
-    });
+    }, root);
 
-    const socialContainer = container.querySelector('.auth-widget-socials');
+    const socialContainer = root.querySelector('.auth-widget-socials');
 
     mountSocialAuth(socialContainer, {
         onError: (err) => showToast(err.message, 'error'),

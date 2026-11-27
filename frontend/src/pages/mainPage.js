@@ -9,9 +9,10 @@ import { createTag } from "../api/video"
 import { me } from "../api/auth"
 import { escapeHtml } from "../lib/html"
 
-export async function renderMain() {
+export async function renderMain({ root = document.getElementById('app') } = {}) {
 
-    const container = document.getElementById('app')
+    const container = root
+    if (!container) return
 
     const [userH, tags] = await Promise.all([me(), getTags()])
 
@@ -76,13 +77,13 @@ export async function renderMain() {
 
     if (!container.isConnected) return
 
-    initTagsList('add-window-form', {
+    initTagsList(container.querySelector('#add-window-form'), {
         onCreateTag: (name) => createTag({ name }),
     });
 
-    initTagsList("place-tags-filter", {
+    initTagsList(container.querySelector("#place-tags-filter"), {
         onCreateTag: (name) => createTag({ name }),
     });
 
-    await initMainEvents(userH, tags)
+    await initMainEvents(userH, tags, container)
 }

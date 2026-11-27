@@ -1,15 +1,18 @@
 import { resetPasswordFormRender, initResetPasswordForm } from "../components/resetPasswordForm";
 import { navigate } from "../lib/navigation";
 
-export function renderResetPassword({ query } = {}) {
-    const container = document.getElementById("app");
+export function renderResetPassword({
+    root = document.getElementById("app"),
+    params = {},
+} = {}) {
+    if (!root) return;
 
     const token =
-        query?.token ??
+        params?.token ??
         new URLSearchParams(location.search).get("token") ??
         "";
 
-    container.innerHTML = `
+    root.innerHTML = `
         <div class="auth-widget-card">
             <div class="auth-widget-title">Новый пароль</div>
             ${resetPasswordFormRender({ token })}
@@ -23,5 +26,6 @@ export function renderResetPassword({ query } = {}) {
     initResetPasswordForm({
         token,
         onSuccess: () => navigate("/login"),
+        root,
     });
 }

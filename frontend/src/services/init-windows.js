@@ -4,15 +4,15 @@ import { openModal, closeModal } from "../lib/modal";
 import { initPopover, focusFirstVisible, positionPopover } from "../lib/popover";
 import { initMenuKeyboard } from "../lib/menu";
 
-export function initBtnWindow(btnOpenId, windowId, overlayId, btnCloseId) {
+export function initBtnWindow(btnOpenId, windowId, overlayId, btnCloseId, root = document) {
     const openIds = Array.isArray(btnOpenId) ? btnOpenId : [btnOpenId];
     const closeIds = Array.isArray(btnCloseId) ? btnCloseId : [btnCloseId];
 
-    const area = getContainer('app');
-    const openBtns = openIds.map(i => getContainer(i)).filter(Boolean);
-    const windowEl = getContainer(windowId);
-    const overlay = getContainer(overlayId);
-    const closeBtns = closeIds.map(i => getContainer(i)).filter(Boolean);
+    const area = root;
+    const openBtns = openIds.map(i => getContainer(i, root)).filter(Boolean);
+    const windowEl = getContainer(windowId, root);
+    const overlay = getContainer(overlayId, root);
+    const closeBtns = closeIds.map(i => getContainer(i, root)).filter(Boolean);
 
     if (!area || !windowEl || !overlay || openBtns.length === 0) return;
 
@@ -45,10 +45,10 @@ export function initBtnWindow(btnOpenId, windowId, overlayId, btnCloseId) {
     overlay.addEventListener('click', close);
 }
 
-export function initDropdown(btnId, windowId, overlayId) {
-    const btn = getContainer(btnId);
-    const dropdown = getContainer(windowId);
-    const overlay = getContainer(overlayId);
+export function initDropdown(btnId, windowId, overlayId, root = document) {
+    const btn = getContainer(btnId, root);
+    const dropdown = getContainer(windowId, root);
+    const overlay = getContainer(overlayId, root);
 
     if (!btn || !dropdown || !overlay) return;
 
@@ -67,10 +67,10 @@ export function initDropdown(btnId, windowId, overlayId) {
     });
 }
 
-export function initBoard(btnId, windowId, overlayId) {
-    const btn = getContainer(btnId);
-    const board = getContainer(windowId);
-    const overlay = getContainer(overlayId);
+export function initBoard(btnId, windowId, overlayId, root = document) {
+    const btn = getContainer(btnId, root);
+    const board = getContainer(windowId, root);
+    const overlay = getContainer(overlayId, root);
 
     if (!btn || !board || !overlay) return;
 

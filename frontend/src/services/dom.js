@@ -1,9 +1,9 @@
-export function getContainer(id) {
-    const element = document.getElementById(id);
-    
+export function getContainer(id, root = document) {
+    const element = root?.querySelector?.(`#${id}`) ?? document.getElementById(id);
+
     if (!element) {
         console.warn(`[dom] #${id} not found`);
     }
-    
+
     return element;
 }
