@@ -1,8 +1,8 @@
 import { tagsListRender } from "./tagsList";
 
-export async function renderSettingsTags(token) {
+export async function renderSettingsTags() {
     
-    const tagsHtml = await tagsListRender(token, {}, 1);
+    const tagsHtml = await tagsListRender({}, 1);
 
 
     return `

@@ -24,8 +24,7 @@ const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-passwo
 let routeGeneration = 0;
 
 export async function router() {
-    const generation = ++routeGeneration;
-    const app = resetPage();
+    const generation = ++routeGeneration;    const app = resetPage();
 
     // Не оставляем прокрутку предыдущей страницы.
     window.scrollTo(0, 0);
@@ -113,8 +112,7 @@ export async function router() {
     }
 }
 
-export function navigate(path) {
-    if (path === window.location.pathname) return;
-    history.pushState({}, '', path);
+window.addEventListener('route:navigate', () => {
     router();
-}
+});
+

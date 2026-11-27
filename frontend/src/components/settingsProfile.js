@@ -2,10 +2,10 @@ import { getAuth } from "../services/auth-storage";
 import { me, forgotPassword } from "../api/auth";
 import { escapeHtml } from "../lib/html";
 
-export async function renderSettingsProfile(token) {
+export async function renderSettingsProfile() {
     let user = null;
     try {
-        user = await me(token);
+        user = await me();
     } catch (err) {
         console.warn("[settings-profile] не удалось загрузить с сервера:", err.message);
     }
@@ -15,11 +15,14 @@ export async function renderSettingsProfile(token) {
     }
 
     if (!user) {
-        return `
+        return {
+            html: `
         <div class="settings-profile" id="settings-profile">
             <p class="error">Не удалось загрузить профиль. Попробуйте войти заново.</p>
         </div>
-        `;
+        `,
+            profile: null,
+        };
     }
 
     const displayName = escapeHtml(user.displayName ?? "Без имени");
@@ -31,7 +34,8 @@ export async function renderSettingsProfile(token) {
           })
         : null;
 
-    return `
+    return {
+        html: `
     <div class="settings-profile" id="settings-profile">
         <div class="profile-card">
             <div class="profile-avatar" aria-hidden="true">${initial}</div>
@@ -58,23 +62,18 @@ export async function renderSettingsProfile(token) {
             </div>
         </div>
     </div>
-    `;
+    `,
+        profile: user,
+    };
 }
 
-export function initSettingsProfile(token) {
+export function initSettingsProfile(profile = null) {
     const btn = document.getElementById("btn-change-password");
     const msg = document.getElementById("profile-message");
     if (!btn) return;
 
     btn.addEventListener("click", async () => {
-        let email = getAuth()?.user?.email ?? null;
-
-        try {
-            const user = await me(token);
-            if (user?.email) email = user.email;
-        } catch (err) {
-            console.warn("[settings-profile] не удалось получить email:", err.message);
-        }
+        let email = profile?.email ?? getAuth()?.user?.email ?? null;
 
         if (!email) {
             showProfileMessage(msg, "Не найден email пользователя", "error");

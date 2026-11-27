@@ -65,11 +65,6 @@ export function isSessionExpired(skewMs = 30_000) {
     return Date.now() + skewMs >= expiresAt;
 }
 
-export function getAuthHeader() {
-    const { accessToken, tokenType } = getSession();
-    return accessToken ? { Authorization: `${tokenType} ${accessToken}` } : {};
-}
-
 export function getJwtExpiresAt(token) {
     if (typeof token !== 'string') return null;
 

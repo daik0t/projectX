@@ -1,7 +1,7 @@
 import { clearSession } from "./session";
 import { clearAllMetadata } from "./video-storage";
 import { resetFilter } from "./filter";
-import { navigate } from "../routers";
+import { navigate } from "../lib/navigation";
 
 export function logout() {
     clearSession();

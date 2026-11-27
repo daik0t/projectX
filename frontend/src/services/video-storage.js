@@ -155,7 +155,7 @@ export function parseVideoUrl(rawUrl) {
             return { platform: "youtube", id, canonical: `https://www.youtube.com/watch?v=${id}` };
         }
     }
-    if (host.endsWith("vimeo.com")) {
+    if (host === "vimeo.com" || host.endsWith(".vimeo.com")) {
         const m = u.pathname.match(/\/(\d+)/);
         if (m) return { platform: "vimeo", id: m[1], canonical: `https://vimeo.com/${m[1]}` };
     }

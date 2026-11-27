@@ -1,9 +1,9 @@
 import { getTags } from "../api/video"
 import { escapeHtml } from "../lib/html"
 
-export async function tagsListRender(token, data = {}, type = 0, tagsOverride = null) {
+export async function tagsListRender(data = {}, type = 0, tagsOverride = null) {
 
-    const tags = Array.isArray(tagsOverride) ? tagsOverride : await getTags(token)
+    const tags = Array.isArray(tagsOverride) ? tagsOverride : await getTags()
 
     const selectedIds = new Set(
         (data?.tags ?? []).map(t =>

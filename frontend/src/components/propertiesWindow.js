@@ -1,5 +1,6 @@
 import { getMetadata } from "../services/video-storage";
 import { escapeHtml } from "../lib/html";
+import { safeHttpUrl } from "../lib/url";
 
 function formatTags(tags) {
     if (!Array.isArray(tags)) return "—";
@@ -11,14 +12,15 @@ function formatTags(tags) {
     return names.length ? names.join(", ") : "—";
 }
 
-export async function renderPropertiesWindow(id) {
+export function renderPropertiesWindow(id) {
     const data = getMetadata(id) ?? {};
 
     const title = escapeHtml(data.title ?? "Без названия");
-    const thumbnail = data.thumbnail_url ? escapeHtml(data.thumbnail_url) : "";
+    const thumbnail = safeHttpUrl(data.thumbnail_url);
     const author = escapeHtml(data.author_name ?? "—");
     const provider = escapeHtml(data.provider_name ?? "—");
-    const url = escapeHtml(data.url ?? "—");
+    const url = safeHttpUrl(data.url);
+    const urlText = escapeHtml(data.url ?? "—");
     const tags = escapeHtml(formatTags(data.tags));
 
     return `
@@ -30,7 +32,7 @@ export async function renderPropertiesWindow(id) {
                 <img src="/assets/cross.svg" alt="">
             </button>
         </div>
-        ${thumbnail ? `<img src="${thumbnail}" class="img-properties" alt="${title}">` : ""}
+        ${thumbnail ? `<img src="${escapeHtml(thumbnail)}" class="img-properties" alt="${title}">` : ""}
         <div class="title-video" id="title-video">
             <b>Название:</b> ${title}
         </div>
@@ -44,8 +46,8 @@ export async function renderPropertiesWindow(id) {
             <b>Тэги:</b> ${tags}
         </div>
         <div class="link-properties" id="link-properties">
-            <b>Ссылка:</b> ${data.url
-                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+            <b>Ссылка:</b> ${url
+                ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${urlText}</a>`
                 : "—"}
         </div>
     </div>

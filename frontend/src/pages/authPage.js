@@ -1,6 +1,6 @@
 import { initAuthForm, authFormRender } from "../components/authForm"; 
-import { mountSocialAuth, socialAuthRender } from "../components/socialAuth";
-import { navigate } from "../routers";
+import { mountSocialAuth } from "../components/socialAuth";
+import { navigate } from "../lib/navigation";
 import { saveAuth } from "../services/auth-storage";
 import { startSocialAuth } from "../services/auth-social";
 import { showToast } from "../lib/ui";
@@ -13,7 +13,7 @@ export function renderAuthPage({ mode, title, dividerText, linkText, linkHref, l
             <div class="auth-widget-title">${title}</div>
             ${authFormRender(mode)}
             <div class="auth-widget-divider">${dividerText}</div>
-            ${socialAuthRender()}
+            <div class="auth-widget-socials" aria-label="Вход через соцсети"></div>
             <hr class="widget-line">
             <div class="auth-away">
                 <span class="auth-away-title">${linkPrompt}</span>

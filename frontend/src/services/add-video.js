@@ -3,8 +3,27 @@ import { getContainer } from "./dom";
 import { fetchVideoMetadata, parseVideoUrl, saveMetadata } from "./video-storage";
 import { showToast } from "../lib/ui";
 import { closeModal } from "../lib/modal";
+import { updateVideoCard } from "../components/videoCard";
 
-export async function setupAddVideo({ token, onSuccess }) {
+async function hydrateMetadata(video, url, tags) {
+    try {
+        const { meta } = await fetchVideoMetadata(url);
+        if (meta) {
+            saveMetadata(video.id, meta, url, tags);
+
+            const card = document.querySelector(
+                `.video-card[data-video-id="${String(video.id)}"]`
+            );
+            if (card) updateVideoCard(card, video);
+        } else {
+            console.warn(`[add-video] метаданные не получены для ${url}`);
+        }
+    } catch (err) {
+        console.warn("[add-video] метаданные не получены:", err.message);
+    }
+}
+
+export function setupAddVideo({ onSuccess } = {}) {
     const form = getContainer("add-window-form");
     const tagsList = getContainer("place-tags");
 
@@ -17,6 +36,8 @@ export async function setupAddVideo({ token, onSuccess }) {
         e.preventDefault();
 
         const submitBtn = form.querySelector("#btn-apply");
+        if (!submitBtn) return;
+
         const url = form.querySelector("#input-link").value.trim();
 
         if (!url) return;
@@ -37,35 +58,36 @@ export async function setupAddVideo({ token, onSuccess }) {
         submitBtn.textContent = "Добавление...";
         submitBtn.disabled = true;
 
+        let created;
         try {
-            const created = await createVideo(token, {
+            created = await createVideo({
                 url,
                 tagIds: selectedTags.map((tag) => tag.id),
             });
-
-            if (created?.id != null) {
-                try {
-                    const { meta } = await fetchVideoMetadata(url);
-                    if (meta) {
-                        saveMetadata(created.id, meta, url, selectedTags);
-                    } else {
-                        console.warn(`[add-video] метаданные не получены для ${url}`);
-                    }
-                } catch (err) {
-                    console.warn("[add-video] метаданные не получены:", err.message);
-                }
+            if (created?.id == null) {
+                throw new Error("Сервер не вернул данные видео");
             }
-
-            form.reset();
-            if (onSuccess) await onSuccess();
-            const addWindow = getContainer("add-window");
-            if (addWindow) closeModal(addWindow);
         } catch (err) {
             console.error("[add-video] createVideo упал:", err);
             showToast("Ошибка при добавлении: " + err.message, "error");
+            return;
         } finally {
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
+        }
+
+        form.reset();
+        const addWindow = getContainer("add-window");
+        if (addWindow) closeModal(addWindow);
+
+        // Метаданные догружаем в фоне: окно уже закрыто, список обновляется отдельно.
+        void hydrateMetadata(created, url, selectedTags);
+
+        try {
+            await onSuccess?.();
+        } catch (err) {
+            console.error("[add-video] список не обновился:", err);
+            showToast("Видео добавлено, но список не удалось обновить", "error");
         }
     });
 }

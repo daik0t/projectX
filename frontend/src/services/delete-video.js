@@ -2,9 +2,9 @@ import { deleteVideo } from "../api/video";
 import { removeMetadata } from "./video-storage";
 import { showToast } from "../lib/ui";
 
-export async function setupDeleteVideo({ token, id, onSuccess }) {
+export async function setupDeleteVideo({ id, onSuccess } = {}) {
     try {
-        await deleteVideo(token, id);
+        await deleteVideo(id);
         removeMetadata(id);
         if (onSuccess) await onSuccess();
     } catch (err) {

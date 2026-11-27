@@ -1,7 +1,7 @@
 import { resetPasswordFormRender, initResetPasswordForm } from "../components/resetPasswordForm";
-import { navigate } from "../routers";
+import { navigate } from "../lib/navigation";
 
-export async function renderResetPassword({ query } = {}) {
+export function renderResetPassword({ query } = {}) {
     const container = document.getElementById("app");
 
     const token =

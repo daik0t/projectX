@@ -6,7 +6,7 @@ export async function renderSettingsPage() {
     const container = document.getElementById('app')
 
     container.innerHTML = `
-        ${await renderHomeBoard()}
+        ${renderHomeBoard()}
         <div class="settings-page" id="settings-page">
             <div class="title-settings-window" id="header-settings-page">
                 <div class="title-text-settings">Настройки</div>

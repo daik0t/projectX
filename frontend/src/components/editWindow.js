@@ -1,12 +1,14 @@
 import { getMetadata } from "../services/video-storage";
 import { tagsListRender } from "./tagsList";
 import { escapeHtml } from "../lib/html";
+import { safeHttpUrl } from "../lib/url";
 
-export async function renderEditWindow(token, id) {
+export async function renderEditWindow(id) {
     const data = getMetadata(id) ?? {};
 
     const title = escapeHtml(data.title ?? "Без названия");
-    const url = escapeHtml(data.url ?? "—");
+    const url = safeHttpUrl(data.url);
+    const urlText = escapeHtml(data.url ?? "—");
   
 
     return `
@@ -24,12 +26,12 @@ export async function renderEditWindow(token, id) {
                     <b>Название:</b> ${title}
                 </div>
                 <div class="url-video" id="url-video">
-                    <b>Ссылка:</b> ${data.url
-                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+                    <b>Ссылка:</b> ${url
+                ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${urlText}</a>`
                 : "—"}
                 </div>
                 <div class="place-tags-edit">
-                    ${await tagsListRender(token, data, 1)}
+                    ${await tagsListRender(data, 1)}
                 </div>
             </div>
             <div class="footer-edit-window">

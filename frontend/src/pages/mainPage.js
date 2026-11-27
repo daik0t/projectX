@@ -1,6 +1,5 @@
 import { getTags } from "../api/video"
 import { actionWindowRender } from "../components/actionWindow"
-import { getAuth } from "../services/auth-storage"
 import { initMainEvents } from "../services/init-events"
 import { renderAddWindow } from "../components/addWindow"
 import { renderDropdownFilter } from "../components/dropdownFilter"
@@ -12,11 +11,9 @@ import { escapeHtml } from "../lib/html"
 
 export async function renderMain() {
 
-    const auth = getAuth()
-    const token = auth?.accessToken
     const container = document.getElementById('app')
 
-    const [userH, tags] = await Promise.all([me(), getTags(token)])
+    const [userH, tags] = await Promise.all([me(), getTags()])
 
     // Пока шли запросы, пользователь мог уйти на другую страницу.
     if (!container || !container.isConnected) return
@@ -25,9 +22,9 @@ export async function renderMain() {
 
     container.innerHTML = `
         ${actionWindowRender()}
-        ${await renderAddWindow(token, tags)}
-        ${await renderDropdownFilter(token, tags)}
-        ${await renderHomeBoard()}
+        ${await renderAddWindow(tags)}
+        ${await renderDropdownFilter(tags)}
+        ${renderHomeBoard()}
         <div class="main-page">
             <header class="top-main-page">
                 <button class="btn-add" id="btn-add" type="button" aria-label="Добавить видео" aria-haspopup="dialog">
@@ -80,12 +77,12 @@ export async function renderMain() {
     if (!container.isConnected) return
 
     initTagsList('add-window-form', {
-        onCreateTag: (name) => createTag(token, { name }),
+        onCreateTag: (name) => createTag({ name }),
     });
 
     initTagsList("place-tags-filter", {
-        onCreateTag: (name) => createTag(token, { name }),
+        onCreateTag: (name) => createTag({ name }),
     });
 
-    await initMainEvents(auth, userH, tags)
+    await initMainEvents(userH, tags)
 }

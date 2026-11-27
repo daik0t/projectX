@@ -2,15 +2,13 @@ import { renderVideoList } from "./render-video-list";
 
 const state = {
     container: null,
-    token: null,
     selectedTags: new Set(),
     appliedTags: new Set(),
     sidebarTagId: null,
 };
 
-export function initFilter({ container, token }) {
+export function initFilter({ container }) {
     state.container = container;
-    state.token = token;
     syncUI();
 }
 
@@ -41,14 +39,6 @@ export function clearSidebarTag() {
     syncUI();
 }
 
-export function toggleTag(id) {
-    const key = String(id);
-    if (state.selectedTags.has(key)) state.selectedTags.delete(key);
-    else state.selectedTags.add(key);
-    syncUI();
-    return state.selectedTags.has(key);
-}
-
 export function setTag(id, checked) {
     const key = String(id);
     if (checked) state.selectedTags.add(key);
@@ -66,27 +56,26 @@ export function resetFilter() {
     state.appliedTags.clear();
     state.sidebarTagId = null;
     state.container = null;
-    state.token = null;
 }
 
 export async function applyFilter() {
-    if (!state.container || !state.token) return;
+    if (!state.container) return;
 
     commitFilter();
 
     const filter = getFilterState();
-    await renderVideoList(state.container, state.token, filter);
+    await renderVideoList(state.container, filter);
     window.dispatchEvent(new CustomEvent("filter:applied"));
 }
 
 export async function applySidebarTag(tagId) {
-    if (!state.container || !state.token) return;
+    if (!state.container) return;
 
     state.sidebarTagId = tagId ? String(tagId) : null;
     syncUI();
 
     const filter = getFilterState();
-    await renderVideoList(state.container, state.token, filter);
+    await renderVideoList(state.container, filter);
     window.dispatchEvent(new CustomEvent("filter:applied"));
 }
 

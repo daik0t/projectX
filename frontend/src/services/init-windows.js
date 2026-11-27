@@ -38,7 +38,7 @@ function positionPopover(popover, x, y) {
     popover.style.top = `${Math.min(Math.max(margin, y), maxTop)}px`;
 }
 
-export async function initBtnWindow(btnOpenId, windowId, overlayId, btnCloseId) {
+export function initBtnWindow(btnOpenId, windowId, overlayId, btnCloseId) {
 
     const openIds = Array.isArray(btnOpenId) ? btnOpenId : [btnOpenId];
     const closeIds = Array.isArray(btnCloseId) ? btnCloseId : [btnCloseId];
@@ -112,7 +112,7 @@ function removeWindow(id) {
     document.getElementById(id)?.remove();
 }
 
-export async function initActiveWindow(user) {
+export function initActiveWindow() {
 
     const area = getContainer('app');
     const actionWindow = getContainer('action-window');
@@ -283,7 +283,7 @@ export async function initActiveWindow(user) {
         removeWindow('edit-window-overlay');
 
         try {
-            const html = await renderEditWindow(user.accessToken, videoId);
+            const html = await renderEditWindow(videoId);
             area.insertAdjacentHTML('beforeend', html);
 
             if (!getContainer('edit-window')) {
@@ -292,11 +292,11 @@ export async function initActiveWindow(user) {
             }
 
             initTagsList('edit-window-form', {
-                onCreateTag: (name) => createTag(user.accessToken, { name }),
+                onCreateTag: (name) => createTag({ name }),
             });
 
             openCloseWindow("edit-window", "edit-window-overlay", ["btn-cancel-edit", "btn-close-edit"]);
-            await editVideo(user.accessToken, videoId);
+            await editVideo(videoId);
         } catch (err) {
             console.error("[init-windows] edit failed:", err);
             showToast('Не удалось открыть редактор', 'error');
@@ -313,7 +313,7 @@ export async function initActiveWindow(user) {
         removeWindow('properties-window-overlay');
 
         try {
-            const html = await renderPropertiesWindow(videoId);
+            const html = renderPropertiesWindow(videoId);
             area.insertAdjacentHTML('beforeend', html);
             openCloseWindow('properties-window', 'properties-window-overlay', 'btn-close-properties');
         } catch (err) {
@@ -364,41 +364,15 @@ export async function initActiveWindow(user) {
 
         const videoList = getContainer('video-grid');
         await setupDeleteVideo({
-            token: user.accessToken,
             id: videoId,
             onSuccess: async () => {
-                if (videoList) await renderVideoList(videoList, user.accessToken, getFilterState());
+                if (videoList) await renderVideoList(videoList, getFilterState());
             },
         });
     });
 }
 
-export async function initWindow(btnOpenId, windowId, overlayId) {
-    const openIds = Array.isArray(btnOpenId) ? btnOpenId : [btnOpenId];
-
-    const area = getContainer('app');
-    const openBtns = openIds.map(i => getContainer(i)).filter(Boolean);
-    const windowEl = getContainer(windowId);
-    const overlay = getContainer(overlayId);
-
-    if (!area || !windowEl || !overlay || openBtns.length === 0) return;
-
-    area.addEventListener('click', (event) => {
-        const clickedButton = event.target.closest('button');
-        const trigger = openBtns.find((btn) => btn === event.target || btn === clickedButton);
-        if (!trigger) return;
-
-        event.preventDefault();
-        openModal(windowEl, overlay);
-    }, { signal: pageSignal() });
-
-    overlay.addEventListener('click', (event) => {
-        event.preventDefault();
-        closeModal(windowEl);
-    });
-}
-
-export async function initDropdown(btnId, windowId, overlayId) {
+export function initDropdown(btnId, windowId, overlayId) {
 
     const btn = getContainer(btnId);
     const dropdown = getContainer(windowId);
@@ -432,7 +406,7 @@ export async function initDropdown(btnId, windowId, overlayId) {
     }, { signal: pageSignal() });
 }
 
-export async function initBoard(btnId, windowId, overlayId) {
+export function initBoard(btnId, windowId, overlayId) {
     const btn = getContainer(btnId);
     const board = getContainer(windowId);
     const overlay = getContainer(overlayId);

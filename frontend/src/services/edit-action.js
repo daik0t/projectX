@@ -6,7 +6,7 @@ import { renderVideoList } from "./render-video-list";
 import { getFilterState } from "./filter";
 import { closeModal } from "../lib/modal";
 
-export async function editVideo(token, currentVideoId) {
+export async function editVideo(currentVideoId) {
     const form = getContainer("edit-window-form");
     if (!form) return;
 
@@ -29,7 +29,7 @@ export async function editVideo(token, currentVideoId) {
         btn.disabled = true;
 
         try {
-            await updateVideoTags(token, currentVideoId, selectedTags.map(tag => tag.id));
+            await updateVideoTags(currentVideoId, selectedTags.map(tag => tag.id));
 
             const existing = getMetadata(currentVideoId);
             if (existing) {
@@ -45,7 +45,7 @@ export async function editVideo(token, currentVideoId) {
             if (editWindow) closeModal(editWindow);
 
             const grid = getContainer('video-grid');
-            if (grid) await renderVideoList(grid, token, getFilterState());
+            if (grid) await renderVideoList(grid, getFilterState());
         } catch (err) {
             console.error(err);
             showToast('Ошибка при сохранении: ' + err.message, 'error');

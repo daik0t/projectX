@@ -1,6 +1,6 @@
 import { forgotPasswordFormRender, initForgotPasswordForm } from "../components/forgotPasswordForm";
 
-export async function renderForgotPassword() {
+export function renderForgotPassword() {
     const container = document.getElementById("app");
 
     container.innerHTML = `

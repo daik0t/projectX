@@ -1,6 +1,6 @@
 import { renderAuthPage } from "./authPage";
 
-export async function renderLogin() {
+export function renderLogin() {
     const error = new URLSearchParams(window.location.search).get("error");
 
     renderAuthPage({

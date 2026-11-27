@@ -2,8 +2,6 @@ import {
     getSession,
     saveSession,
     clearSession,
-    isSessionExpired,
-    getAuthHeader,
     getJwtExpiresAt,
 } from "./session";
 import { me } from "../api/auth";
@@ -38,13 +36,3 @@ export async function saveAuth({ accessToken, tokenType, expiresIn, expiresAt, u
 export function getAuth() {
     return getSession();
 }
-
-export function isTokenExpired(skewMs) {
-    return isSessionExpired(skewMs);
-}
-
-export function clearAuth() {
-    clearSession();
-}
-
-export { getAuthHeader };

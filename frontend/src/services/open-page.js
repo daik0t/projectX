@@ -1,7 +1,7 @@
-import { navigate } from "../routers";
+import { navigate } from "../lib/navigation";
 import { getContainer } from "./dom";
 
-export async function openPage(btnOpenId, nav){
+export function openPage(btnOpenId, nav){
     const btn = getContainer(btnOpenId)
     if (!btn) return;
     btn.addEventListener('click', (event) => {

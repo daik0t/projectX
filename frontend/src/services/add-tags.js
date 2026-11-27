@@ -92,7 +92,7 @@ export function initTagsList(root, { onCreateTag, onChange } = {}) {
     return { getSelected, appendTag, showInput, hideInput };
 }
 
-export function initSettingsTagsDelete(token) {
+export function initSettingsTagsDelete() {
     const deleteBtn = document.getElementById('delete-tags');
     if (!deleteBtn) return;
 
@@ -116,7 +116,7 @@ export function initSettingsTagsDelete(token) {
 
         try {
             const ids = checkedBoxes.map(cb => cb.value);
-            const results = await Promise.allSettled(ids.map(id => deleteTag(token, id)));
+            const results = await Promise.allSettled(ids.map(id => deleteTag(id)));
 
             results.forEach((result, index) => {
                 if (result.status === 'fulfilled') {

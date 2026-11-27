@@ -118,7 +118,7 @@ function renderSidebarTags(tags, videos) {
     }
 }
 
-function setupDragDelete(user) {
+function setupDragDelete() {
     const grid = getContainer('video-grid');
     const trash = getContainer('trash');
     if (!grid || !trash) return;
@@ -170,12 +170,11 @@ function setupDragDelete(user) {
         card.classList.add('dragging');
 
         await setupDeleteVideo({
-            token: user.accessToken,
             id,
             onSuccess: async () => {
                 showToast('Видео удалено');
                 if (grid.isConnected) {
-                    await renderVideoList(grid, user.accessToken, getFilterState());
+                    await renderVideoList(grid, getFilterState());
                 }
             },
         });
@@ -189,29 +188,29 @@ function setupDragDelete(user) {
     }, { signal });
 }
 
-export async function initMainEvents(user, profile = null, tags = []) {
+export async function initMainEvents(profile = null, tags = []) {
 
     const videoList = getContainer('video-grid');
     const signal = pageSignal();
 
     setupBreadcrumb(profile, tags);
-    setupDragDelete(user);
+    setupDragDelete();
 
     if (videoList) {
-        initFilter({ container: videoList, token: user.accessToken });
+        initFilter({ container: videoList });
 
         videoList.addEventListener('video-list:loaded', (event) => {
             renderSidebarTags(tags, event.detail?.videos ?? []);
         }, { signal });
 
-        await renderVideoList(videoList, user.accessToken, getFilterState());
+        await renderVideoList(videoList, getFilterState());
     }
 
     if (signal.aborted) return;
 
-    initActiveWindow(user)
-    await initBtnWindow(["btn-add","btn-action-add"], "add-window", "add-window-overlay", ["btn-cancel", "btn-close"])
-    await initDropdown("btn-filter", "place-tags-filter", "place-tags-filter-overlay")
+    initActiveWindow()
+    initBtnWindow(["btn-add","btn-action-add"], "add-window", "add-window-overlay", ["btn-cancel", "btn-close"])
+    initDropdown("btn-filter", "place-tags-filter", "place-tags-filter-overlay")
     initBoard("btn-home", "home-board", "home-board-overlay")
 
     if (signal.aborted) return;
@@ -219,10 +218,9 @@ export async function initMainEvents(user, profile = null, tags = []) {
     const btn = getContainer("btn-exit")
     btn?.addEventListener('click', logout)
 
-    await setupAddVideo({
-    token: user.accessToken,
+    setupAddVideo({
     onSuccess: async () => {
-        if (videoList) await renderVideoList(videoList, user.accessToken, getFilterState());
+        if (videoList) await renderVideoList(videoList, getFilterState());
     }
     });
 
@@ -237,17 +235,15 @@ export async function initMainEvents(user, profile = null, tags = []) {
         bindDropdownFilter();
     }
 
-    await openPage("btn-explorer", "/")
-    await openPage("btn-setting", "/settings")
+    openPage("btn-explorer", "/")
+    openPage("btn-setting", "/settings")
 }
 
 export async function initSettingEvents() {
     const signal = pageSignal();
-    const user = getAuth();
-    const token = user?.accessToken;
 
-    await openPage("btn-close-settings", "/");
-    await openPage("btn-explorer", "/");
+    openPage("btn-close-settings", "/");
+    openPage("btn-explorer", "/");
 
     if (signal.aborted) return;
 
@@ -276,17 +272,12 @@ export async function initSettingEvents() {
         next.click();
     }, { signal });
 
-    await openDefaultSettingsTab(token);
+    await openDefaultSettingsTab();
 }
 
-async function onSettingsTabClick(e) {
-    const tab = e.target.closest("#tab-list .tab");
-    if (!tab) return;
-
+async function activateSettingsTab(tab) {
     const infoPlace = document.getElementById("information-place-settings");
     if (!infoPlace) return;
-
-    e.preventDefault();
 
     document.querySelectorAll("#tab-list .tab").forEach((button) => {
         const isActive = button === tab;
@@ -294,26 +285,24 @@ async function onSettingsTabClick(e) {
         button.setAttribute("aria-selected", String(isActive));
     });
 
-    const token = getAuth()?.accessToken;
-
     try {
         if (tab.id === "tab-tags") {
-            const html = await renderSettingsTags(token);
+            const html = await renderSettingsTags();
             if (!infoPlace.isConnected) return;
             infoPlace.innerHTML = html;
 
             const placeTags = document.getElementById("place-tags-settings");
             if (placeTags) {
                 initTagsList(placeTags, {
-                    onCreateTag: (name) => createTag(token, { name }),
+                    onCreateTag: (name) => createTag({ name }),
                 });
-                initSettingsTagsDelete(token);
+                initSettingsTagsDelete();
             }
         } else if (tab.id === "tab-profile") {
-            const html = await renderSettingsProfile(token);
+            const data = await renderSettingsProfile();
             if (!infoPlace.isConnected) return;
-            infoPlace.innerHTML = html;
-            initSettingsProfile(token);
+            infoPlace.innerHTML = data.html;
+            initSettingsProfile(data.profile);
         }
     } catch (err) {
         if (!infoPlace.isConnected) return;
@@ -322,25 +311,18 @@ async function onSettingsTabClick(e) {
     }
 }
 
-async function openDefaultSettingsTab(token) {
-    const infoPlace = document.getElementById("information-place-settings");
+async function onSettingsTabClick(e) {
+    const tab = e.target.closest("#tab-list .tab");
+    if (!tab) return;
+
+    e.preventDefault();
+    await activateSettingsTab(tab);
+}
+
+async function openDefaultSettingsTab() {
     const tabList = document.getElementById("tab-list");
-    if (!infoPlace || !tabList) return;
+    if (!tabList) return;
 
-    tabList.querySelectorAll(".tab").forEach((button) => {
-        const isActive = button.id === "tab-profile";
-        button.classList.toggle("active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-    });
-
-    try {
-        const html = await renderSettingsProfile(token);
-        if (!infoPlace.isConnected) return;
-        infoPlace.innerHTML = html;
-        initSettingsProfile(token);
-    } catch (err) {
-        if (!infoPlace.isConnected) return;
-        console.error("[settings] profile render failed:", err);
-        infoPlace.innerHTML = `<p class="error">Ошибка: ${escapeHtml(err.message)}</p>`;
-    }
+    const profileTab = tabList.querySelector("#tab-profile");
+    if (profileTab) await activateSettingsTab(profileTab);
 }

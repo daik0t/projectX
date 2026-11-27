@@ -1,9 +1,9 @@
 import { tagsListRender } from "./tagsList";
 import { setupAddVideo } from "../services/add-video";
 
-export async function renderAddWindow(token, tags = null) {
+export async function renderAddWindow(tags = null) {
 
-    const tagsHtml = await tagsListRender(token, {}, 1, tags)
+    const tagsHtml = await tagsListRender({}, 1, tags)
 
     return `
         <div class="add-window-overlay" id="add-window-overlay" aria-hidden="true"></div>

@@ -1,6 +1,6 @@
 import { renderAuthPage } from "./authPage";
 
-export async function renderRegister(){
+export function renderRegister(){
 
     renderAuthPage({
         mode: "register",

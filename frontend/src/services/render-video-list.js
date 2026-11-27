@@ -24,7 +24,7 @@ function drawCards(container, videos) {
     announceRendered(container);
 }
 
-export async function renderVideoList(container, token, filter = {}) {
+export async function renderVideoList(container, filter = {}) {
     if (!container) {
         console.warn("renderVideoList: контейнер не передан");
         return;
@@ -38,7 +38,7 @@ export async function renderVideoList(container, token, filter = {}) {
     }
 
     try {
-        const allVideos = await getMyVideos(token);
+        const allVideos = await getMyVideos();
 
         if (requestId !== renderGeneration || !container.isConnected) return;
 
@@ -93,7 +93,7 @@ export async function renderVideoList(container, token, filter = {}) {
         `;
 
         container.querySelector(".retry-btn")?.addEventListener("click", () => {
-            renderVideoList(container, token, filter);
+            renderVideoList(container, filter);
         }, { once: true });
     }
 }
