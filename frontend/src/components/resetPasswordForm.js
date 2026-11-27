@@ -1,4 +1,5 @@
 import { resetPassword } from "../api/auth";
+import { showFormMessage, setFormLoading } from "../lib/form";
 
 export function resetPasswordFormRender({ token }) {
     if (!token) {
@@ -62,20 +63,20 @@ export function initResetPasswordForm({ token, onSuccess }) {
         const confirm = fd.get("confirm")?.toString() ?? "";
 
         if (newPassword.length < 8) {
-            showMessage(messageEl, "Пароль должен быть не короче 8 символов", "error");
+            showFormMessage(messageEl, "Пароль должен быть не короче 8 символов", "error");
             return;
         }
         if (newPassword !== confirm) {
-            showMessage(messageEl, "Пароли не совпадают", "error");
+            showFormMessage(messageEl, "Пароли не совпадают", "error");
             return;
         }
 
-        setLoading(btn, true);
-        showMessage(messageEl, "", null);
+        setFormLoading(btn, true, "Сохранение...", "Сохранить пароль");
+        showFormMessage(messageEl, "", null);
 
         try {
             const res = await resetPassword({ token, newPassword });
-            showMessage(
+            showFormMessage(
                 messageEl,
                 res?.message ?? "Пароль изменён. Перенаправляем на вход…",
                 "success"
@@ -83,31 +84,14 @@ export function initResetPasswordForm({ token, onSuccess }) {
             form.reset();
             setTimeout(() => onSuccess?.(), 1500);
         } catch (err) {
-            showMessage(
+            showFormMessage(
                 messageEl,
                 err.message ?? "Не удалось сбросить пароль. Возможно, ссылка истекла.",
                 "error"
             );
         } finally {
-            setLoading(btn, false);
+            setFormLoading(btn, false, "Сохранение...", "Сохранить пароль");
         }
     });
 }
 
-function showMessage(el, text, type) {
-    if (!el) return;
-    if (!text) {
-        el.hidden = true;
-        el.textContent = "";
-        return;
-    }
-    el.hidden = false;
-    el.textContent = text;
-    el.dataset.type = type;
-}
-
-function setLoading(btn, isLoading) {
-    if (!btn) return;
-    btn.disabled = isLoading;
-    btn.textContent = isLoading ? "Сохранение..." : "Сохранить пароль";
-}

@@ -4,6 +4,7 @@ import { fetchVideoMetadata, parseVideoUrl, saveMetadata } from "./video-storage
 import { showToast } from "../lib/ui";
 import { closeModal } from "../lib/modal";
 import { updateVideoCard } from "../components/videoCard";
+import { collectSelectedTags } from "../lib/tags";
 
 async function hydrateMetadata(video, url, tags) {
     try {
@@ -47,12 +48,7 @@ export function setupAddVideo({ onSuccess } = {}) {
             return;
         }
 
-        const selectedTags = [
-            ...tagsList.querySelectorAll('input[name="tags"]:checked'),
-        ].map((cb) => ({
-            id: cb.value,
-            name: cb.closest('.tag-item')?.querySelector('.tag-button')?.textContent?.trim() || cb.value,
-        }));
+        const selectedTags = collectSelectedTags(tagsList);
 
         const originalText = submitBtn.textContent;
         submitBtn.textContent = "Добавление...";

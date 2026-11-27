@@ -2,6 +2,11 @@ import { getCurrentUserId } from "./session";
 import { OEMBED_PROXY_URL } from "../lib/config";
 
 const STORAGE_KEY = "yt_metadata";
+const METADATA_FAILURE_TTL_MS = 10 * 60 * 1000;
+
+let cachedStorageKey = null;
+let cachedData = null;
+const metadataFailures = new Map();
 
 
 function storageKey() {
@@ -9,19 +14,46 @@ function storageKey() {
 }
 
 function loadCache() {
+    const key = storageKey();
+    if (cachedStorageKey === key && cachedData) return cachedData;
+
     try {
-        return JSON.parse(localStorage.getItem(storageKey())) || {};
+        const parsed = JSON.parse(localStorage.getItem(key)) || {};
+        cachedStorageKey = key;
+        cachedData = parsed;
+        return parsed;
     } catch {
-        return {};
+        cachedStorageKey = key;
+        cachedData = {};
+        return cachedData;
     }
 }
 
 function saveCache(cache) {
+    cachedStorageKey = storageKey();
+    cachedData = cache;
+
     try {
-        localStorage.setItem(storageKey(), JSON.stringify(cache));
+        localStorage.setItem(cachedStorageKey, JSON.stringify(cache));
     } catch (e) {
         console.error("localStorage save failed", e);
     }
+}
+
+function hasRecentMetadataFailure(url) {
+    const failedAt = metadataFailures.get(url);
+    if (!failedAt) return false;
+
+    if (Date.now() - failedAt > METADATA_FAILURE_TTL_MS) {
+        metadataFailures.delete(url);
+        return false;
+    }
+
+    return true;
+}
+
+function rememberMetadataFailure(url) {
+    metadataFailures.set(url, Date.now());
 }
 
 function normalizeTags(tags) {
@@ -120,6 +152,10 @@ export async function clearAllMetadata() {
     } catch (e) {
         console.error("localStorage clear failed", e);
     }
+
+    cachedStorageKey = null;
+    cachedData = null;
+    metadataFailures.clear();
 }
 
 export function parseVideoUrl(rawUrl) {
@@ -198,7 +234,9 @@ export async function fetchVideoMetadata(rawUrl) {
     }
 
     const build = OEMBED_PROVIDERS[parsed.platform];
-    const endpoint = build ? build(parsed) : buildProxyUrl(parsed);
+    const endpoint = OEMBED_PROXY_URL
+        ? buildProxyUrl(parsed)
+        : (build ? build(parsed) : null);
 
     if (!endpoint) {
         return { meta: null, parsed, reason: "unsupported" };
@@ -234,11 +272,14 @@ export async function ensureVideoMetadata(video) {
     // Если в кэше уже есть полноценные метаданные, oEmbed повторно не нужен.
     if (cached?.title) return cached;
 
+    if (hasRecentMetadataFailure(url)) return cached;
+
     let result;
     try {
         result = await fetchVideoMetadata(url);
     } catch (err) {
         console.warn(`[video-storage] некорректная ссылка ${url}:`, err.message);
+        rememberMetadataFailure(url);
         return cached;
     }
 
@@ -246,9 +287,11 @@ export async function ensureVideoMetadata(video) {
         if (result.reason !== "unsupported") {
             console.warn(`[video-storage] метаданные недоступны для ${url}: ${result.reason}`);
         }
+        rememberMetadataFailure(url);
         return cached;
     }
 
+    metadataFailures.delete(url);
     saveMetadata(id, result.meta, url, currentTags);
     return result.meta;
 }

@@ -25,7 +25,8 @@ document.addEventListener('click', (e) => {
         e.metaKey ||
         e.ctrlKey ||
         e.shiftKey ||
-        e.altKey
+        e.altKey ||
+        !(e.target instanceof Element)
     ) return;
 
     const link = e.target.closest('a[data-link]');

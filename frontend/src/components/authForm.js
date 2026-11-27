@@ -1,4 +1,5 @@
 import { registerUser, loginUser } from '../api/auth.js';
+import { showFormMessage, setFormLoading } from '../lib/form.js';
 
 const DISPLAY_NAME_RE = /^[a-zA-Z0-9_]+$/;
 
@@ -93,12 +94,12 @@ export function initAuthForm(mode, onSuccess) {
         const password = formData.get('password')?.toString() ?? '';
 
         if (!email || !password) {
-            showMessage(messageEl, 'Заполните все поля', 'error');
+            showFormMessage(messageEl, 'Заполните все поля', 'error');
             return;
         }
 
         if (mode === 'register' && password.length < 8) {
-            showMessage(messageEl, 'Пароль должен быть не короче 8 символов', 'error');
+            showFormMessage(messageEl, 'Пароль должен быть не короче 8 символов', 'error');
             return;
         }
 
@@ -106,7 +107,7 @@ export function initAuthForm(mode, onSuccess) {
         if (mode === 'register') {
             const displayName = formData.get('displayName')?.toString().trim() ?? '';
             if (displayName.length < 3 || displayName.length > 30 || !DISPLAY_NAME_RE.test(displayName)) {
-                showMessage(messageEl, 'Имя: 3–30 символов, латиница, цифры и _', 'error');
+                showFormMessage(messageEl, 'Имя: 3–30 символов, латиница, цифры и _', 'error');
                 return;
             }
             payload = { displayName, email, password };
@@ -114,8 +115,8 @@ export function initAuthForm(mode, onSuccess) {
             payload = { email, password };
         }
 
-        setLoading(submitBtn, true);
-        showMessage(messageEl, '', null);
+        setFormLoading(submitBtn, true, 'Отправка...', 'Подтвердить');
+        showFormMessage(messageEl, '', null);
 
         try {
             const fn = mode === 'register' ? registerUser : loginUser;
@@ -128,27 +129,9 @@ export function initAuthForm(mode, onSuccess) {
                 ? Object.values(error.details)[0]
                 : null;
 
-            showMessage(messageEl, fieldError || error.message, 'error');
+            showFormMessage(messageEl, fieldError || error.message, 'error');
         } finally {
-            setLoading(submitBtn, false);
+            setFormLoading(submitBtn, false, 'Отправка...', 'Подтвердить');
         }
     });
-}
-
-function showMessage(el, text, type) {
-    if (!el) return;
-    if (!text) {
-        el.hidden = true;
-        el.textContent = '';
-        return;
-    }
-    el.hidden = false;
-    el.textContent = text;
-    el.dataset.type = type;
-}
-
-function setLoading(btn, isLoading) {
-    if (!btn) return;
-    btn.disabled = isLoading;
-    btn.textContent = isLoading ? 'Отправка...' : 'Подтвердить';
 }

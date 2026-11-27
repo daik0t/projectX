@@ -1,12 +1,12 @@
 import { getContainer } from "./dom";
-import { initActiveWindow, initBtnWindow, initDropdown , initBoard} from "./init-windows";
+import { initBtnWindow, initDropdown, initBoard } from "./init-windows";
+import { initActiveWindow } from "./video-actions";
 import { renderVideoList } from "./render-video-list"
 import { getAuth } from "../services/auth-storage"
 import { logout } from "../services/auth-actions"
 import { setupAddVideo } from "./add-video";
 import { openPage } from "./open-page";
-import { renderSettingsTags } from "../components/settingsTags";
-import { initSettingsTagsDelete, initTagsList } from "./add-tags";
+import { initTagsList } from "./add-tags";
 import { createTag } from "../api/video";
 import {
     initFilter,
@@ -18,7 +18,6 @@ import {
     syncUI,
 } from "./filter";
 import { bindDropdownFilter } from "../components/dropdownFilter";
-import { renderSettingsProfile, initSettingsProfile } from "../components/settingsProfile";
 import { setupDeleteVideo } from "./delete-video";
 import { escapeHtml } from "../lib/html";
 import { buildBreadcrumb } from "../lib/breadcrumb";
@@ -239,90 +238,4 @@ export async function initMainEvents(profile = null, tags = []) {
     openPage("btn-setting", "/settings")
 }
 
-export async function initSettingEvents() {
-    const signal = pageSignal();
 
-    openPage("btn-close-settings", "/");
-    openPage("btn-explorer", "/");
-
-    if (signal.aborted) return;
-
-    initBoard("btn-home", "home-board", "home-board-overlay");
-
-    getContainer("btn-exit")?.addEventListener("click", logout);
-
-    if (!document.__settingsBound) {
-        document.__settingsBound = true;
-        document.addEventListener("click", onSettingsTabClick);
-    }
-
-    // Клавиатурная навигация по вкладкам.
-    const tabList = document.getElementById("tab-list");
-    tabList?.addEventListener("keydown", (event) => {
-        if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-
-        const tabs = [...tabList.querySelectorAll('[role="tab"]')];
-        const index = tabs.indexOf(document.activeElement);
-        if (index === -1) return;
-
-        event.preventDefault();
-        const offset = event.key === "ArrowRight" ? 1 : -1;
-        const next = tabs[(index + offset + tabs.length) % tabs.length];
-        next.focus();
-        next.click();
-    }, { signal });
-
-    await openDefaultSettingsTab();
-}
-
-async function activateSettingsTab(tab) {
-    const infoPlace = document.getElementById("information-place-settings");
-    if (!infoPlace) return;
-
-    document.querySelectorAll("#tab-list .tab").forEach((button) => {
-        const isActive = button === tab;
-        button.classList.toggle("active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-    });
-
-    try {
-        if (tab.id === "tab-tags") {
-            const html = await renderSettingsTags();
-            if (!infoPlace.isConnected) return;
-            infoPlace.innerHTML = html;
-
-            const placeTags = document.getElementById("place-tags-settings");
-            if (placeTags) {
-                initTagsList(placeTags, {
-                    onCreateTag: (name) => createTag({ name }),
-                });
-                initSettingsTagsDelete();
-            }
-        } else if (tab.id === "tab-profile") {
-            const data = await renderSettingsProfile();
-            if (!infoPlace.isConnected) return;
-            infoPlace.innerHTML = data.html;
-            initSettingsProfile(data.profile);
-        }
-    } catch (err) {
-        if (!infoPlace.isConnected) return;
-        console.error("[settings] tab render failed:", err);
-        infoPlace.innerHTML = `<p class="error">Ошибка: ${escapeHtml(err.message)}</p>`;
-    }
-}
-
-async function onSettingsTabClick(e) {
-    const tab = e.target.closest("#tab-list .tab");
-    if (!tab) return;
-
-    e.preventDefault();
-    await activateSettingsTab(tab);
-}
-
-async function openDefaultSettingsTab() {
-    const tabList = document.getElementById("tab-list");
-    if (!tabList) return;
-
-    const profileTab = tabList.querySelector("#tab-profile");
-    if (profileTab) await activateSettingsTab(profileTab);
-}

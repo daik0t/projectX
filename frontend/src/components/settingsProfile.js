@@ -1,6 +1,7 @@
 import { getAuth } from "../services/auth-storage";
 import { me, forgotPassword } from "../api/auth";
 import { escapeHtml } from "../lib/html";
+import { showFormMessage } from "../lib/form";
 
 export async function renderSettingsProfile() {
     let user = null;
@@ -76,24 +77,24 @@ export function initSettingsProfile(profile = null) {
         let email = profile?.email ?? getAuth()?.user?.email ?? null;
 
         if (!email) {
-            showProfileMessage(msg, "Не найден email пользователя", "error");
+            showFormMessage(msg, "Не найден email пользователя", "error");
             return;
         }
 
         const original = btn.textContent;
         btn.disabled = true;
         btn.textContent = "Отправка...";
-        showProfileMessage(msg, "", null);
+        showFormMessage(msg, "", null);
 
         try {
             const res = await forgotPassword({ email });
-            showProfileMessage(
+            showFormMessage(
                 msg,
                 res?.message ?? `Инструкции отправлены на ${email}`,
                 "success"
             );
         } catch (err) {
-            showProfileMessage(msg, err.message ?? "Не удалось отправить письмо", "error");
+            showFormMessage(msg, err.message ?? "Не удалось отправить письмо", "error");
         } finally {
             btn.disabled = false;
             btn.textContent = original;
@@ -101,14 +102,3 @@ export function initSettingsProfile(profile = null) {
     });
 }
 
-function showProfileMessage(el, text, type) {
-    if (!el) return;
-    if (!text) {
-        el.hidden = true;
-        el.textContent = "";
-        return;
-    }
-    el.hidden = false;
-    el.textContent = text;
-    el.dataset.type = type;
-}

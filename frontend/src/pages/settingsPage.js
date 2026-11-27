@@ -1,5 +1,5 @@
 import { renderHomeBoard } from "../components/homeBoard"
-import { initSettingEvents } from "../services/init-events"
+import { initSettingEvents } from "../services/settings-events"
 
 export async function renderSettingsPage() {
 

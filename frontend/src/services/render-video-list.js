@@ -82,7 +82,10 @@ export async function renderVideoList(container, filter = {}) {
         });
     } catch (error) {
         if (requestId !== renderGeneration || !container.isConnected) return;
-        if (error?.status === 401) return;
+        if (error?.status === 401) {
+            container.setAttribute("aria-busy", "false");
+            return;
+        }
 
         container.setAttribute("aria-busy", "false");
         container.innerHTML = `

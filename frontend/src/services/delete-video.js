@@ -7,8 +7,10 @@ export async function setupDeleteVideo({ id, onSuccess } = {}) {
         await deleteVideo(id);
         removeMetadata(id);
         if (onSuccess) await onSuccess();
+        return true;
     } catch (err) {
         console.error("[delete-video] failed:", err);
         showToast("Не удалось удалить видео: " + err.message, "error");
+        return false;
     }
 }

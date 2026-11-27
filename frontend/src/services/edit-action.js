@@ -5,6 +5,7 @@ import { showToast } from "../lib/ui";
 import { renderVideoList } from "./render-video-list";
 import { getFilterState } from "./filter";
 import { closeModal } from "../lib/modal";
+import { collectSelectedTags } from "../lib/tags";
 
 export async function editVideo(currentVideoId) {
     const form = getContainer("edit-window-form");
@@ -17,12 +18,7 @@ export async function editVideo(currentVideoId) {
         const tagsRoot = form.querySelector('.place-tags-edit');
         if (!btn || !tagsRoot) return;
 
-        const selectedTags = [
-            ...tagsRoot.querySelectorAll('input[name="tags"]:checked'),
-        ].map(cb => ({
-            id: cb.value,
-            name: cb.closest('.tag-item')?.querySelector('.tag-button')?.textContent?.trim() || cb.value,
-        }));
+        const selectedTags = collectSelectedTags(tagsRoot);
 
         const originalText = btn.textContent;
         btn.textContent = 'Сохранение...';
