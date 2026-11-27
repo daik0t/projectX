@@ -10,7 +10,7 @@ const channel = process.env.PLAYWRIGHT_CHANNEL
     ?? (process.platform === 'win32' && chromeCandidates.some(existsSync) ? 'chrome' : undefined);
 
 export default defineConfig({
-    testDir: './e2e',
+    testDir: './test/e2e',
     fullyParallel: false,
     workers: 1,
     reporter: [['list']],
