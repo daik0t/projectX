@@ -1,6 +1,8 @@
 package database.projectx.service;
 
 import database.projectx.repository.UserRepository;
+import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +26,8 @@ public class TagService {
     public List<TagDto> getAvailableTags(Long userId){
         return tagsRepository.findUserAndGlobalTags(userId).stream().map(TagDto::from).toList();
     }
-
+ 
+    @Transactional 
     public TagResult createOrGetTag(Long userId, String rawName) {
         String name = rawName.trim();
 

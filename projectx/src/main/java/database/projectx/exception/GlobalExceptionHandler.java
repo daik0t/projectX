@@ -9,11 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import io.swagger.v3.oas.annotations.Hidden;
+
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j 
+@Hidden 
 @RestControllerAdvice 
 public class GlobalExceptionHandler {
     
@@ -92,6 +96,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    //TODO: обработать 500 ошибку нормально дать больше деталей
     @ExceptionHandler (Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         ApiError error = new ApiError(

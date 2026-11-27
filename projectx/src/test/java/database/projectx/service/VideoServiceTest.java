@@ -129,8 +129,6 @@ public class VideoServiceTest {
 
     @Test
     void updateVideo_whenOwned_shouldReturnUpdatedUrl() {
-        // В сервисе нет save/@Transactional, поэтому проверяем только возвращаемый DTO:
-        // фактическое сохранение url сейчас не происходит (см. отчёт по багам).
         Videos video = video(1L, 100L, "https://youtube.com/old");
         when(videosRepository.findByIdAndUserId(100L, 1L)).thenReturn(Optional.of(video));
         when(videoTagRepository.findAllByVideoIdsWithTags(List.of(100L))).thenReturn(List.of());

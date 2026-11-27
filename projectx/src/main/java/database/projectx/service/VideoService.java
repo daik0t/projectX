@@ -45,6 +45,8 @@ public class VideoService {
         return VideoResponse.from(video, tags);
     }
 
+
+    @Transactional
     public VideoResponse updateVideo(Long userId, Long videoId, UpdateVideoRequest request){
         Videos video = videosRepository.findByIdAndUserId(videoId, userId).orElseThrow(() -> new ResourceNotFoundException("Видео не найдено " + videoId));
         video.setUrl(request.url());
@@ -89,6 +91,7 @@ public class VideoService {
         .toList();
     }
 
+    @Transactional 
     public VideoResponse createVideo(Long userId, CreateVideoRequest request){
         Set<Long> requestTagIds = request.tagIds() == null ? Set.of() : request.tagIds();
         List<Tags> availableTags = List.of();

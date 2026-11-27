@@ -38,7 +38,7 @@ public class RateLimitFilter extends OncePerRequestFilter{
                 long waitForRefillSeconds = probe.getNanosToWaitForRefill() / 1000000000;
                 response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 response.setHeader("Retry-After", String.valueOf(waitForRefillSeconds));
-                response.setContentType("application/json;character=UTF-8");
+                response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("""
                     {"status":429,"error":"Too Many Requests","message":"Too many requests. Try again later"}
                 """);
@@ -57,7 +57,7 @@ public class RateLimitFilter extends OncePerRequestFilter{
     }
 
     private String getClientIp(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwwrded-For");
+        String xfHeader = request.getHeader("X-Forwarded-For");
         if(xfHeader == null || xfHeader.isEmpty() || "unknown".equalsIgnoreCase(xfHeader)){
             return request.getRemoteAddr();
         }

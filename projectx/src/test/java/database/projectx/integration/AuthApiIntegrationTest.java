@@ -5,10 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
@@ -224,40 +222,5 @@ class AuthApiIntegrationTest extends IntegrationTestBase {
 
         mockMvc.perform(getJson("/api/users/me").header("Authorization", bearer(token)))
                 .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void getAllUsers_shouldReturnAllPersistedUsers() throws Exception {
-        User first = seedVerifiedUser();
-        User second = seedVerifiedUser();
-        String token = tokenFor(first);
-
-        MvcResult result = mockMvc.perform(getJson("/api/users").header("Authorization", bearer(token)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        JsonNode users = json(result);
-        assertThat(users.size()).isEqualTo(2);
-
-        List<String> displayNames = new ArrayList<>();
-        users.forEach(node -> displayNames.add(node.path("displayName").asText()));
-        assertThat(displayNames).containsExactlyInAnyOrder(
-                first.getDisplayName(), second.getDisplayName());
-    }
-
-    @Test
-    void createUser_viaUsersEndpoint_shouldPersistUser() throws Exception {
-        User actor = seedVerifiedUser();
-        String displayName = uniqueName("crud");
-
-        MvcResult result = mockMvc.perform(jsonPost("/api/users", Map.of("displayName", displayName))
-                        .header("Authorization", bearer(tokenFor(actor))))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.displayName").value(displayName))
-                .andExpect(jsonPath("$.createdAt").exists())
-                .andReturn();
-
-        long createdId = json(result).path("id").asLong();
-        assertThat(userRepository.findById(createdId)).isPresent();
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 
+//TODO: хэш мапа никогда не чистится надо исправить
 @Service 
 public class RateLimitService {
 

@@ -19,7 +19,8 @@ public interface VideoTagRepository extends JpaRepository<VideoTag, VideoTagId>{
     """)
     List<VideoTag> findAllByVideoIdsWithTags(@Param("videoIds") Collection<Long> videoIds);
 
-    @Modifying
+    //TODO: уникальный индекс lower(name) + user_id
+    @Modifying(flushAutomatically = true)
     @Query("DELETE FROM VideoTag vt WHERE vt.video.id = :videoId")
     void deleteByVideoId(@Param("videoId") Long videoId);
 }

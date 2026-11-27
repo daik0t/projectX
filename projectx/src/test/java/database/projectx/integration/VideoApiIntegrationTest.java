@@ -260,10 +260,10 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
         mockMvc.perform(getJson("/api/videos/" + video.getId())
                         .header("Authorization", bearer(aliceToken)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.url").value("https://youtube.com/old"));
+                .andExpect(jsonPath("$.url").value("https://youtube.com/new"));
 
         assertThat(videosRepository.findById(video.getId()).orElseThrow().getUrl())
-                .isEqualTo("https://youtube.com/old");
+                .isEqualTo("https://youtube.com/new");
     }
 
     @Test
@@ -389,6 +389,7 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
      *
      * <p>BUG: удаление видео с тегами должно работать (204), сейчас — 500.</p>
      */
+    //TODO: понять в чем ошибка почему H2 не удаляет каскадом теги
     @Test
     void deleteVideo_withTags_currentImplementationReturnsServerError() throws Exception {
         Videos video = seedVideo(alice, "https://youtube.com/delete-tagged", aliceTag);
@@ -434,6 +435,7 @@ class VideoApiIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("$.size()").value(1));
 
         // Снимаем тег, иначе удаление видео упрётся в известный баг с video_tags.
+        //TODO: посмотреть что будет когда баг с удалением испрвится
         mockMvc.perform(jsonPut("/api/videos/" + videoId + "/tags", Map.of("tagIds", List.of()))
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk());
