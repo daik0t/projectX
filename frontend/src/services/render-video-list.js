@@ -1,7 +1,8 @@
 import { getMyVideos } from "../api/video";
 import { videoCardRender, updateVideoCard } from "../components/videoCard";
-import { ensureVideosMetadata } from "./video-storage";
+import { ensureVideosMetadata, applyVideoTags } from "./video-storage";
 import { escapeHtml } from "../lib/html";
+import { filterVideos, hasVideoTag } from "../lib/video-filter";
 
 let renderGeneration = 0;
 
@@ -23,7 +24,7 @@ function drawCards(container, videos) {
     announceRendered(container);
 }
 
-export async function renderVideoList(container, token, tags = []) {
+export async function renderVideoList(container, token, filter = {}) {
     if (!container) {
         console.warn("renderVideoList: контейнер не передан");
         return;
@@ -37,14 +38,20 @@ export async function renderVideoList(container, token, tags = []) {
     }
 
     try {
-        const hasFilter = Array.isArray(tags) && tags.length > 0;
-        const videos = hasFilter
-            ? await getMyVideos(token, tags)
-            : await getMyVideos(token);
+        const allVideos = await getMyVideos(token);
 
         if (requestId !== renderGeneration || !container.isConnected) return;
 
-        if (!videos || videos.length === 0) {
+        const videos = filterVideos(allVideos, filter);
+        const hasCategory = Boolean(filter?.categoryTagId)
+            && allVideos.some((video) => hasVideoTag(video, filter.categoryTagId));
+        const hasFilter = hasCategory || (filter?.filterTagIds?.length ?? 0) > 0;
+
+        container.dispatchEvent(new CustomEvent("video-list:loaded", {
+            detail: { videos: allVideos },
+        }));
+
+        if (videos.length === 0) {
             container.innerHTML = hasFilter
                 ? "<p>По выбранным тегам видео не найдены.</p>"
                 : "<p>У вас пока нет видео.</p>";
@@ -54,6 +61,7 @@ export async function renderVideoList(container, token, tags = []) {
         }
 
         drawCards(container, videos);
+        applyVideoTags(videos);
         container.setAttribute("aria-busy", "false");
 
         ensureVideosMetadata(videos, {
@@ -85,7 +93,7 @@ export async function renderVideoList(container, token, tags = []) {
         `;
 
         container.querySelector(".retry-btn")?.addEventListener("click", () => {
-            renderVideoList(container, token, tags);
+            renderVideoList(container, token, filter);
         }, { once: true });
     }
 }

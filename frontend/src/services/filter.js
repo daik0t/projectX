@@ -6,7 +6,6 @@ const state = {
     selectedTags: new Set(),
     appliedTags: new Set(),
     sidebarTagId: null,
-    activeSource: "dropdown",
 };
 
 export function initFilter({ container, token }) {
@@ -15,30 +14,31 @@ export function initFilter({ container, token }) {
     syncUI();
 }
 
-export function getSelectedTagIds() {
-    return Array.from(state.selectedTags);
-}
-
-export function getAppliedTagIds() {
-    if (state.activeSource === "sidebar") {
-        return state.sidebarTagId ? [state.sidebarTagId] : [];
-    }
-    return Array.from(state.appliedTags);
-}
-
 export function getSidebarTagId() {
     return state.sidebarTagId;
 }
 
+export function getFilterTagIds() {
+    return Array.from(state.appliedTags);
+}
+
+export function getFilterState() {
+    return {
+        categoryTagId: state.sidebarTagId,
+        filterTagIds: getFilterTagIds(),
+    };
+}
+
 export function commitFilter() {
     state.appliedTags = new Set(state.selectedTags);
-    state.activeSource = "dropdown";
     state.sidebarTagId = null;
     syncUI();
 }
 
-export function isTagSelected(id) {
-    return state.selectedTags.has(String(id));
+export function clearSidebarTag() {
+    if (!state.sidebarTagId) return;
+    state.sidebarTagId = null;
+    syncUI();
 }
 
 export function toggleTag(id) {
@@ -65,7 +65,6 @@ export function resetFilter() {
     state.selectedTags.clear();
     state.appliedTags.clear();
     state.sidebarTagId = null;
-    state.activeSource = "dropdown";
     state.container = null;
     state.token = null;
 }
@@ -73,10 +72,10 @@ export function resetFilter() {
 export async function applyFilter() {
     if (!state.container || !state.token) return;
 
-    const ids = getSelectedTagIds();
     commitFilter();
 
-    await renderVideoList(state.container, state.token, ids);
+    const filter = getFilterState();
+    await renderVideoList(state.container, state.token, filter);
     window.dispatchEvent(new CustomEvent("filter:applied"));
 }
 
@@ -84,11 +83,10 @@ export async function applySidebarTag(tagId) {
     if (!state.container || !state.token) return;
 
     state.sidebarTagId = tagId ? String(tagId) : null;
-    state.activeSource = "sidebar";
-
     syncUI();
 
-    await renderVideoList(state.container, state.token, getAppliedTagIds());
+    const filter = getFilterState();
+    await renderVideoList(state.container, state.token, filter);
     window.dispatchEvent(new CustomEvent("filter:applied"));
 }
 

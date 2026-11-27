@@ -10,7 +10,7 @@ import { createTag } from "../api/video";
 import { showToast } from "../lib/ui";
 import { pageSignal } from "../lib/page-lifecycle";
 import { openModal, closeModal } from "../lib/modal";
-import { getAppliedTagIds } from "./filter";
+import { getFilterState } from "./filter";
 
 function onClick(id, handler) {
     const el = getContainer(id);
@@ -367,7 +367,7 @@ export async function initActiveWindow(user) {
             token: user.accessToken,
             id: videoId,
             onSuccess: async () => {
-                if (videoList) await renderVideoList(videoList, user.accessToken, getAppliedTagIds());
+                if (videoList) await renderVideoList(videoList, user.accessToken, getFilterState());
             },
         });
     });

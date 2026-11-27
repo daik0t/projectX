@@ -12,7 +12,10 @@ import {
     initFilter,
     bindSidePanelTags,
     applySidebarTag,
-    getAppliedTagIds,
+    clearSidebarTag,
+    getFilterState,
+    getSidebarTagId,
+    syncUI,
 } from "./filter";
 import { bindDropdownFilter } from "../components/dropdownFilter";
 import { renderSettingsProfile, initSettingsProfile } from "../components/settingsProfile";
@@ -22,61 +25,97 @@ import { buildBreadcrumb } from "../lib/breadcrumb";
 import { showToast } from "../lib/ui";
 import { pageSignal } from "../lib/page-lifecycle";
 
-/*function setupSearch() {
-    const input = getContainer('search-input');
-    const grid = getContainer('video-grid');
-    if (!input || !grid) return;
-
-    const apply = () => {
-        const query = input.value.trim().toLowerCase();
-        let visible = 0;
-
-        grid.querySelectorAll('.video-card:not(.skeleton-card)').forEach((card) => {
-            const title = (card.dataset.title || '').toLowerCase();
-            const match = !query || title.includes(query);
-            card.hidden = !match;
-            if (match) visible += 1;
-        });
-
-        const hasCards = Boolean(grid.querySelector('.video-card:not(.skeleton-card)'));
-        let empty = grid.querySelector('.search-empty');
-
-        if (query && hasCards && visible === 0) {
-            if (!empty) {
-                empty = document.createElement('p');
-                empty.className = 'search-empty';
-                empty.textContent = 'Ничего не найдено';
-                grid.appendChild(empty);
-            }
-        } else {
-            empty?.remove();
-        }
-    };
-
-    input.addEventListener('input', apply, { signal: pageSignal() });
-    grid.addEventListener('video-list:rendered', apply, { signal: pageSignal() });
-    apply();
-}*/
-
 function setupBreadcrumb(profile, tags) {
     const input = getContainer('raw-path');
     if (!input) return;
 
-    const search = getContainer('search-input');
-
     const update = () => {
+        const { categoryTagId, filterTagIds } = getFilterState();
         input.value = buildBreadcrumb({
             displayName: profile?.displayName ?? getAuth()?.user?.displayName,
             tags,
-            appliedTagIds: getAppliedTagIds(),
-            query: search?.value ?? '',
+            categoryTagId,
+            filterTagIds,
         });
         input.title = input.value;
     };
 
     window.addEventListener('filter:applied', update, { signal: pageSignal() });
-    search?.addEventListener('input', update, { signal: pageSignal() });
     update();
+}
+
+function renderSidebarTags(tags, videos) {
+    const tagsRoot = getContainer('tags-list');
+    const allButton = tagsRoot?.querySelector('#btn-all-tags');
+    if (!tagsRoot || !allButton) return;
+
+    const usedTags = new Map();
+
+    (videos ?? []).forEach((video) => {
+        (video?.tags ?? []).forEach((tag) => {
+            const id = String(tag?.id ?? tag);
+            if (!id) return;
+
+            const name = typeof tag === 'object'
+                ? String(tag.name ?? '')
+                : (tags.find((item) => String(item.id) === id)?.name ?? '');
+            usedTags.set(id, { id, name });
+        });
+    });
+
+    const ordered = [];
+    const seen = new Set();
+
+    (tags ?? []).forEach((tag) => {
+        const id = String(tag.id);
+        if (!usedTags.has(id) || seen.has(id)) return;
+        const used = usedTags.get(id);
+        ordered.push({ id, name: used.name || tag.name || id });
+        seen.add(id);
+    });
+
+    usedTags.forEach((tag) => {
+        if (seen.has(tag.id)) return;
+        ordered.push(tag);
+        seen.add(tag.id);
+
+        if (!tags.some((item) => String(item.id) === tag.id)) {
+            tags.push({ id: tag.id, name: tag.name || tag.id });
+        }
+    });
+
+    const categoryId = getSidebarTagId();
+    if (categoryId && !usedTags.has(String(categoryId))) {
+        clearSidebarTag();
+        window.dispatchEvent(new CustomEvent('filter:applied'));
+    }
+
+    const currentIds = [...tagsRoot.querySelectorAll('.video-tag[data-tag-id]')]
+        .map((button) => button.dataset.tagId);
+    const nextIds = ordered.map((tag) => tag.id);
+    const sameButtons = currentIds.length === nextIds.length
+        && currentIds.every((id, index) => id === nextIds[index]);
+
+    if (sameButtons) {
+        syncUI(tagsRoot);
+        return;
+    }
+
+    const hadFocus = tagsRoot.contains(document.activeElement);
+    tagsRoot.querySelectorAll('.video-tag[data-tag-id]').forEach((button) => button.remove());
+
+    allButton.insertAdjacentHTML('afterend', ordered.map((tag) => `
+        <button class="video-tag" type="button"
+            data-tag-id="${escapeHtml(tag.id)}"
+            aria-pressed="false">>${escapeHtml(tag.name)}</button>
+    `).join(''));
+
+    bindSidePanelTags(tagsRoot);
+    syncUI(tagsRoot);
+
+    if (hadFocus) {
+        tagsRoot.querySelector('.video-tag.active')?.focus({ preventScroll: true });
+    }
 }
 
 function setupDragDelete(user) {
@@ -136,7 +175,7 @@ function setupDragDelete(user) {
             onSuccess: async () => {
                 showToast('Видео удалено');
                 if (grid.isConnected) {
-                    await renderVideoList(grid, user.accessToken, getAppliedTagIds());
+                    await renderVideoList(grid, user.accessToken, getFilterState());
                 }
             },
         });
@@ -153,18 +192,29 @@ function setupDragDelete(user) {
 export async function initMainEvents(user, profile = null, tags = []) {
 
     const videoList = getContainer('video-grid');
+    const signal = pageSignal();
 
     setupBreadcrumb(profile, tags);
     setupDragDelete(user);
 
     if (videoList) {
-        await renderVideoList(videoList, user.accessToken, getAppliedTagIds());
+        initFilter({ container: videoList, token: user.accessToken });
+
+        videoList.addEventListener('video-list:loaded', (event) => {
+            renderSidebarTags(tags, event.detail?.videos ?? []);
+        }, { signal });
+
+        await renderVideoList(videoList, user.accessToken, getFilterState());
     }
+
+    if (signal.aborted) return;
 
     initActiveWindow(user)
     await initBtnWindow(["btn-add","btn-action-add"], "add-window", "add-window-overlay", ["btn-cancel", "btn-close"])
     await initDropdown("btn-filter", "place-tags-filter", "place-tags-filter-overlay")
     initBoard("btn-home", "home-board", "home-board-overlay")
+
+    if (signal.aborted) return;
 
     const btn = getContainer("btn-exit")
     btn?.addEventListener('click', logout)
@@ -172,19 +222,16 @@ export async function initMainEvents(user, profile = null, tags = []) {
     await setupAddVideo({
     token: user.accessToken,
     onSuccess: async () => {
-        if (videoList) await renderVideoList(videoList, user.accessToken, getAppliedTagIds());
+        if (videoList) await renderVideoList(videoList, user.accessToken, getFilterState());
     }
     });
 
-    const videosContainer = getContainer("video-grid");
-    initFilter({ container: videosContainer, token: user.accessToken });
-    bindSidePanelTags();
-    //setupSearch();
+    if (signal.aborted) return;
 
     const allTagsBtn = getContainer("btn-all-tags");
     allTagsBtn?.addEventListener('click', async () => {
         await applySidebarTag(null);
-    }, { signal: pageSignal() })
+    }, { signal })
 
     if (getContainer("place-tags-filter")) {
         bindDropdownFilter();
@@ -195,11 +242,14 @@ export async function initMainEvents(user, profile = null, tags = []) {
 }
 
 export async function initSettingEvents() {
-    const user = await getAuth();
+    const signal = pageSignal();
+    const user = getAuth();
     const token = user?.accessToken;
 
     await openPage("btn-close-settings", "/");
     await openPage("btn-explorer", "/");
+
+    if (signal.aborted) return;
 
     initBoard("btn-home", "home-board", "home-board-overlay");
 
@@ -224,7 +274,7 @@ export async function initSettingEvents() {
         const next = tabs[(index + offset + tabs.length) % tabs.length];
         next.focus();
         next.click();
-    }, { signal: pageSignal() });
+    }, { signal });
 
     await openDefaultSettingsTab(token);
 }
@@ -248,7 +298,9 @@ async function onSettingsTabClick(e) {
 
     try {
         if (tab.id === "tab-tags") {
-            infoPlace.innerHTML = await renderSettingsTags(token);
+            const html = await renderSettingsTags(token);
+            if (!infoPlace.isConnected) return;
+            infoPlace.innerHTML = html;
 
             const placeTags = document.getElementById("place-tags-settings");
             if (placeTags) {
@@ -258,10 +310,13 @@ async function onSettingsTabClick(e) {
                 initSettingsTagsDelete(token);
             }
         } else if (tab.id === "tab-profile") {
-            infoPlace.innerHTML = await renderSettingsProfile(token);
+            const html = await renderSettingsProfile(token);
+            if (!infoPlace.isConnected) return;
+            infoPlace.innerHTML = html;
             initSettingsProfile(token);
         }
     } catch (err) {
+        if (!infoPlace.isConnected) return;
         console.error("[settings] tab render failed:", err);
         infoPlace.innerHTML = `<p class="error">Ошибка: ${escapeHtml(err.message)}</p>`;
     }
@@ -279,9 +334,12 @@ async function openDefaultSettingsTab(token) {
     });
 
     try {
-        infoPlace.innerHTML = await renderSettingsProfile(token);
+        const html = await renderSettingsProfile(token);
+        if (!infoPlace.isConnected) return;
+        infoPlace.innerHTML = html;
         initSettingsProfile(token);
     } catch (err) {
+        if (!infoPlace.isConnected) return;
         console.error("[settings] profile render failed:", err);
         infoPlace.innerHTML = `<p class="error">Ошибка: ${escapeHtml(err.message)}</p>`;
     }

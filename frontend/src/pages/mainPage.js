@@ -14,10 +14,13 @@ export async function renderMain() {
 
     const auth = getAuth()
     const token = auth?.accessToken
+    const container = document.getElementById('app')
 
     const [userH, tags] = await Promise.all([me(), getTags(token)])
 
-    const container = document.getElementById('app')
+    // Пока шли запросы, пользователь мог уйти на другую страницу.
+    if (!container || !container.isConnected) return
+
     const displayName = escapeHtml(userH?.displayName ?? 'Гость')
 
     container.innerHTML = `
@@ -47,8 +50,7 @@ export async function renderMain() {
                     </div>
                     <div class="title">>видео</div>
                     <div class="tags-list" id="tags-list">
-                        <button class="video-tag" id="btn-all-tags" type="button" aria-pressed="false">>все</button>
-                        <br>${tags.map(t => `<button class="video-tag" type="button" data-tag-id="${escapeHtml(t.id)}" aria-pressed="false">>${escapeHtml(t.name)}</button>`).join(`<br>`)}
+                        <button class="video-tag" id="btn-all-tags" type="button" aria-pressed="true">>все</button>
                     </div>
                 </aside>
                 <div class="video-grid" id="video-grid" aria-live="polite" aria-busy="false">
@@ -74,6 +76,8 @@ export async function renderMain() {
             </footer>
         </div>
     `
+
+    if (!container.isConnected) return
 
     initTagsList('add-window-form', {
         onCreateTag: (name) => createTag(token, { name }),

@@ -21,7 +21,10 @@ const routes = {
 
 const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 
+let routeGeneration = 0;
+
 export async function router() {
+    const generation = ++routeGeneration;
     const app = resetPage();
 
     // Не оставляем прокрутку предыдущей страницы.
@@ -32,9 +35,11 @@ export async function router() {
     if (isAuthCallback()) {
         try {
             await handleAuthCallback();
+            if (generation !== routeGeneration) return;
             history.replaceState({}, '', '/');
             path = '/';
         } catch (err) {
+            if (generation !== routeGeneration) return;
             history.replaceState(
                 {},
                 '',
@@ -88,6 +93,7 @@ export async function router() {
         try {
             await matchedRoute(params);
         } catch (error) {
+            if (generation !== routeGeneration) return;
             if (error?.status === 401) return;
 
             app.innerHTML = `

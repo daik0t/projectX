@@ -2,6 +2,9 @@ import { getContainer } from "./dom";
 import { updateVideoTags } from "../api/video";
 import { saveMetadata, getMetadata } from "./video-storage";
 import { showToast } from "../lib/ui";
+import { renderVideoList } from "./render-video-list";
+import { getFilterState } from "./filter";
+import { closeModal } from "../lib/modal";
 
 export async function editVideo(token, currentVideoId) {
     const form = getContainer("edit-window-form");
@@ -38,8 +41,11 @@ export async function editVideo(token, currentVideoId) {
                 );
             }
 
-            getContainer('edit-window')?.classList.remove('show');
-            getContainer('edit-window-overlay')?.classList.remove('show');
+            const editWindow = getContainer('edit-window');
+            if (editWindow) closeModal(editWindow);
+
+            const grid = getContainer('video-grid');
+            if (grid) await renderVideoList(grid, token, getFilterState());
         } catch (err) {
             console.error(err);
             showToast('Ошибка при сохранении: ' + err.message, 'error');

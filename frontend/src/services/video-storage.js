@@ -24,16 +24,80 @@ function saveCache(cache) {
     }
 }
 
+function normalizeTags(tags) {
+    if (!Array.isArray(tags)) return [];
+
+    return tags.map((tag) => {
+        if (tag && typeof tag === "object") {
+            return { id: tag.id, name: String(tag.name ?? "") };
+        }
+        return { id: tag, name: "" };
+    });
+}
+
+function sameTags(left, right) {
+    const a = normalizeTags(left);
+    const b = normalizeTags(right);
+
+    if (a.length !== b.length) return false;
+
+    return a.every((tag, index) => (
+        String(tag.id) === String(b[index].id) &&
+        tag.name === b[index].name
+    ));
+}
+
 export function saveMetadata(videoId, metadata, sourceUrl, tags) {
     const cache = loadCache();
     cache[videoId] = {
         ...metadata,
         id: videoId,
         url: sourceUrl,
-        tags,
+        tags: normalizeTags(tags),
         savedAt: Date.now(),
     };
     saveCache(cache);
+}
+
+/**
+ * Переносит актуальные теги из ответа API в локальный кэш метаданных.
+ * Кэш нужен окнам редактирования/свойств, которые не получают video.tags напрямую.
+ */
+export function applyVideoTags(videos) {
+    if (!Array.isArray(videos) || videos.length === 0) return;
+
+    const cache = loadCache();
+    let changed = false;
+
+    videos.forEach((video) => {
+        if (!video || video.id == null || !Array.isArray(video.tags)) return;
+
+        const id = video.id;
+        const tags = normalizeTags(video.tags);
+        const current = cache[id] ?? { id };
+
+        if (!Array.isArray(current.tags) || !sameTags(current.tags, tags)) {
+            current.tags = tags;
+            changed = true;
+        }
+
+        if (video.url && current.url !== video.url) {
+            current.url = video.url;
+            changed = true;
+        }
+
+        if (current.id == null) {
+            current.id = id;
+            changed = true;
+        }
+
+        if (!cache[id]) {
+            cache[id] = current;
+            changed = true;
+        }
+    });
+
+    if (changed) saveCache(cache);
 }
 
 export function getMetadata(videoId) {
@@ -158,26 +222,34 @@ export async function fetchVideoMetadata(rawUrl) {
 
 export async function ensureVideoMetadata(video) {
     const { id, url, tags = [] } = video;
+    const currentTags = normalizeTags(tags);
 
-    const cached = getMetadata(id);
-    if (cached) return cached;
+    let cached = getMetadata(id);
+
+    if (cached && !sameTags(cached.tags, currentTags)) {
+        saveMetadata(id, cached, cached.url ?? url, currentTags);
+        cached = { ...cached, tags: currentTags };
+    }
+
+    // Если в кэше уже есть полноценные метаданные, oEmbed повторно не нужен.
+    if (cached?.title) return cached;
 
     let result;
     try {
         result = await fetchVideoMetadata(url);
     } catch (err) {
         console.warn(`[video-storage] некорректная ссылка ${url}:`, err.message);
-        return null;
+        return cached;
     }
 
     if (!result.meta) {
         if (result.reason !== "unsupported") {
             console.warn(`[video-storage] метаданные недоступны для ${url}: ${result.reason}`);
         }
-        return null;
+        return cached;
     }
 
-    saveMetadata(id, result.meta, url, tags);
+    saveMetadata(id, result.meta, url, currentTags);
     return result.meta;
 }
 
